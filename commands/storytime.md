@@ -1,6 +1,5 @@
 ---
-name: storytime
-description: "This skill should be used when the user asks to \"storytime\", \"run storytime\", \"build a spec\", \"assemble a team\", \"persona discussion\", \"design a feature\", \"spec this out\", or wants to plan a feature through structured team conversation with domain-expert personas. Runs the full Storytime workflow: survey codebase, assemble persona team, run icebreaker, execute breakouts, and produce a plan with ASCII visual aids."
+description: Run a full Storytime session — persona-driven spec through structured team conversation
 argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
@@ -34,7 +33,10 @@ Launch an Explore agent to survey the codebase relevant to the problem.
 **Artifact scan:**
 3. Scan the entire repo for prior work artifacts — specs, docs, design
    records, agent definitions, team files, ADRs, RFCs, .kiro files, etc.
-   See `references/artifact-scan.md` for full scan targets and heuristics.
+   Scan targets: `specs/`, `docs/`, `.storytime/`, `.kiro/`, `agents.md`,
+   `AGENTS.md`, `agents/`, `**/*.adr.*`, `rfcs/`, `design/`, `CLAUDE.md`,
+   `.claude/`, `.cursor/`, `.github/**/*.md`. Skip: node_modules, vendor,
+   .git, dist, build, __pycache__.
 4. Classify each artifact: **team-like**, **spec-like**, **config-like**, or noise.
 5. Produce an **artifact inventory** as a checklist for the user:
    - Each item: checkbox, filename, short description (< 10 words if name isn't clear)
@@ -48,8 +50,8 @@ Launch an Explore agent to survey the codebase relevant to the problem.
 - "skip all" — cold start, no prior context
 - Direct instruction — "ignore all the kiro stuff", "keep all specs"
 
-Config-like artifacts (CLAUDE.md, .cursor rules) load silently.
-Team-like artifacts route to ASSEMBLE. Spec-like artifacts route to ICEBREAKER.
+Config-like artifacts load silently. Team-like route to ASSEMBLE.
+Spec-like route to ICEBREAKER.
 
 **Collapse rule:** If no artifacts are found, skip the inventory entirely.
 If only config-like artifacts exist, load them silently and move on.
@@ -95,8 +97,7 @@ and move on. Don't present a ceremony when the answer is obvious.
 - For each artifact, decide disposition:
   - **Keep hot** — fold into active session context
   - **Archive warm** — move to `specs/.storytime/archive/current/`
-  - **Rollup** — combine with related stale docs into a single rollup artifact
-    (see `references/artifact-tiers.md` for rollup format)
+  - **Rollup** — combine with related stale docs into a rollup artifact
   - **Send cold** — move to `specs/.storytime/archive/cold/`
   - **Skip** — not relevant, leave in place
 
@@ -194,8 +195,8 @@ Archive output goes in `specs/.storytime/archive/` with subdirectories:
 ## Additional Resources
 
 For detailed format specifications and scan targets, consult:
-- **`references/artifact-scan.md`** — Scan targets, classification, inventory presentation
-- **`references/artifact-tiers.md`** — Hot/warm/cold tiers, rollup format, archive structure
+- **`${CLAUDE_PLUGIN_ROOT}/skills/storytime/references/artifact-scan.md`** — Scan targets, classification, inventory presentation
+- **`${CLAUDE_PLUGIN_ROOT}/skills/storytime/references/artifact-tiers.md`** — Hot/warm/cold tiers, rollup format, archive structure
 - **`${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md`** — Events, skills, rules, automation levels
 - **`${CLAUDE_PLUGIN_ROOT}/docs/architecture.md`** — Runtime model and agent dispatch
 - **`${CLAUDE_PLUGIN_ROOT}/docs/historical-absorption.md`** — Archaeology and interface mapping
