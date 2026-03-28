@@ -21,8 +21,9 @@ The management action: $ARGUMENTS
 - Show each persona's session count and last active date
 
 ### hire / recruit <name> <archetype> <background>
-- Create a new persona file in `specs/.storytime/cohort/<name>.md`
-- Add to the roster with status: active
+- Create a new persona file: `specs/.storytime/cohort/<name>-<archetype>-<specialty>.md`
+  - Example: `raj-domain-dsp.md`, `mira-platform-asr.md`
+- Add to the roster with status: active, include the filename
 - Include: name, archetype, background, role, personality
 
 ### fire / release <name>
@@ -88,7 +89,7 @@ decisions_participated:
 ```markdown
 # Storytime Cohort Roster
 
-| Name | Archetype | Status | Since | Sessions | Last Active |
-|------|-----------|--------|-------|----------|-------------|
-| kim  | owner     | active | 2026-03-24 | 1   | 2026-03-24  |
+| Name | File                     | Archetype | Status | Since      | Sessions | Last Active |
+|------|--------------------------|-----------|--------|------------|----------|-------------|
+| Kim  | kim-owner-architect.md   | owner     | active | 2026-03-24 | 1        | 2026-03-24  |
 ```
