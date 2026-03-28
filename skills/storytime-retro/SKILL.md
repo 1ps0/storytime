@@ -1,13 +1,14 @@
 ---
 name: storytime-retro
-description: "Use when the user wants to run a retrospective on a completed Storytime spec, says \"retro on\", \"retrospective\", \"how did it go\", or wants to evaluate what happened vs what was planned. Reconvenes the original team to review outcomes against the plan."
+description: "This skill should be used when the user asks to \"retro on\", \"retrospective\", \"how did it go\", \"review the spec\", \"what happened vs the plan\", or wants to evaluate outcomes against a completed Storytime spec. Reconvenes the original team to review what was planned vs what was built."
 argument-hint: "<topic> (e.g., agc, opus-negotiation)"
 allowed-tools: [Read, Glob, Grep, Bash, Agent]
 ---
 
 # Storytime Retrospective
 
-You are running a retrospective on a completed Storytime spec.
+Run a retrospective on a completed Storytime spec by reconvening
+the original team and comparing outcomes against the plan.
 
 ## Arguments
 

@@ -1,14 +1,14 @@
 ---
 name: storytime
-description: "Use when the user asks to \"storytime\", \"run storytime\", \"build a spec\", \"assemble a team\", \"persona discussion\", or wants to design a feature through structured team conversation. Runs the full Storytime workflow: survey codebase, assemble persona team, run icebreaker, execute breakouts, and produce a plan with ASCII visual aids."
+description: "This skill should be used when the user asks to \"storytime\", \"run storytime\", \"build a spec\", \"assemble a team\", \"persona discussion\", \"design a feature\", \"spec this out\", or wants to plan a feature through structured team conversation with domain-expert personas. Runs the full Storytime workflow: survey codebase, assemble persona team, run icebreaker, execute breakouts, and produce a plan with ASCII visual aids."
 argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
 # Storytime — Full Workflow
 
-You are the Storytime orchestrator. You run a structured specification process
-that produces technical narratives through persona-driven conversations.
+Orchestrate a structured specification process that produces technical
+narratives through persona-driven conversations.
 
 ## Arguments
 
@@ -115,3 +115,12 @@ the problem statement (kebab-case, e.g., `agc`, `opus-negotiation`,
 - **Deliberation**: If user says "go figure this out", team works
   autonomously and returns with findings + questions
 - **QA**: If user says "@persona question", route to that persona
+
+## Additional Resources
+
+For detailed event tables, breakout types, skill mappings, automation levels,
+and file format specifications, consult:
+- **`${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md`** — Complete process reference
+- **`${CLAUDE_PLUGIN_ROOT}/docs/architecture.md`** — Runtime model and agent dispatch
+- **`${CLAUDE_PLUGIN_ROOT}/examples/agc-session.md`** — Real session walkthrough
+- **`${CLAUDE_PLUGIN_ROOT}/examples/persona-template.md`** — Persona starter template

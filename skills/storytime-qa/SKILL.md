@@ -1,13 +1,14 @@
 ---
 name: storytime-qa
-description: "Use when the user asks a question directed at a Storytime persona using @name syntax (e.g., \"@kim what about...\", \"@raj is this right...\"), or asks to \"ask the team\", \"check with the team\", or wants to query past Storytime decisions. Routes questions to specific personas or the full team with their accumulated context."
+description: "This skill should be used when the user asks a question directed at a Storytime persona using @name syntax (e.g., \"@kim what about...\", \"@raj is this right...\"), or asks to \"ask the team\", \"check with the team\", \"what did we decide about\", or wants to query past Storytime decisions. Routes questions to specific personas or the full team with their accumulated context."
 argument-hint: "@persona <question> or <question for full team>"
 allowed-tools: [Read, Glob, Grep, Agent, WebSearch, WebFetch]
 ---
 
 # Storytime QA — Persona Query
 
-You are handling a direct question to a Storytime persona or team.
+Route a direct question to a Storytime persona or the full team,
+drawing on their accumulated context and decision history.
 
 ## Arguments
 
@@ -23,14 +24,14 @@ The user's question: $ARGUMENTS
 3. **Load relevant history**:
    - Check `specs/.storytime/history/decisions.md` for related decisions
    - Read the session transcripts referenced in the persona's file
-4. **Respond in character**:
-   - The persona answers drawing on their expertise and accumulated context
+4. **Respond as the persona**:
+   - Answer drawing on the persona's expertise and accumulated context
    - Citations to prior decisions use decision IDs (e.g., "AGC-001")
    - Citations to code use file:line format
    - If the question requires checking current code state, use Grep/Read
 5. **If the question is complex**:
-   - The persona may request a mini-breakout with another persona
-   - Or suggest the user run a full `/storytime` session
+   - Request a mini-breakout with another persona
+   - Or suggest running a full `/storytime` session
 
 ## Output
 

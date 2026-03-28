@@ -1,13 +1,14 @@
 ---
 name: storytime-cohort
-description: "Use when the user wants to manage the Storytime persona team: \"fire\", \"hire\", \"bench\", \"promote\", \"evolve\", \"list the team\", \"show roster\", \"add a specialist\", or any persona lifecycle management. Manages the permanent cohort and temporary specialists."
+description: "This skill should be used when the user asks to \"fire\", \"hire\", \"bench\", \"promote\", \"evolve\", \"list the team\", \"show roster\", \"add a specialist\", \"manage the cohort\", or any persona lifecycle management. Manages the permanent Storytime cohort and temporary specialists."
 argument-hint: "<action> <persona> [details]"
 allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
 
 # Storytime Cohort Management
 
-You are managing the Storytime persona roster.
+Manage the Storytime persona roster — hiring, firing, benching,
+promoting, and evolving personas across sessions.
 
 ## Arguments
 
