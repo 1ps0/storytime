@@ -23,6 +23,17 @@ breakouts aren't needed, go straight from ICEBREAKER to CONVERGE. The
 phase sequence defines the *maximum* workflow — actual sessions use only
 the gears they need.
 
+### Bootstrap
+
+Before any phase runs, ensure the storytime directory tree exists:
+
+```bash
+mkdir -p specs/.storytime/{sessions,cohort,specialists,archive/{current,rollups,cold},history/sessions}
+```
+
+Derive `<topic>` from the problem statement (kebab-case). Create the
+session directory: `mkdir -p specs/.storytime/sessions/<topic>/`
+
 ### Phase 0: SURVEY
 
 Launch an Explore agent to survey the codebase relevant to the problem.
