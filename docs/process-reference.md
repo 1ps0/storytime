@@ -8,7 +8,7 @@ Complete reference for events, skills, rules, and file formats.
 
 | Event       | Participants    | Input              | Output             | Parallelizable |
 |-------------|-----------------|--------------------|--------------------|----------------|
-| SURVEY      | (system)        | problem + codebase | context summary    | no             |
+| SURVEY      | (system + user) | problem + codebase | survey.md + fingerprint | no        |
 | ASSEMBLE    | (system + user) | context + archetypes| team.md           | no             |
 | ICEBREAKER  | full team       | context + team     | icebreaker.md      | no             |
 | BREAKOUT    | sub-team (2-3)  | sub-question       | breakout-N.md      | **yes**        |
@@ -58,7 +58,7 @@ Post-delivery: QA (anytime), RETROSPECT (after implementation)
 1. SURVEY before ASSEMBLE
 2. ICEBREAKER before BREAKOUT or CONVERGE
 3. CONVERGE before REVIEW
-4. No event may be skipped
+4. Phases collapse when empty — never present ceremony for absent content
 5. Minimum 3 personas, maximum 7
 6. At least one OPERATOR archetype (always)
 7. Permanent cohort participates by default
@@ -73,6 +73,12 @@ Post-delivery: QA (anytime), RETROSPECT (after implementation)
 16. Persona files updated after every session
 17. Decision log is append-only
 18. Specialist contracts have explicit exit conditions
+19. Every phase writes its output — a run is a complete snapshot
+20. Prior runs are prior art — detect and present, never silently overwrite
+21. Every survey writes a coverage fingerprint (commit, paths, gaps, ratios)
+22. Effort uses CIU (Complexity Integration Units), never time estimates
+23. Rollups replace stale docs — originals go cold, rollup stays warm
+24. Archive artifacts must be git-committable and repo-local
 
 ## File Naming Conventions
 
@@ -91,6 +97,7 @@ Examples:
 ### Spec Files
 ```
 specs/<topic>/
+  survey.md                 (codebase context + artifact inventory + fingerprint)
   team.md
   icebreaker.md
   breakout-<subtopic>.md
@@ -118,6 +125,46 @@ Examples:
   OPUS-001
   RESAMPLE-003
 ```
+
+## Complexity Integration Units (CIU)
+
+Effort measurement for all scoped work — breakouts, roadmap items,
+success criteria, specialist contracts.
+
+| CIU | Complexity                    | Human Analog            |
+|-----|-------------------------------|-------------------------|
+| 1   | Single-file, single-concept   | Quick fix               |
+| 2   | Few files, one system         | Straightforward task    |
+| 3   | Multiple files, one system    | A morning's work        |
+| 5   | Cross-system, multiple owners | Solid day of work       |
+| 8   | Architectural, multi-system   | Multi-day effort        |
+| 13  | Foundational change           | Sprint-sized (MUST decompose) |
+| 21+ | Rewrite / new system          | Epic (MUST decompose)   |
+
+Rules: Always pair CIU with the human analog. CIU ≥ 13 must be
+broken into sub-items ≤ 5. Persona disagreement on CIU is signal.
+
+## Survey Coverage Fingerprint
+
+Every survey.md includes a fingerprint in its frontmatter:
+
+```yaml
+fingerprint:
+  commit: <sha>
+  branch: <branch>
+  paths_scanned: [cmd/**, pkg/**]
+  paths_skipped: [vendor/**]
+  paths_unvisited: [test/**]
+  files_examined: 23
+  files_total: 87
+  coverage_ratio: 0.26
+  artifacts_found: 8
+  artifacts_classified: {team: 2, spec: 4, config: 2}
+```
+
+On subsequent runs, compute the delta (commit drift + coverage gaps)
+and let the user decide: resurvey stale, extend to gaps, full resurvey,
+or trust prior.
 
 ## Automation Levels
 

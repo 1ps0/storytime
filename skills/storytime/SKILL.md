@@ -27,9 +27,14 @@ the gears they need.
 
 Launch an Explore agent to survey the codebase relevant to the problem.
 
+**Prior run detection:** Check if `specs/<topic>/` already exists. If it does,
+a prior storytime run produced output for this topic. That output enters the
+artifact scan as prior art — never silently overwrite it. The user decides
+whether to update, archive, or start fresh.
+
 **Codebase scan:**
 1. Identify existing code, patterns, dependencies, prior specs, constraints
-2. Produce a mental model of the problem space (do not write a file yet)
+2. Produce a mental model of the problem space
 
 **Artifact scan:**
 3. Scan the entire repo for prior work artifacts — specs, docs, design
@@ -50,6 +55,19 @@ Launch an Explore agent to survey the codebase relevant to the problem.
 
 Config-like artifacts (CLAUDE.md, .cursor rules) load silently.
 Team-like artifacts route to ASSEMBLE. Spec-like artifacts route to ICEBREAKER.
+
+**If a prior survey.md exists with a fingerprint**, compute the delta:
+- Commit drift: `git rev-list <prior-commit>..HEAD` — what changed?
+- Coverage gaps: what paths were unvisited last time?
+- Present the delta to the user: resurvey stale paths, extend to gaps,
+  full resurvey, or trust prior survey. See `references/survey-fingerprint.md`.
+
+**Write `specs/<topic>/survey.md`** with:
+- Codebase context summary
+- Artifact inventory (classifications and user dispositions)
+- **Coverage fingerprint** (REQUIRED): commit sha, branch, paths scanned,
+  paths skipped, paths unvisited, file counts, coverage ratio, artifact
+  counts by classification. Every survey writes a fingerprint, no exceptions.
 
 **Collapse rule:** If no artifacts are found, skip the inventory entirely.
 If only config-like artifacts exist, load them silently and move on.
@@ -115,6 +133,10 @@ review entirely — go straight to status quo and sub-problem identification.
 ### Phase 3: BREAKOUT (parallel when possible)
 
 For each sub-problem identified in the icebreaker:
+- Estimate **CIU** (Complexity Integration Units) per breakout — see
+  `references/complexity-units.md` for the scale. Use CIU to decide
+  whether to parallelize or serialize. Always pair the number with
+  its human-readable analog (e.g., "CIU 5 — solid day of work").
 - Assign 2-3 personas
 - Launch as a parallel sub-agent if independent
 - Each breakout can invoke skills mid-conversation:
@@ -123,6 +145,7 @@ For each sub-problem identified in the icebreaker:
   - DISCOVERY: Explore agent for code mapping
   - PROTOTYPE: Write draft code for illustration
 - Produce a recommendation
+- **Write `specs/<topic>/breakout-<subtopic>.md`** for each breakout
 
 **Collapse rule:** If the problem is singular (no sub-problems identified),
 skip BREAKOUT entirely and proceed to CONVERGE. Not every problem needs
@@ -141,7 +164,8 @@ Reconvene the full team. Merge breakout findings. Resolve conflicts.
 - Risk matrix
 - Non-goals section (REQUIRED — each with "why skip" + "when to revisit")
 - Success criteria (REQUIRED — measurable)
-- Roadmap sketch (now / soon / later)
+- Roadmap sketch (now / soon / later) with **CIU per item** and human analog
+  (e.g., "CIU 3 — a morning's work"). CIU ≥ 13 must be decomposed.
 
 ### Phase 5: REVIEW
 
@@ -174,6 +198,11 @@ Present the plan to the user. Enter inline mode — the user can:
 13. Rollups replace stale docs — originals go cold, rollup stays warm.
 14. Archive artifacts must be git-committable and repo-local.
 15. Phases collapse when empty — never present ceremony for absent content.
+16. Every phase writes its output — a run is a complete snapshot, track everything.
+17. Prior runs are prior art — detect and present, never silently overwrite.
+18. Every survey writes a coverage fingerprint — commit, paths, gaps, ratios.
+19. Effort uses CIU (Complexity Integration Units), never time estimates.
+    Always pair CIU with its human-readable analog. CIU ≥ 13 must decompose.
 
 ## Output Format
 
@@ -196,6 +225,8 @@ Archive output goes in `specs/.storytime/archive/` with subdirectories:
 For detailed format specifications and scan targets, consult:
 - **`references/artifact-scan.md`** — Scan targets, classification, inventory presentation
 - **`references/artifact-tiers.md`** — Hot/warm/cold tiers, rollup format, archive structure
+- **`references/survey-fingerprint.md`** — Coverage fingerprint format, incremental survey logic
+- **`references/complexity-units.md`** — CIU scale, signals, usage in plans and breakouts
 - **`${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md`** — Events, skills, rules, automation levels
 - **`${CLAUDE_PLUGIN_ROOT}/docs/architecture.md`** — Runtime model and agent dispatch
 - **`${CLAUDE_PLUGIN_ROOT}/docs/historical-absorption.md`** — Archaeology and interface mapping
