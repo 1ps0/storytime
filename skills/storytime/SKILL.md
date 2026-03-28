@@ -25,23 +25,38 @@ the gears they need.
 
 ### Bootstrap
 
-Before any phase runs, ensure the storytime directory tree exists:
+Derive `<topic>` from the problem statement (kebab-case).
 
-```bash
-mkdir -p specs/.storytime/{sessions,cohort,specialists,archive/{current,rollups,cold},history/sessions}
-```
+**Detect the landscape** before creating anything:
+- Does `specs/.storytime/` exist? → this repo already uses storytime structure
+- Does the repo have its own doc structure (`team/`, `docs/`, `specs/`)? → work within it
+- Is this a fresh repo with nothing? → propose storytime structure
 
-Derive `<topic>` from the problem statement (kebab-case). Create the
-session directory: `mkdir -p specs/.storytime/sessions/<topic>/`
+**Three modes:**
+- **Storytime-native** — `specs/.storytime/` exists or user agrees to create it.
+  Full structure: `sessions/<topic>/`, `cohort/`, `archive/`, `history/`.
+- **Adapt-in-place** — repo has existing doc structure. Write output into
+  the conventions already present (e.g., `team/` for team docs, `docs/` for
+  plans, `specs/` for session output). Don't force a migration.
+- **Export-only** — produce a unified plan document (or set of documents) in
+  a format another system can consume. No persistent storytime state. The
+  session is a one-shot that produces output and exits.
+
+Ask the user if ambiguous. Default to **storytime-native** for new repos,
+**adapt-in-place** for repos with existing structure. The user can override.
+
+Create directories only for the chosen mode. Never create `.storytime/`
+without the user's knowledge.
 
 ### Phase 0: SURVEY
 
 Launch an Explore agent to survey the codebase relevant to the problem.
 
-**Prior run detection:** Check if `specs/.storytime/sessions/<topic>/` already exists. If it does,
-a prior storytime run produced output for this topic. That output enters the
-artifact scan as prior art — never silently overwrite it. The user decides
-whether to update, archive, or start fresh.
+**Prior run detection:** Check if output from a prior storytime run exists for
+this topic (in `.storytime/sessions/<topic>/`, `specs/<topic>/`, or wherever
+the repo keeps session output). If found, that output enters the artifact scan
+as prior art — never silently overwrite it. The user decides whether to update,
+archive, or start fresh.
 
 **Codebase scan:**
 1. Identify existing code, patterns, dependencies, prior specs, constraints
@@ -67,11 +82,11 @@ whether to update, archive, or start fresh.
 Config-like artifacts (CLAUDE.md, .cursor rules) load silently.
 Team-like artifacts route to ASSEMBLE. Spec-like artifacts route to ICEBREAKER.
 
-**Consolidation mode** — for each artifact outside `specs/.storytime/`, offer:
-- **Consolidate** — `git mv` (or copy) into the `.storytime` structure
-  (team-like → `cohort/`, spec-like → `archive/current/` or `sessions/`)
-  preserving git history. Bias toward consolidation to unify the storytime
-  universe under one root.
+**Consolidation mode** — for each artifact outside the session output path:
+- **Consolidate** — `git mv` (or copy) into the storytime structure
+  (team-like → cohort, spec-like → archive or sessions) preserving git
+  history. In storytime-native mode, this means into `.storytime/`. In
+  adapt-in-place mode, this means into the repo's existing conventions.
 - **Leave in place** — reference the artifact at its current path without
   moving it. Use when the file serves a purpose outside storytime (e.g.,
   a README that humans browse, a CLAUDE.md that Claude Code loads).
@@ -232,7 +247,9 @@ Present the plan to the user. Enter inline mode — the user can:
 
 ## Output Format
 
-Everything lives under `specs/.storytime/`:
+Output paths depend on the bootstrap mode chosen.
+
+### Storytime-native (full structure)
 
 ```
 specs/.storytime/
@@ -255,8 +272,48 @@ specs/.storytime/
 └── config.md                        — project settings
 ```
 
-`<topic>` is derived from the problem statement (kebab-case, e.g.,
-`agc`, `opus-negotiation`, `websocket-backpressure`).
+### Adapt-in-place (work within existing conventions)
+
+Write output wherever the repo already keeps similar content:
+
+| Output       | Existing convention examples                  |
+|-------------|-----------------------------------------------|
+| survey.md   | `docs/`, `specs/`, repo root                  |
+| team.md     | `team/`, `docs/`, `.storytime/cohort/`        |
+| icebreaker  | `team/`, `specs/<topic>/`, `docs/`            |
+| breakouts   | `specs/<topic>/`, `docs/<topic>/`             |
+| plan.md     | `docs/`, `specs/`, `ROADMAP.md`, repo root    |
+
+Mirror the repo's existing naming style (UPPERCASE.md vs lowercase.md,
+flat vs nested). Don't impose storytime conventions on a repo that has
+its own.
+
+### Export-only (one-shot output)
+
+Produce a **unified plan document** that another system can execute.
+No persistent storytime state — no cohort, no archive, no history.
+Output is one or more files the user specifies:
+
+- A single `plan.md` with everything inline
+- A set of files matching another tool's expected format
+- A structured document another agent or CI system can parse
+
+The user tells storytime where to write and in what shape. Storytime
+produces the content; the user or another system owns the lifecycle.
+
+### Component Interop
+
+Storytime components are swappable. If another system handles part of
+the workflow better, storytime can defer to it or export into it:
+
+- **Personas** → another system's agent definitions or role specs
+- **Plans** → Kiro specs, ADRs, GitHub issues, Linear tickets
+- **Decisions** → ADR format, decision log in another tool
+- **Archive** → existing doc management, wiki, Notion
+
+When exporting, match the target system's format and conventions.
+When importing, absorb into storytime's model during artifact scan.
+The gearbox goes both ways.
 
 ## Conversation Modes
 
