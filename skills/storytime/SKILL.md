@@ -157,7 +157,10 @@ For each sub-problem identified in the icebreaker:
   - DISCOVERY: Explore agent for code mapping
   - PROTOTYPE: Write draft code for illustration
 - Produce a recommendation
-- **Write `specs/.storytime/sessions/<topic>/breakout-<subtopic>.md`** for each breakout
+
+**Write `specs/.storytime/sessions/<topic>/breakout-<subtopic>.md`** for each
+breakout with: findings, citations, recommendation, CIU estimate for the
+recommended work, and which personas participated.
 
 **Collapse rule:** If the problem is singular (no sub-problems identified),
 skip BREAKOUT entirely and proceed to CONVERGE. Not every problem needs
