@@ -27,7 +27,7 @@ the gears they need.
 
 Launch an Explore agent to survey the codebase relevant to the problem.
 
-**Prior run detection:** Check if `specs/<topic>/` already exists. If it does,
+**Prior run detection:** Check if `specs/.storytime/sessions/<topic>/` already exists. If it does,
 a prior storytime run produced output for this topic. That output enters the
 artifact scan as prior art — never silently overwrite it. The user decides
 whether to update, archive, or start fresh.
@@ -56,13 +56,25 @@ whether to update, archive, or start fresh.
 Config-like artifacts (CLAUDE.md, .cursor rules) load silently.
 Team-like artifacts route to ASSEMBLE. Spec-like artifacts route to ICEBREAKER.
 
+**Consolidation mode** — for each artifact outside `specs/.storytime/`, offer:
+- **Consolidate** — `git mv` (or copy) into the `.storytime` structure
+  (team-like → `cohort/`, spec-like → `archive/current/` or `sessions/`)
+  preserving git history. Bias toward consolidation to unify the storytime
+  universe under one root.
+- **Leave in place** — reference the artifact at its current path without
+  moving it. Use when the file serves a purpose outside storytime (e.g.,
+  a README that humans browse, a CLAUDE.md that Claude Code loads).
+
+Default bias is **consolidate**. Pre-check consolidation in the inventory.
+The user can override per-item or bulk ("leave everything in place").
+
 **If a prior survey.md exists with a fingerprint**, compute the delta:
 - Commit drift: `git rev-list <prior-commit>..HEAD` — what changed?
 - Coverage gaps: what paths were unvisited last time?
 - Present the delta to the user: resurvey stale paths, extend to gaps,
   full resurvey, or trust prior survey. See `references/survey-fingerprint.md`.
 
-**Write `specs/<topic>/survey.md`** with:
+**Write `specs/.storytime/sessions/<topic>/survey.md`** with:
 - Codebase context summary
 - Artifact inventory (classifications and user dispositions)
 - **Coverage fingerprint** (REQUIRED): commit sha, branch, paths scanned,
@@ -96,7 +108,7 @@ If only config-like artifacts exist, load them silently and move on.
 - OPERATOR: runs it in prod, wants observability and kill switches
 - SKEPTIC: asks "what if this breaks?" and "do we actually need this?"
 
-**Write `specs/<topic>/team.md`** with persona definitions in boxed ASCII format.
+**Write `specs/.storytime/sessions/<topic>/team.md`** with persona definitions in boxed ASCII format.
 
 **Collapse rule:** If a permanent cohort exists and covers the problem's
 domains with no rehire candidates to review, confirm the team briefly
@@ -124,7 +136,7 @@ If artifacts were archived or rolled up, update `specs/.storytime/archive/_index
 **Identify sub-problems** for breakouts.
 **Agree on constraints** before any solution is proposed.
 
-**Write `specs/<topic>/icebreaker.md`** with the full discussion, including
+**Write `specs/.storytime/sessions/<topic>/icebreaker.md`** with the full discussion, including
 any artifact review decisions.
 
 **Collapse rule:** If no spec-like artifacts were selected, skip prior work
@@ -145,7 +157,7 @@ For each sub-problem identified in the icebreaker:
   - DISCOVERY: Explore agent for code mapping
   - PROTOTYPE: Write draft code for illustration
 - Produce a recommendation
-- **Write `specs/<topic>/breakout-<subtopic>.md`** for each breakout
+- **Write `specs/.storytime/sessions/<topic>/breakout-<subtopic>.md`** for each breakout
 
 **Collapse rule:** If the problem is singular (no sub-problems identified),
 skip BREAKOUT entirely and proceed to CONVERGE. Not every problem needs
@@ -155,7 +167,7 @@ decomposition.
 
 Reconvene the full team. Merge breakout findings. Resolve conflicts.
 
-**Write `specs/<topic>/plan.md`** with:
+**Write `specs/.storytime/sessions/<topic>/plan.md`** with:
 - ASCII slide deck (use box-drawing for slides)
 - Problem visualization
 - Solution architecture diagram
@@ -206,12 +218,31 @@ Present the plan to the user. Enter inline mode — the user can:
 
 ## Output Format
 
-All output files go in `specs/<topic>/` where `<topic>` is derived from
-the problem statement (kebab-case, e.g., `agc`, `opus-negotiation`,
-`websocket-backpressure`).
+Everything lives under `specs/.storytime/`:
 
-Archive output goes in `specs/.storytime/archive/` with subdirectories:
-`current/` (warm), `rollups/` (warm), `cold/` (deep history).
+```
+specs/.storytime/
+├── cohort/                          — permanent personas
+├── specialists/                     — temporary personas
+├── sessions/<topic>/                — ALL run output per topic
+│   ├── survey.md                    (+ coverage fingerprint)
+│   ├── team.md
+│   ├── icebreaker.md
+│   ├── breakout-<subtopic>.md
+│   └── plan.md
+├── archive/
+│   ├── _index.md                    — browsable TOC
+│   ├── current/                     — warm tier
+│   ├── rollups/                     — compressed history
+│   └── cold/                        — deep history (glacier)
+├── history/
+│   ├── decisions.md                 — append-only decision log
+│   └── sessions/                    — per-session summaries
+└── config.md                        — project settings
+```
+
+`<topic>` is derived from the problem statement (kebab-case, e.g.,
+`agc`, `opus-negotiation`, `websocket-backpressure`).
 
 ## Conversation Modes
 

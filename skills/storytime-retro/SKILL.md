@@ -17,9 +17,9 @@ The topic to retrospect: $ARGUMENTS
 ## Process
 
 1. **Load the original spec**:
-   - Read `specs/<topic>/team.md` — the original team
-   - Read `specs/<topic>/plan.md` — what was planned
-   - Read `specs/<topic>/icebreaker.md` — original constraints
+   - Read `specs/.storytime/sessions/<topic>/team.md` — the original team
+   - Read `specs/.storytime/sessions/<topic>/plan.md` — what was planned
+   - Read `specs/.storytime/sessions/<topic>/icebreaker.md` — original constraints
 2. **Survey current state**:
    - Launch Explore agent to check what was actually implemented
    - Compare implementation against the plan's success criteria
@@ -33,11 +33,11 @@ The topic to retrospect: $ARGUMENTS
    - What did we learn?
    - What should change for next time?
 5. **Update artifacts**:
-   - Add a chapter to `specs/<topic>/changelog.md`
+   - Add a chapter to `specs/.storytime/sessions/<topic>/changelog.md`
    - Update persona files with lessons learned
    - Flag any non-goals that should now become goals
 
 ## Output
 
-Write `specs/<topic>/retrospective.md` with the team's analysis.
+Write `specs/.storytime/sessions/<topic>/retrospective.md` with the team's analysis.
 Update persona files and decision log.

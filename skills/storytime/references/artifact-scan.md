@@ -94,6 +94,8 @@ Keep checked items? Options:
   • Toggle items on/off
   • "tell me about <item>" — get a one-paragraph summary
   • "bring the team in on <item>" — team reviews it during icebreaker
+  • "consolidate all" — git mv everything into .storytime
+  • "leave everything in place" — reference only, don't move
   • "skip all" — cold start, no prior context
 ```
 
@@ -110,3 +112,42 @@ The inventory is presented as a checklist first. Then the user can:
 Team-like artifacts route to ASSEMBLE as rehire candidates.
 Spec-like artifacts route to ICEBREAKER for team review.
 Config-like artifacts load silently into session context.
+
+## Consolidation
+
+Artifacts discovered outside `specs/.storytime/` can be consolidated
+into the storytime structure. This is the **default bias** — storytime
+wants everything under one root for coherent management.
+
+### Consolidation Targets
+
+| Classification | Consolidation destination               |
+|---------------|------------------------------------------|
+| team-like     | `specs/.storytime/cohort/`               |
+| spec-like     | `specs/.storytime/archive/current/`      |
+| config-like   | Left in place (serves external purpose)  |
+
+### Consolidation Methods
+
+- **`git mv`** (preferred) — preserves git history, clean rename
+- **Copy + reference** — when the original must stay (e.g., a README
+  that humans browse directly). Copy into `.storytime/`, leave a
+  comment in the copy noting the canonical source.
+- **Reference only** — leave in place, no copy. Just note the path.
+  Use when moving would break something outside storytime.
+
+### Gearbox: Consolidate vs Leave-in-Place
+
+Default: **consolidate**. Pre-check consolidation in the inventory.
+
+Override per-item:
+```
+ [x] [consolidate] specs/agc/plan.md → .storytime/archive/current/agc-plan.md
+ [ ] [leave]       README.md — serves as repo entry point
+ [x] [consolidate] .kiro/agents/reviewer.md → .storytime/cohort/
+```
+
+Override bulk:
+- "consolidate all" — move everything into .storytime
+- "leave everything in place" — reference only, no moves
+- Default (no override) — consolidate pre-checked items

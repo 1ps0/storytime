@@ -79,6 +79,8 @@ Post-delivery: QA (anytime), RETROSPECT (after implementation)
 22. Effort uses CIU (Complexity Integration Units), never time estimates
 23. Rollups replace stale docs — originals go cold, rollup stays warm
 24. Archive artifacts must be git-committable and repo-local
+25. All storytime output lives under specs/.storytime/ — single root
+26. Bias toward consolidating external artifacts into .storytime via git mv
 
 ## File Naming Conventions
 
@@ -94,9 +96,9 @@ Examples:
   mira-platform-asr.md
 ```
 
-### Spec Files
+### Session Output Files
 ```
-specs/<topic>/
+specs/.storytime/sessions/<topic>/
   survey.md                 (codebase context + artifact inventory + fingerprint)
   team.md
   icebreaker.md
