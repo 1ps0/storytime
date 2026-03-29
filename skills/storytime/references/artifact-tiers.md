@@ -1,3 +1,10 @@
+---
+type: reference
+created: 2026-03-29T10:30
+created_confidence: git-derived
+session: null
+---
+
 # Artifact Tiers & Rollup Format
 
 Three temperature tiers for managing prior work artifacts through their lifecycle.

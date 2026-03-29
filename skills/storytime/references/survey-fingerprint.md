@@ -1,3 +1,9 @@
+---
+type: reference
+created: 2026-03-29T13:35
+session: 2026-03-29-timestamps
+---
+
 # Survey Coverage Fingerprint
 
 Every survey produces a fingerprint that records what it covered, what it

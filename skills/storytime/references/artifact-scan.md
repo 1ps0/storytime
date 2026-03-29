@@ -1,3 +1,10 @@
+---
+type: reference
+created: 2026-03-29T10:30
+created_confidence: git-derived
+session: null
+---
+
 # Artifact Scan Reference
 
 How SURVEY discovers prior work artifacts across a repository.

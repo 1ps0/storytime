@@ -1,3 +1,9 @@
+---
+type: design-doc
+created: 2026-03-28T02:04
+session: null
+---
+
 # Storytime Architecture
 
 How Storytime maps to Claude Code's agent and tool system.

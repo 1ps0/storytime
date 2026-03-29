@@ -1,3 +1,9 @@
+---
+type: example
+created: 2026-03-28T02:04
+session: 2026-03-24-agc
+---
+
 # Example: AGC for VoIP Gateway
 
 This is a real Storytime session run against the ai-sip-gateway

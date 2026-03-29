@@ -1,3 +1,9 @@
+---
+type: reference
+created: 2026-03-29T13:35
+session: 2026-03-29-timestamps
+---
+
 # Complexity Integration Units (CIU)
 
 How Storytime measures effort — not in time, but in complexity.

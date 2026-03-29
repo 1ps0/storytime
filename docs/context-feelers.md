@@ -1,3 +1,9 @@
+---
+type: design-doc
+created: 2026-03-28T02:24
+session: null
+---
+
 # Context Feelers
 
 How a production-grade Storytime pulls context from external sources

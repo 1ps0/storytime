@@ -1,3 +1,9 @@
+---
+type: reference
+created: 2026-03-28T02:04
+session: null
+---
+
 # Storytime Process Reference
 
 Complete reference for events, skills, rules, and file formats.

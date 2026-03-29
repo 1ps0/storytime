@@ -1,3 +1,9 @@
+---
+type: design-doc
+created: 2026-03-28T02:24
+session: null
+---
+
 # Historical Absorption
 
 How Storytime teams absorb existing codebases, reconstruct history,

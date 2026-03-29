@@ -1,3 +1,9 @@
+---
+type: design-doc
+created: 2026-03-28T02:04
+session: null
+---
+
 # Storytime vs Other Spec Approaches
 
 A practical comparison of how Storytime relates to existing tools

@@ -1,3 +1,9 @@
+---
+type: reference
+created: 2026-03-29T13:35
+session: 2026-03-29-timestamps
+---
+
 # Timestamps
 
 How storytime tracks time across documents, personas, decisions, and archives.

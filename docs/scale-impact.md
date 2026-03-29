@@ -1,3 +1,9 @@
+---
+type: reference
+created: 2026-03-29T14:57
+session: 2026-03-29-scale-awareness
+---
+
 # Scale Impact
 
 How storytime measures magnitude — not complexity, but bigness.
