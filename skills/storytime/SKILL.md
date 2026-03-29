@@ -171,10 +171,11 @@ review entirely — go straight to status quo and sub-problem identification.
 ### Phase 3: BREAKOUT (parallel when possible)
 
 For each sub-problem identified in the icebreaker:
-- Estimate **CIU** (Complexity Integration Units) per breakout — see
-  `references/complexity-units.md` for the scale. Use CIU to decide
-  whether to parallelize or serialize. Always pair the number with
-  its human-readable analog (e.g., "CIU 5 — solid day of work").
+- Estimate **CIU** (Complexity Integration Units) and **Scale** per breakout.
+  CIU measures how hard, Scale measures how big. See
+  `references/complexity-units.md` and `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`.
+  Always pair each with prose (e.g., "CIU 5 — solid day of work,
+  Scale 3 (repos) — touches a service cluster").
 - Assign 2-3 personas
 - Launch as a parallel sub-agent if independent
 - Each breakout can invoke skills mid-conversation:
@@ -205,8 +206,9 @@ Reconvene the full team. Merge breakout findings. Resolve conflicts.
 - Risk matrix
 - Non-goals section (REQUIRED — each with "why skip" + "when to revisit")
 - Success criteria (REQUIRED — measurable)
-- Roadmap sketch (now / soon / later) with **CIU per item** and human analog
-  (e.g., "CIU 3 — a morning's work"). CIU ≥ 13 must be decomposed.
+- Roadmap sketch (now / soon / later) with **CIU and Scale per item**, each
+  with prose (e.g., "CIU 3 — a morning's work, Scale 4 (users) — all users").
+  CIU ≥ 13 must be decomposed. Scale dimensions stated, not assumed.
 
 ### Phase 5: REVIEW
 
@@ -242,8 +244,10 @@ Present the plan to the user. Enter inline mode — the user can:
 16. Every phase writes its output — a run is a complete snapshot, track everything.
 17. Prior runs are prior art — detect and present, never silently overwrite.
 18. Every survey writes a coverage fingerprint — commit, paths, gaps, ratios.
-19. Effort uses CIU (Complexity Integration Units), never time estimates.
-    Always pair CIU with its human-readable analog. CIU ≥ 13 must decompose.
+19. Effort uses CIU (how hard) and Scale (how big), never time estimates.
+    Always pair each with prose. CIU ≥ 13 must decompose.
+20. Evaluation hygiene: observe metrics and conclusions separately.
+    Don't weight signals without understanding what they measure.
 
 ## Output Format
 
@@ -329,6 +333,7 @@ For detailed format specifications and scan targets, consult:
 - **`references/artifact-tiers.md`** — Hot/warm/cold tiers, rollup format, archive structure
 - **`references/survey-fingerprint.md`** — Coverage fingerprint format, incremental survey logic
 - **`references/complexity-units.md`** — CIU scale, signals, usage in plans and breakouts
+- **`${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`** — Scale 1-5, dimension examples, evaluation hygiene
 - **`${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md`** — Events, skills, rules, automation levels
 - **`${CLAUDE_PLUGIN_ROOT}/docs/architecture.md`** — Runtime model and agent dispatch
 - **`${CLAUDE_PLUGIN_ROOT}/docs/historical-absorption.md`** — Archaeology and interface mapping

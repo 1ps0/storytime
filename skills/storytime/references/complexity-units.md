@@ -132,3 +132,20 @@ Success criteria:
    Real work reveals complexity that estimation misses.
 5. **CIU applies to any scoped work** — breakouts, roadmap items,
    success criteria, specialist contracts.
+
+---
+
+## CIU + Scale
+
+CIU measures **how hard**. Scale Impact measures **how big**. They are
+orthogonal and both appear wherever effort is estimated.
+
+```
+CIU 3, Scale 4 (repos) — morning's work, but touches dozens of services
+CIU 8, Scale 1 (files) — hard problem, contained to one module
+CIU 1, Scale 5 (data) — flip a flag, enables 50GB model loading
+```
+
+See `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md` for the full Scale
+specification, dimension examples, evaluation hygiene, and design
+justification.

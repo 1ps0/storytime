@@ -84,6 +84,8 @@ Post-delivery: QA (anytime), RETROSPECT (after implementation)
 27. Universal frontmatter on every document: type, created, session
 28. Semantic events get explicit timestamps; file edits rely on git
 29. Inferred timestamps marked with confidence (git-derived, approximate, estimated)
+30. Scale Impact (1-5) alongside CIU for magnitude — dimension stated in prose
+31. Evaluation hygiene: observe metrics and conclusions separately, don't conflate
 
 ## File Naming Conventions
 
