@@ -32,12 +32,22 @@ The topic to retrospect: $ARGUMENTS
    - What diverged and why?
    - What did we learn?
    - What should change for next time?
-5. **Update artifacts**:
+5. **Timestamp audit**:
+   - Check all session documents for universal frontmatter (`type`, `created`, `session`)
+   - If timestamps are missing (common for pre-timestamp-principle docs),
+     backfill from git history and filesystem evidence
+   - Mark inferred timestamps with confidence level (git-derived, approximate, estimated)
+   - See `${CLAUDE_PLUGIN_ROOT}/docs/timestamps.md` for backfill rules
+   - Review `last_reviewed` on any decisions from this session — update if still valid
+6. **Update artifacts**:
    - Add a chapter to `specs/.storytime/sessions/<topic>/changelog.md`
-   - Update persona files with lessons learned
+   - Update persona files with lessons learned (include `evolved[]` entry with date)
+   - Update persona `last_active` dates
    - Flag any non-goals that should now become goals
+   - Update decision `last_reviewed` dates for decisions confirmed during retro
 
 ## Output
 
 Write `specs/.storytime/sessions/<topic>/retrospective.md` with the team's analysis.
+Include universal frontmatter (`type: retrospective`, `created`, `session`).
 Update persona files and decision log.

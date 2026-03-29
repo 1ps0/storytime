@@ -54,13 +54,18 @@ replaces them as the warm reference.
 ```markdown
 ---
 type: rollup
-created: <YYYY-MM-DD>
+created: <YYYY-MM-DDTHH:MM>
 session: <session-id that produced this rollup>
+last_reviewed: <YYYY-MM-DD>
 sources:
   - path: <original-path>
     disposition: archived | deleted | superseded
+    created: <YYYY-MM-DD>
+    last_modified: <YYYY-MM-DD>
   - path: <original-path>
     disposition: archived | deleted | superseded
+    created: <YYYY-MM-DD>
+    last_modified: <YYYY-MM-DD>
 covers: <one-line description of what this rollup covers>
 ---
 
@@ -97,19 +102,19 @@ The `_index.md` file is the browsable entry point for all archived artifacts.
 Last updated: <YYYY-MM-DD>
 
 ## Current (warm)
-| File | Source | Reviewed | Summary |
-|------|--------|----------|---------|
-| current/agc-plan.md | specs/agc/plan.md | 2026-03-28 | AGC implementation plan, still valid |
+| File | Source | Source Created | Archived At | Last Reviewed | Summary |
+|------|--------|---------------|-------------|---------------|---------|
+| current/agc-plan.md | specs/agc/plan.md | 2026-03-24 | 2026-03-28 | 2026-03-28 | AGC implementation plan, still valid |
 
 ## Rollups (warm)
-| File | Sources | Created | Covers |
-|------|---------|---------|--------|
-| rollups/audio-pipeline-history.md | 5 docs | 2026-03-28 | Audio pipeline evolution |
+| File | Sources | Created | Last Reviewed | Covers |
+|------|---------|---------|---------------|--------|
+| rollups/audio-pipeline-history.md | 5 docs | 2026-03-28 | 2026-03-28 | Audio pipeline evolution |
 
 ## Cold Storage
-| File | Source | Archived | Reason |
-|------|--------|----------|--------|
-| cold/rfc-003-backpressure.md | docs/rfc-003.md | 2026-03-28 | Superseded by rollup |
+| File | Source | Source Created | Archived At | Reason |
+|------|--------|---------------|-------------|--------|
+| cold/rfc-003-backpressure.md | docs/rfc-003.md | ~2026-02 | 2026-03-28 | Superseded by rollup |
 ```
 
 ## Tier Transitions

@@ -53,11 +53,19 @@ The management action: $ARGUMENTS
 
 ```markdown
 ---
+type: persona
+created: <YYYY-MM-DDTHH:MM>
+session: <session-id that created this persona>
 name: <name>
 archetype: <domain|systems|platform|owner|operator|skeptic>
 status: <active|inactive|alumni>
 inception: <YYYY-MM-DD>
+last_active: <YYYY-MM-DD>
 sessions: [<session-ids>]
+evolved:
+  - date: <YYYY-MM-DD>
+    change: "<what changed>"
+    session: <session-id>
 expertise_acquired:
   - "<expertise>"
 decisions_participated:

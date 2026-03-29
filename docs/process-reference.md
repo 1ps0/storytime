@@ -81,6 +81,9 @@ Post-delivery: QA (anytime), RETROSPECT (after implementation)
 24. Archive artifacts must be git-committable and repo-local
 25. All storytime output lives under specs/.storytime/ — single root
 26. Bias toward consolidating external artifacts into .storytime via git mv
+27. Universal frontmatter on every document: type, created, session
+28. Semantic events get explicit timestamps; file edits rely on git
+29. Inferred timestamps marked with confidence (git-derived, approximate, estimated)
 
 ## File Naming Conventions
 

@@ -1,6 +1,6 @@
 ---
 name: storytime-consolidate
-description: "This skill should be used when the user asks to \"consolidate\", \"organize docs\", \"sort documents\", \"clean up specs\", \"archive old docs\", \"triage the docs\", \"roll up\", or wants to organize, archive, or restructure existing documents into the storytime structure. File operations — moving, archiving, rolling up."
+description: "This skill should be used when the user asks to \"consolidate\", \"organize docs\", \"sort documents\", \"clean up specs\", \"archive old docs\", \"triage the docs\", \"roll up\", \"backfill timestamps\", \"add timestamps\", \"fix metadata\", or wants to organize, archive, restructure, or add missing timestamps to existing documents. File operations — moving, archiving, rolling up, and timestamp backfill."
 argument-hint: "[specific files or directories to consolidate]"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
@@ -90,12 +90,72 @@ Last updated: <YYYY-MM-DD>
 |------|--------|----------|--------|
 ```
 
-### 5. Report
+### 5. Timestamp Backfill
+
+For every file that was moved, archived, rolled up, or left in place,
+check if it has the universal frontmatter minimum (`type`, `created`,
+`session`). If not, backfill from available evidence.
+
+See `${CLAUDE_PLUGIN_ROOT}/docs/timestamps.md` for the full timestamp
+principle, evidence sources, and confidence markers.
+
+**Evidence sources (in priority order):**
+1. `git log -1 --format=%aI -- <path>` — first commit adding the file (for `created`)
+2. `git log -1 --format=%aI -- <path>` — last commit touching the file (for last modified)
+3. Existing frontmatter dates — parse any YAML dates already present
+4. Filename dates — parse `YYYY-MM-DD` from filename if present
+5. Filesystem mtime — `stat` command (medium confidence)
+6. Adjacent file dates — files created around the same time (low confidence)
+7. Content references — "as of March" or date mentions in body text (low confidence)
+
+**Backfill process per file:**
+1. Read the file
+2. Check for existing frontmatter. If `type`, `created`, `session` all present → skip
+3. For each missing field, search evidence sources in priority order
+4. Add or update frontmatter with inferred values
+5. Mark confidence: `git-derived`, `approximate`, or `estimated`
+6. Present backfilled files to the user for approval before writing
+
+**Coarseness rules:**
+- Git evidence → exact date, `git-derived` confidence
+- Filename evidence → exact date, `git-derived` confidence
+- Filesystem evidence → exact date, `approximate` confidence
+- Adjacent/content evidence → use `~YYYY-MM` or `~YYYY-Qn`, `estimated` confidence
+- No evidence → mark as `unknown`, don't guess
+
+**Example backfill:**
+```yaml
+# Before (no frontmatter):
+# team/ICEBREAKER.md — just a markdown file
+
+# After backfill:
+---
+type: icebreaker
+created: 2026-03-20
+created_confidence: git-derived
+session: null
+---
+```
+
+**Bulk backfill:** The user can say "backfill timestamps on everything" to
+run backfill across all storytime-managed documents. Present a summary:
+```
+Timestamp backfill results (18 files):
+
+  Already complete:  4 files
+  Backfilled:        11 files (8 git-derived, 2 approximate, 1 estimated)
+  No evidence:       3 files (marked unknown)
+
+  Review backfilled files? [y/n]
+```
+
+### 6. Report
 
 Show what was done:
 - Files moved (with old → new paths)
 - Rollups created (with source count)
 - Files left in place
+- Timestamps backfilled (with confidence breakdown)
 - New archive index state
 
 ## Rules
@@ -107,3 +167,8 @@ Show what was done:
 4. **The user approves every move** before execution. No silent file ops.
 5. **External-system artifacts** (Slack threads, Google Docs links) get
    a citation stub in the archive, not a full copy.
+6. **Backfill is additive** — add timestamps, never remove existing metadata.
+7. **Coarse-and-honest over precise-and-wrong** — `~2026-02` beats a guess
+   of `2026-02-15`. Mark confidence on every inferred timestamp.
+8. **Universal frontmatter on every file** — `type`, `created`, `session`.
+   See `${CLAUDE_PLUGIN_ROOT}/docs/timestamps.md` for the full spec.
