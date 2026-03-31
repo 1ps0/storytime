@@ -14,6 +14,8 @@ Complete reference for events, skills, rules, and file formats.
 
 | Event       | Participants    | Input              | Output             | Parallelizable |
 |-------------|-----------------|--------------------|--------------------|----------------|
+| ROUTE       | (system)        | topic + _thread.md | cold start or warm start | no       |
+| WARM_START  | (system + user) | thread + artifacts | preamble.md + routing  | no         |
 | SURVEY      | (system + user) | problem + codebase | survey.md + fingerprint | no        |
 | ASSEMBLE    | (system + user) | context + archetypes| team.md           | no             |
 | ICEBREAKER  | full team       | context + team     | icebreaker.md      | no             |
@@ -23,15 +25,26 @@ Complete reference for events, skills, rules, and file formats.
 | REVIEW      | user + team     | plan.md            | feedback/revisions | no             |
 | RETROSPECT  | full team       | plan + actuals     | retrospective.md   | no             |
 | QA          | user + persona  | question           | answer w/ citations| no             |
+| BREAKOUT(s) | sub-team (2-3)  | sub-problem        | breakout.md        | standalone     |
+| UNDO        | (system + user) | scope + confirm    | reverted state     | no             |
 
 ## Event Transitions
 
 ```
-START → SURVEY → ASSEMBLE → ICEBREAKER → {BREAKOUT×N | DELIBERATE} → CONVERGE → REVIEW → DONE
-                                                                                    ↑      │
-                                                                                    └──────┘
-                                                                                   (revisions)
+START → ROUTE ─┬─ cold start ─→ SURVEY → ASSEMBLE → ICEBREAKER ─→ {BREAKOUT×N | DELIBERATE} → CONVERGE → REVIEW → DONE
+               │                                                                                            ↑      │
+               │                                                                                            └──────┘
+               │                                                                                           (revisions)
+               │
+               └─ warm start ─→ WARM_START → [SURVEY-DELTA] → ICEBREAKER ─→ ...same as above
+                                    │
+                                    ├─ Continue (resume at incomplete phase or new episode)
+                                    ├─ Retro → RETROSPECT
+                                    ├─ New sub-topic → ICEBREAKER (scoped)
+                                    └─ Reset → archive thread → cold start
+
 Post-delivery: QA (anytime), RETROSPECT (after implementation)
+Thread checkpoint: _thread.md updated at every phase boundary
 ```
 
 ## Skills (Available to Personas Mid-Conversation)
@@ -92,6 +105,16 @@ Post-delivery: QA (anytime), RETROSPECT (after implementation)
 29. Inferred timestamps marked with confidence (git-derived, approximate, estimated)
 30. Scale Impact (1-5) alongside CIU for magnitude — dimension stated in prose
 31. Evaluation hygiene: observe metrics and conclusions separately, don't conflate
+32. Warm start is detected, not requested — if `_thread.md` exists, warm-start
+33. Preamble narrative is always dynamic — synthesized fresh, never cached
+34. Personas skip introductions on warm start — speak from accumulated context
+35. Thread state is the checkpoint — updated at every phase boundary
+36. Episodes are chapters, not restarts — Reset is the explicit "new story" action
+37. Survey delta replaces full survey on warm start — only resurvey what changed
+38. Standalone breakouts are valid — not every investigation needs the full pipeline
+39. Always confirm before destructive undo — show impact inventory first
+40. Prefer archive over delete — cold storage is recoverable, deletion relies on git
+41. Redo is undo + immediate retry — don't make the user invoke two commands
 
 ## File Naming Conventions
 
@@ -110,13 +133,17 @@ Examples:
 ### Session Output Files
 ```
 specs/.storytime/sessions/<topic>/
-  survey.md                 (codebase context + artifact inventory + fingerprint)
-  team.md
-  icebreaker.md
-  breakout-<subtopic>.md
-  plan.md
-  changelog.md
-  retrospective.md
+  _thread.md                (episode bookmark — created at DONE)
+  <NNN>/                    (episode directory — zero-padded)
+    preamble.md             (warm start only — synthesized narrative)
+    survey.md               (cold start — full survey + fingerprint)
+    survey-delta.md         (warm start — incremental survey)
+    team.md                 (cold start or team changes)
+    icebreaker.md
+    breakout-<subtopic>.md
+    plan.md
+    changelog.md
+    retrospective.md
 ```
 
 ### Session Files

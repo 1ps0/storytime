@@ -15,17 +15,16 @@ their section as they become more urgent or well-defined.
   neither yields, escalate to the user with a structured "here's
   what A thinks, here's what B thinks, here's what's at stake."
 
-- **Warm-start sessions.** When revisiting a topic, auto-generate
-  the "Previously on..." section from the decision log and last
-  session summary. Skip SURVEY if the codebase hasn't changed.
+- ~~**Warm-start sessions.**~~ IMPLEMENTED — dynamic narrative preamble
+  synthesis, `_thread.md` bookmark, episode structure, survey delta mode.
+  See `references/warm-start.md`.
 
 - **Progressive detail.** Let the user set a depth level (sketch /
   standard / deep). Sketch produces team + 1-page plan. Deep
   produces full breakouts with prototypes and benchmarks.
 
-- **Checkpoint saves.** At each phase transition, save a snapshot
-  so the session can be resumed if interrupted. Currently a
-  long session is all-or-nothing.
+- ~~**Checkpoint saves.**~~ IMPLEMENTED — `_thread.md` updated at every
+  phase boundary, "park it here" support, mid-session resumption via warm start.
 
 ## Persona System
 
@@ -109,6 +108,13 @@ their section as they become more urgent or well-defined.
   one word changes.
 
 ## Developer Experience
+
+- ~~**`/storytime-breakout`** — Standalone breakout skill.~~ IMPLEMENTED —
+  focused investigation with 2-3 personas without the full pipeline.
+
+- ~~**`/storytime-undo`** — Cancel/undo at any granularity.~~ IMPLEMENTED —
+  fine (last phase), medium (episode), coarse (thread), surgical (specific
+  file), and redo (undo + retry).
 
 - **`/storytime status`** — Show current state: active cohort,
   recent sessions, pending specialist contracts, stale citations.

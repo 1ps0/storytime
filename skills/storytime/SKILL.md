@@ -23,7 +23,112 @@ breakouts aren't needed, go straight from ICEBREAKER to CONVERGE. The
 phase sequence defines the *maximum* workflow — actual sessions use only
 the gears they need.
 
-### Bootstrap
+### Entry: Route
+
+Derive `<topic>` from the problem statement (kebab-case).
+
+Check for a prior thread: does `sessions/<topic>/_thread.md` exist (in
+`specs/.storytime/`, `specs/`, or wherever the repo keeps session output)?
+
+- **Thread found** → go to **Warm Start**
+- **No thread** → go to **Bootstrap** (cold start)
+
+### Warm Start
+
+A warm start is the "previously on..." moment. The system reads the thread
+state and synthesizes a narrative preamble so the user can re-engage without
+re-absorbing the full history. See `references/warm-start.md` for full
+format specifications.
+
+**1. Read thread state:**
+- `_thread.md` — episodes, last phase, team, open questions
+- Decision log — filtered to this topic's decision IDs
+- Persona files — filtered to personas who participated in this topic
+- Last episode's key artifacts — plan.md, icebreaker.md (the substance)
+
+**2. Compute codebase delta:**
+- `git rev-list <thread.last_commit>..HEAD` — commits since last episode
+- `git diff --stat <thread.last_commit>..HEAD` — files changed
+- Cross-reference changed files with the last survey fingerprint's scanned paths
+- Classify drift: in-scope changes, out-of-scope changes, new files
+
+**3. Synthesize narrative preamble:**
+
+Generate a **narrative synopsis** — 3-5 sentences that reconstruct the
+story arc of how the topic reached its current state. This is not a
+changelog or bullet list. It reads the documents and persona histories and
+tells the story they contain, sliced to this topic.
+
+The narrative is **dynamic** — synthesized fresh from the living state every
+time. Never cached, never stale. It answers: what problem was the team
+solving? Who drove which decisions? What did they decide and why? What
+changed in the world since? What's still open?
+
+**4. Present the warm-start card:**
+
+```
+╔═══════════════════════════════════════════════════╗
+║  Previously on <topic>                            ║
+╠═══════════════════════════════════════════════════╣
+║                                                   ║
+║  [narrative synopsis — 3-5 sentences]             ║
+║                                                   ║
+╠═══════════════════════════════════════════════════╣
+║  Team: [names]                                    ║
+║  Episodes: N (last: YYYY-MM-DD)                   ║
+║  Decisions: TOPIC-001 through TOPIC-NNN           ║
+║  Open questions: [from _thread.md]                ║
+║  Codebase drift: [N commits, M files changed]     ║
+╠═══════════════════════════════════════════════════╣
+║  Continue · Retro · New sub-topic · Reset         ║
+╚═══════════════════════════════════════════════════╝
+```
+
+**5. Route based on user choice:**
+
+- **Continue** — resume at the first incomplete phase from `_thread.md`.
+  If the last episode completed all phases, start a new episode at
+  ICEBREAKER (team loaded silently, survey delta for codebase changes).
+- **Retro** — invoke `/storytime-retro` with the topic context.
+- **New sub-topic** — user provides a sub-problem. New episode, same team,
+  starts at ICEBREAKER scoped to the sub-topic.
+- **Reset** — archive the thread and all episodes to cold storage. Start
+  fresh as a cold start. The user is saying "this story is over."
+
+**6. Write `<episode>/preamble.md`:**
+
+Persist the synthesized preamble as the first artifact of the new episode.
+This is an audit trail of what context the session started with.
+
+```yaml
+---
+type: preamble
+created: <YYYY-MM-DDTHH:MM>
+session: <session-id>
+episode: <NNN>
+prior_episode: <NNN-1>
+prior_commit: <sha>
+current_commit: <sha>
+drift_commits: <N>
+drift_files: <N>
+---
+```
+
+**7. Persona behavior on warm start:**
+
+Personas skip introductions. They speak from their accumulated context —
+"last time I flagged X, and since then Y changed" — not from their bio.
+Their persona files already carry the context; the warm start loads it and
+they continue the conversation, not restart it.
+
+**Warm-start collapse rules:**
+- If the user says "skip the recap" → skip the card, go straight to routing
+- If codebase drift is zero → omit the drift line from the card
+- If open questions are empty → omit that line
+- If the user's problem statement implies a direction → auto-select Continue
+  and note it ("Continuing from where we left off...")
+
+### Bootstrap (Cold Start)
 
 Derive `<topic>` from the problem statement (kebab-case).
 
@@ -223,6 +328,29 @@ Present the plan to the user. Enter inline mode — the user can:
 - Log session in `specs/.storytime/history/`
 - Evaluate specialist contracts (complete, promote, or release)
 - Commit any archive changes if artifacts were reviewed
+- **Write or update `sessions/<topic>/_thread.md`:**
+  - If this is episode 1: create `_thread.md` with the full thread state
+  - If this is a later episode: append the episode to the log, update
+    current state, add any new decisions to the summary
+  - Set `last_completed_phase: DONE`, clear open questions
+  - Record current `HEAD` as `last_commit`
+
+### Thread Checkpointing (applies to all phases)
+
+At every phase boundary (when a phase completes and before the next begins),
+update `_thread.md` if it exists:
+
+- Set `last_completed_phase` to the phase that just completed
+- Set `last_commit` to current `HEAD`
+- Update `open_questions` with any unresolved questions from the phase
+
+**Parking:** The user can say "park it here" or "let's stop" at any phase
+boundary. Update the thread, confirm the checkpoint, and exit. The next
+invocation warm-starts at the parked phase.
+
+If `_thread.md` doesn't exist yet (mid-episode-1), the checkpoint is
+implicit in the phase artifacts already written. The thread is created at
+DONE.
 
 ## Process Rules
 
@@ -248,6 +376,12 @@ Present the plan to the user. Enter inline mode — the user can:
     Always pair each with prose. CIU ≥ 13 must decompose.
 20. Evaluation hygiene: observe metrics and conclusions separately.
     Don't weight signals without understanding what they measure.
+21. Warm start is detected, not requested. If `_thread.md` exists, warm-start.
+22. The preamble narrative is always dynamic — synthesized fresh, never cached.
+23. Personas skip introductions on warm start. They speak from accumulated context.
+24. Thread state is the checkpoint — updated at every phase boundary.
+25. Episodes are chapters of the same story. Reset is the explicit "new story" action.
+26. Survey delta replaces full survey on warm start. Only resurvey what changed.
 
 ## Output Format
 
@@ -259,12 +393,16 @@ Output paths depend on the bootstrap mode chosen.
 specs/.storytime/
 ├── cohort/                          — permanent personas
 ├── specialists/                     — temporary personas
-├── sessions/<topic>/                — ALL run output per topic
-│   ├── survey.md                    (+ coverage fingerprint)
-│   ├── team.md
-│   ├── icebreaker.md
-│   ├── breakout-<subtopic>.md
-│   └── plan.md
+├── sessions/<topic>/                — per-topic thread
+│   ├── _thread.md                   — episode bookmark (created at DONE)
+│   ├── <NNN>/                       — episode directory (zero-padded)
+│   │   ├── preamble.md              (warm start only — synthesized narrative)
+│   │   ├── survey.md                (cold start — full survey + fingerprint)
+│   │   ├── survey-delta.md          (warm start — incremental survey)
+│   │   ├── team.md                  (cold start or team changes)
+│   │   ├── icebreaker.md
+│   │   ├── breakout-<subtopic>.md
+│   │   └── plan.md
 ├── archive/
 │   ├── _index.md                    — browsable TOC
 │   ├── current/                     — warm tier
@@ -331,6 +469,7 @@ The gearbox goes both ways.
 For detailed format specifications and scan targets, consult:
 - **`references/artifact-scan.md`** — Scan targets, classification, inventory presentation
 - **`references/artifact-tiers.md`** — Hot/warm/cold tiers, rollup format, archive structure
+- **`references/warm-start.md`** — Thread format, preamble synthesis, episode structure, checkpointing
 - **`references/survey-fingerprint.md`** — Coverage fingerprint format, incremental survey logic
 - **`references/complexity-units.md`** — CIU scale, signals, usage in plans and breakouts
 - **`${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`** — Scale 1-5, dimension examples, evaluation hygiene
