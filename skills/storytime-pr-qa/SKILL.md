@@ -86,6 +86,7 @@ positioned to respond:
 - Architecture challenges → DOMAIN or SYSTEMS
 - Operational concerns → OPERATOR
 - "Do we need this?" → SKEPTIC (they probably asked it first)
+- Code quality, DRY, refactoring suggestions → CRITIC
 
 Personas deliberate internally. They reference their session context:
 "We discussed this during the icebreaker — the constraint was X, which

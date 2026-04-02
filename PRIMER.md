@@ -43,6 +43,7 @@ They're structured perspectives that ensure the plan considers:
 - What's the domain expertise required? (DOMAIN)
 - What are the system constraints? (SYSTEMS)
 - Do we actually need this? (SKEPTIC)
+- Is this the right shape? (CRITIC)
 
 Each persona reads your code, cites specific files and lines, and argues
 from evidence. If two personas disagree, that's signal — the plan needs

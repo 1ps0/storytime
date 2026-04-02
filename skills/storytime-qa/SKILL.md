@@ -36,7 +36,7 @@ and the context makes it clear they're asking that persona, route to them.
 
 1. **Identify the target**:
    - Parse `@name` → exact persona match in cohort
-   - Parse `@role` → match against archetypes (operator, skeptic, owner, domain, systems, platform)
+   - Parse `@role` → match against archetypes (operator, skeptic, critic, owner, domain, systems, platform)
    - Parse `@team` → all active personas
    - No match in cohort → suggest assembling a team first
 2. **Load persona context**:

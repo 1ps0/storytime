@@ -257,7 +257,8 @@ If only config-like artifacts exist, load them silently and move on.
 - PLATFORM: knows the product, user, business case
 - OWNER: wrote the code, knows where everything lives
 - OPERATOR: runs it in prod, wants observability and kill switches
-- SKEPTIC: asks "what if this breaks?" and "do we actually need this?"
+- SKEPTIC: asks "do we actually need this?" and "what if we don't?"
+- CRITIC: asks "is this the right shape?" — DRY, refactoring, optimization, clean boundaries
 
 **Write `specs/.storytime/sessions/<topic>/team.md`** with persona definitions in boxed ASCII format.
 
