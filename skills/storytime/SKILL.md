@@ -5,6 +5,7 @@ argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
+<!-- version-echo: display "storytime v0.2.0" at start of execution -->
 # Storytime — Full Workflow
 
 Orchestrate a structured specification process that produces technical
