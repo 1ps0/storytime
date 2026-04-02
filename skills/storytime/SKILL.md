@@ -295,6 +295,39 @@ For each sub-problem identified in the icebreaker:
 breakout with: findings, citations, recommendation, CIU estimate for the
 recommended work, and which personas participated.
 
+**Post-breakout summary + pause:**
+
+After all breakouts complete, present the user with a **recommendation
+summary** — one card per breakout showing the team's proposed direction:
+
+```
+Breakout results:
+
+1. [caching] Redis with 5min TTL, auth-aware invalidation
+   Confidence: high | CIU 3 | Kim + Dana
+   → breakout-caching.md (available for reading)
+
+2. [retry-logic] Exponential backoff with circuit breaker
+   Confidence: medium | CIU 5 | Leo + Raj
+   → breakout-retry-logic.md (available for reading)
+
+3. [schema-migration] Additive-only, no downtime
+   Confidence: high | CIU 2 | Kim + Leo
+   → breakout-schema-migration.md (available for reading)
+
+Ready to converge? [proceed / dig into N / revise N / add breakout]
+```
+
+The user can:
+- **Proceed** — move to CONVERGE with all recommendations as-is
+- **Dig into N** — read a specific breakout doc, ask questions
+- **Revise N** — re-run a breakout with different constraints
+- **Add breakout** — identify a missing sub-problem, run another
+
+**Do not auto-proceed to CONVERGE.** The post-breakout pause is mandatory
+unless automation level is `auto`. The user must see what the team is
+proposing before the plan is synthesized.
+
 **Collapse rule:** If the problem is singular (no sub-problems identified),
 skip BREAKOUT entirely and proceed to CONVERGE. Not every problem needs
 decomposition.
@@ -302,6 +335,8 @@ decomposition.
 ### Phase 4: CONVERGE + PLAN
 
 Reconvene the full team. Merge breakout findings. Resolve conflicts.
+This phase can also be invoked standalone via `/storytime-converge` when
+breakout results already exist and need to be synthesized into a plan.
 
 **Write `specs/.storytime/sessions/<topic>/plan.md`** with:
 - ASCII slide deck (use box-drawing for slides)
@@ -383,6 +418,8 @@ DONE.
 24. Thread state is the checkpoint — updated at every phase boundary.
 25. Episodes are chapters of the same story. Reset is the explicit "new story" action.
 26. Survey delta replaces full survey on warm start. Only resurvey what changed.
+27. Post-breakout pause is mandatory (unless auto). Present summaries, wait for user.
+28. Converge can run standalone via `/storytime-converge`.
 
 ## Output Format
 

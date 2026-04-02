@@ -20,7 +20,8 @@ Complete reference for events, skills, rules, and file formats.
 | ASSEMBLE    | (system + user) | context + archetypes| team.md           | no             |
 | ICEBREAKER  | full team       | context + team     | icebreaker.md      | no             |
 | BREAKOUT    | sub-team (2-3)  | sub-question       | breakout-N.md      | **yes**        |
-| CONVERGE    | full team       | all breakouts      | plan.md            | no             |
+| POST-BREAK  | (system + user) | breakout results   | user direction     | no             |
+| CONVERGE    | full team       | all breakouts      | plan.md            | no / standalone|
 | DELIBERATE  | full team       | topic + constraints| deliberation round | no             |
 | REVIEW      | user + team     | plan.md            | feedback/revisions | no             |
 | RETROSPECT  | full team       | plan + actuals     | retrospective.md   | no             |
@@ -31,10 +32,17 @@ Complete reference for events, skills, rules, and file formats.
 ## Event Transitions
 
 ```
-START → ROUTE ─┬─ cold start ─→ SURVEY → ASSEMBLE → ICEBREAKER ─→ {BREAKOUT×N | DELIBERATE} → CONVERGE → REVIEW → DONE
-               │                                                                                            ↑      │
-               │                                                                                            └──────┘
-               │                                                                                           (revisions)
+START → ROUTE ─┬─ cold start ─→ SURVEY → ASSEMBLE → ICEBREAKER ─→ {BREAKOUT×N | DELIBERATE}
+               │                                                          │
+               │                                                          ▼
+               │                                                   POST-BREAKOUT PAUSE
+               │                                                   (user reviews summaries)
+               │                                                          │
+               │                                                          ▼
+               │                                                   CONVERGE → REVIEW → DONE
+               │                                                               ↑      │
+               │                                                               └──────┘
+               │                                                              (revisions)
                │
                └─ warm start ─→ WARM_START → [SURVEY-DELTA] → ICEBREAKER ─→ ...same as above
                                     │
@@ -45,6 +53,7 @@ START → ROUTE ─┬─ cold start ─→ SURVEY → ASSEMBLE → ICEBREAKER �
 
 Post-delivery: QA (anytime), RETROSPECT (after implementation)
 Thread checkpoint: _thread.md updated at every phase boundary
+Standalone: CONVERGE can be invoked independently via /storytime-converge
 ```
 
 ## Skills (Available to Personas Mid-Conversation)
@@ -115,6 +124,8 @@ Thread checkpoint: _thread.md updated at every phase boundary
 39. Always confirm before destructive undo — show impact inventory first
 40. Prefer archive over delete — cold storage is recoverable, deletion relies on git
 41. Redo is undo + immediate retry — don't make the user invoke two commands
+42. Post-breakout pause is mandatory (unless auto) — present summaries, wait for user
+43. Converge can run standalone — breakout results as input, plan as output
 
 ## File Naming Conventions
 
@@ -208,11 +219,11 @@ or trust prior.
 
 ## Automation Levels
 
-| Level  | Phase transitions | Breakouts | Team assembly | Review |
-|--------|-------------------|-----------|---------------|--------|
-| manual | user approves each| user approves | user approves | inline |
-| guided | automatic         | automatic | user approves | inline |
-| auto   | automatic         | automatic | automatic     | present-only |
+| Level  | Phase transitions | Breakouts | Post-breakout | Team assembly | Review |
+|--------|-------------------|-----------|---------------|---------------|--------|
+| manual | user approves each| user approves | pause + summary | user approves | inline |
+| guided | automatic         | automatic | pause + summary | user approves | inline |
+| auto   | automatic         | automatic | auto-proceed    | automatic     | present-only |
 
 ## Configuration (`specs/.storytime/config.md`)
 

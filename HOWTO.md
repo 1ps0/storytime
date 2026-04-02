@@ -59,8 +59,19 @@ are identified.
 **BREAKOUT** — sub-problems get parallel deep dives with 2-3 personas each.
 These can run as background agents. Each produces findings + recommendation.
 
+**POST-BREAKOUT PAUSE** — before convergence, you see a summary card for
+each breakout: recommendation, confidence, effort estimate. You can:
+- **Proceed** to convergence
+- **Dig into** a specific breakout (read the full doc, ask questions)
+- **Revise** a breakout (re-run with different constraints)
+- **Add** another breakout for a missing sub-problem
+
+The full breakout docs are available to read. This is your checkpoint
+before the team synthesizes the plan.
+
 **CONVERGE** — the full team reconvenes, merges breakout findings, resolves
-conflicts, and produces the plan.
+conflicts, and produces the plan. Can also be invoked standalone with
+`/storytime-converge` when breakout results already exist.
 
 **REVIEW** — the plan is presented to you. Challenge any decision. The
 personas defend with citations or revise. When you approve, session
@@ -138,6 +149,17 @@ Query a persona about past decisions or current code state.
 ```
 /storytime-qa @kim should we use the same env-var pattern for Opus?
 /storytime-qa @team does our AGC decision still hold after the resample change?
+```
+
+### `/storytime-converge <topic>`
+
+Take existing breakout results and synthesize a unified plan. Use when
+breakouts were run independently or at different times, or when you want
+to re-converge with different constraints.
+
+```
+/storytime-converge agc
+/storytime-converge caching   # after running several /storytime-breakout sessions
 ```
 
 ### `/storytime-retro <topic>`

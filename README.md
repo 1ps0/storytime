@@ -84,6 +84,7 @@ specs/.storytime/
 | `/storytime <problem>` | Full workflow: survey, team, icebreaker, breakouts, plan |
 | `/storytime-survey` | Standalone codebase survey with artifact inventory |
 | `/storytime-breakout <sub-problem>` | Focused 2-3 persona investigation without the full pipeline |
+| `/storytime-converge <topic>` | Merge breakout results into a unified plan |
 | `/storytime-retro <topic>` | Retrospective: plan vs what was actually built |
 
 ### Team Management
@@ -134,7 +135,7 @@ you can park mid-session and resume later.
 storytime/
 ├── .claude-plugin/plugin.json    Plugin manifest (v0.2.0)
 ├── VERSION                       Version file
-├── skills/                       13 skills (entry points)
+├── skills/                       14 skills (entry points)
 ├── agents/
 │   └── breakout-runner.md        Lifecycle-enforced breakout agent
 ├── scripts/
@@ -144,7 +145,7 @@ storytime/
 │   ├── export-decisions.sh       Decision log → JSON
 │   └── bump-version.sh           Update version across all files
 ├── docs/
-│   ├── process-reference.md      Events, skills, 41 rules
+│   ├── process-reference.md      Events, skills, 43 rules
 │   ├── architecture.md           Runtime model, agent dispatch
 │   ├── comparisons.md            vs Speckit, Kiro, OpenSpec, ADRs
 │   ├── multi-repo-distribution.md Installation models, org cohort
