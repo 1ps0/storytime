@@ -53,7 +53,8 @@ The breakout team works the problem. Available mid-breakout skills:
 | Skill | Use |
 |-------|-----|
 | VERIFY | Grep/Read to check a claim against code |
-| RESEARCH | WebSearch/WebFetch for external info |
+| GROUND | Read repo docs (README, ADRs, specs) to verify context |
+| RESEARCH | WebSearch/WebFetch for external docs, RFCs, benchmarks |
 | DISCOVERY | Explore agent for code mapping |
 | PROTOTYPE | Write draft code for illustration |
 
@@ -70,7 +71,7 @@ The breakout converges on a recommendation:
 - **Complexity estimate:** How hard is the recommended work?
 - **Scale estimate:** How big is the blast radius?
 - **Open questions:** What couldn't we resolve?
-- **Citations:** Code references grounding the recommendation
+- **Citations:** Code, doc, web, or git references grounding the recommendation
 
 ### 5. Output
 

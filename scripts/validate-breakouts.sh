@@ -81,9 +81,14 @@ for file in $breakouts; do
     fi
   done
 
-  # Check for at least one code citation (file:line pattern)
-  if ! grep -qE '[a-zA-Z0-9_/.-]+:[0-9]+' "$file" 2>/dev/null; then
-    errors="${errors}  - No code citations found (expected file:line pattern)\n"
+  # Check for at least one citation (code, doc, web, or git)
+  has_citation=false
+  grep -qE '[a-zA-Z0-9_/.-]+:[0-9]+' "$file" 2>/dev/null && has_citation=true    # file:line
+  grep -qE '\[https?://' "$file" 2>/dev/null && has_citation=true                  # [url]
+  grep -qiE 'commit [a-f0-9]{7}' "$file" 2>/dev/null && has_citation=true         # commit sha
+  grep -qiE 'RFC [0-9]' "$file" 2>/dev/null && has_citation=true                  # RFC reference
+  if [ "$has_citation" = false ]; then
+    errors="${errors}  - No citations found (expected code, doc, web, or git references)\n"
   fi
 
   # Check Complexity mention

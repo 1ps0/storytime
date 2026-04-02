@@ -304,10 +304,15 @@ For each sub-problem identified in the icebreaker:
 - Assign 2-3 personas
 - Launch as a parallel sub-agent if independent
 - Each breakout can invoke skills mid-conversation:
-  - VERIFY: Grep/Read to check a claim
-  - RESEARCH: WebSearch/WebFetch for external info
+  - VERIFY: Grep/Read to check a claim against code
+  - GROUND: Read repo docs (README, ADRs, specs) to verify context
+  - RESEARCH: WebSearch/WebFetch for external info (library docs, RFCs, benchmarks)
   - DISCOVERY: Explore agent for code mapping
   - PROTOTYPE: Write draft code for illustration
+- **Grounding is multi-source.** Personas should use whichever evidence is
+  strongest for the claim. Code for "this function does X." Docs for "the
+  design intent was Y." Web for "Redis supports Z natively." Git for "this
+  was tried and reverted."
 - Produce a recommendation
 
 **Write `specs/.storytime/sessions/<topic>/breakout-<subtopic>.md`** for each
@@ -410,7 +415,7 @@ there.
 1. SURVEY before ASSEMBLE. Never build a team blind.
 2. ICEBREAKER before BREAKOUT. Shared understanding before depth.
 3. CONVERGE before showing the user. Internal consensus first.
-4. Every technical claim must cite code (file:line).
+4. Every technical claim must be grounded — cite code, docs, or external sources.
 5. At least one OPERATOR archetype. Always.
 6. Non-goals and success criteria are required, not optional.
 7. Visual aids use ASCII box-drawing. No external tools.
@@ -437,6 +442,32 @@ there.
 26. Survey delta replaces full survey on warm start. Only resurvey what changed.
 27. Post-breakout pause is mandatory (unless auto). Present summaries, wait for user.
 28. Converge can run standalone via `/storytime-converge`.
+29. Grounding is multi-source: code, docs, web, git — use the strongest evidence for the claim.
+
+## Citation Formats
+
+Claims must be grounded. Use the format that matches the source:
+
+```
+Code:     src/middleware/auth.ts:32 — JWT tier extraction
+Doc:      docs/api-design.md:15 — "all public endpoints require auth"
+Web:      [redis.io/commands/zrangebyscore] — sorted set range query
+Git:      commit abc123 — "revert Opus decoder, CGO dependency blocker"
+External: RFC 6585 §4 — 429 Too Many Requests status code
+```
+
+**Evidence hierarchy** (strongest to weakest):
+1. **Code** — the actual runtime truth. If it's in the code, it's fact.
+2. **Git** — factual record of what changed and when. Needs interpretation.
+3. **Repo docs** — describes intent but may be stale. Check against code.
+4. **External docs** — library/API docs, RFCs. Authoritative for external systems.
+5. **Web** — blog posts, benchmarks, SO answers. Useful but verify freshness.
+
+Personas should reach for the strongest available evidence. A claim about
+code behavior cites code. A claim about design intent cites docs. A claim
+about external system behavior cites that system's docs or a web source.
+If a persona makes a claim without citing, other personas should challenge:
+"can you ground that?"
 
 ## Output Format
 

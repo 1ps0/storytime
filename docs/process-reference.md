@@ -64,6 +64,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 | web_search   | WebSearch        | medium  | optional| Look up RFCs, docs, papers  |
 | web_fetch    | WebFetch         | medium  | optional| Pull specific page content  |
 | read_file    | Read             | fast    | inline  | Verify a specific line      |
+| read_doc     | Read             | fast    | inline  | Check repo docs, ADRs, specs|
 | grep_code    | Grep             | fast    | inline  | Find callers, patterns      |
 | prototype    | Agent + Write    | slow    | blocking| Sketch implementation       |
 | benchmark    | Agent + Bash     | slow    | blocking| Measure performance         |
@@ -78,7 +79,8 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 | DISCOVERY         | Explore       | Code map + deps         | Need to understand code     |
 | PROTOTYPE         | general + Write| Draft code + explanation| Need to sketch a solution   |
 | BENCHMARK         | general + Bash| Timing + analysis       | Need performance data       |
-| VERIFY            | Grep + Read   | Confirmed/corrected     | Need to check a claim       |
+| VERIFY            | Grep + Read   | Confirmed/corrected     | Need to check a code claim  |
+| GROUND            | Read          | Confirmed/corrected     | Need to check a doc claim   |
 | SUB-DELIBERATION  | general       | Analysis + recommendation| Complex sub-problem        |
 
 ## Process Rules
@@ -91,7 +93,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 6. At least one OPERATOR archetype (always)
 7. Permanent cohort participates by default
 8. User can fire, bench, or recruit at any time
-9. Every technical claim must be verifiable (cite or VERIFY)
+9. Every technical claim must be grounded (code, docs, web, or git citation)
 10. Breakout findings override prior assumptions
 11. Prototypes are disposable (illustration, not production)
 12. Every plan has non-goals (required)

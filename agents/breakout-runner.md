@@ -110,8 +110,10 @@ Required sections (every breakout file MUST contain all of these):
 - **Scale:** <N> (<dimension>) — <prose>
 
 ## Citations
-- <file:line — description>
-- <file:line — description>
+- <file:line — description>                    (code)
+- <doc-file:line — description>                (repo doc)
+- [<url>] — <description>                     (web/external)
+- commit <sha> — <description>                (git)
 
 ## Open Questions
 - <anything unresolved>
@@ -132,7 +134,7 @@ After writing, verify the file:
    - [ ] Recommendation section
    - [ ] Confidence section
    - [ ] Effort Estimate with Complexity and Scale
-   - [ ] Citations section with at least one `file:line` reference
+   - [ ] Citations section with at least one grounded reference (code, doc, web, or git)
    - [ ] Open Questions section
    - [ ] Participants section
 
