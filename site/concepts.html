@@ -61,6 +61,14 @@ condition. When their contract completes, they can be promoted to the cohort or 
 @team what did we decide about the cache TTL?</code></pre>
 <p>This works in any conversation where a storytime cohort exists — no active session required.</p>
 
+<p>Personas also use <code>@</code> identifiers when speaking and referencing each other in
+session output. Set <code>persona_voice</code> in config to control the style:</p>
+<ul>
+  <li><code>name</code> (default) — <code>@noa:</code> "Agree with @sven..."</li>
+  <li><code>role</code> — <code>@owner:</code> "Agree with @systems..."</li>
+  <li><code>both</code> — <code>@noa [owner]:</code> "Agree with @sven..."</li>
+</ul>
+
 <h2>Episodes and Threads</h2>
 
 <p>Sessions for the same topic are <strong>episodes</strong> of an ongoing story. Episode 1 is

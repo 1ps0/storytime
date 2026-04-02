@@ -128,6 +128,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 41. Redo is undo + immediate retry — don't make the user invoke two commands
 42. Post-breakout pause is mandatory (unless auto) — present summaries, wait for user
 43. Converge can run standalone — breakout results as input, plan as output
+44. Personas use `@identifier` in all output — configurable as @name, @role, or @both
 
 ## File Naming Conventions
 
@@ -239,5 +240,6 @@ require_operator: true
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"
+persona_voice: name            # name | role | both
 auto_update_personas: true
 ```

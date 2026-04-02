@@ -79,14 +79,14 @@ like:
 ║  Previously on rate-limiting                      ║
 ╠═══════════════════════════════════════════════════╣
 ║                                                   ║
-║  Noa identified the missing throttle layer in     ║
-║  the Express middleware chain. Sven pushed for     ║
-║  Redis-backed sliding window. Mika flagged the    ║
-║  auth bypass risk on 429 responses. Rio got the   ║
+║   identified the missing throttle layer in     ║
+║  the Express middleware chain.  pushed for     ║
+║  Redis-backed sliding window.  flagged the    ║
+║  auth bypass risk on 429 responses.  got the   ║
 ║  kill switch and per-route Grafana dashboards.    ║
 ║                                                   ║
 ╠═══════════════════════════════════════════════════╣
-║  Team: Noa, Sven, Mika, Rio                       ║
+║  Team: @noa, @sven, @mika, @rio                       ║
 ║  Episodes: 1 (last: 2026-04-01)                   ║
 ║  Decisions: RATE-001 through RATE-004             ║
 ║  Codebase drift: 7 commits, 3 in src/            ║

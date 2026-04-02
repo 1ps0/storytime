@@ -74,24 +74,24 @@ Creating specs/.storytime/</code></pre>
 <div class="wt-phase">
 <div class="wt-label">Phase 2 &mdash; Icebreaker</div>
 
-<p><span class="wt-persona">Noa:</span> The middleware chain in <code>src/server.ts:14-28</code>
+<p><span class="wt-persona">@noa:</span> The middleware chain in <code>src/server.ts:14-28</code>
 goes auth &rarr; logging &rarr; routes. There's no throttle layer anywhere. Every
 request hits the route handler regardless of volume. The <code>/search</code> endpoint
 at <code>src/routes/search.ts:23</code> does a full Postgres text search per call &mdash;
 that's the expensive path.</p>
 
-<p><span class="wt-persona">Sven:</span> We're already running Redis for sessions
+<p><span class="wt-persona">@sven:</span> We're already running Redis for sessions
 (<code>src/config/redis.ts:5</code>). Adding rate limit counters there is zero new infra.
 The question is algorithm: fixed window is simplest but has the burst-at-boundary
 problem. Sliding window is smoother but needs more storage.</p>
 
-<p><span class="wt-persona">Mika:</span> The auth middleware at <code>src/middleware/auth.ts:32</code>
+<p><span class="wt-persona">@mika:</span> The auth middleware at <code>src/middleware/auth.ts:32</code>
 already extracts the tier (free/pro/enterprise) from the JWT. Rate limits should
 key on that. But I want to flag: if we return 429, we need to make sure the
 response doesn't leak auth state. Some implementations echo back the rate limit
 key, which can be an info disclosure vector.</p>
 
-<p><span class="wt-persona">Rio:</span> Two things. One, I need a kill switch &mdash;
+<p><span class="wt-persona">@rio:</span> Two things. One, I need a kill switch &mdash;
 an env var that disables rate limiting entirely if it's causing false positives in
 prod. Two, I need per-route metrics in Prometheus: request count, 429 count, and
 current utilization ratio. Without that, I'm flying blind on whether the limits
@@ -111,7 +111,7 @@ are right.</p>
 
 <p><span class="wt-muted">Three breakouts launched in parallel:</span></p>
 
-<h4>Breakout: algorithm (Noa + Mika)</h4>
+<h4>Breakout: algorithm (@noa + @mika)</h4>
 <p>Investigated token bucket, sliding window log, and fixed window counter.
 Sliding window log is the best fit: precise, no burst-at-boundary, and the
 memory cost is bounded by the window size. Token bucket is overkill for HTTP
@@ -119,7 +119,7 @@ APIs (better for streaming). Fixed window is too coarse for our tier system.</p>
 <p><em>Recommendation:</em> Sliding window with 60s window. Per-key sorted set in Redis.
 <br><em>Confidence:</em> high | <em>Complexity:</em> 3 | <em>Scale:</em> 2 (module)</p>
 
-<h4>Breakout: storage (Sven + Rio)</h4>
+<h4>Breakout: storage (@sven + @rio)</h4>
 <p>Redis is already in the stack (<code>src/config/redis.ts:5</code>). In-memory would be
 faster but doesn't survive restarts and won't work with multiple instances.
 Redis sorted sets with ZRANGEBYSCORE give us the sliding window primitive natively.
@@ -127,7 +127,7 @@ TTL on keys handles cleanup. Tested: 0.3ms per rate check at 10k concurrent keys
 <p><em>Recommendation:</em> Redis sorted sets with automatic TTL expiry.
 <br><em>Confidence:</em> high | <em>Complexity:</em> 2 | <em>Scale:</em> 2 (module)</p>
 
-<h4>Breakout: middleware (Noa + Rio)</h4>
+<h4>Breakout: middleware (@noa + @rio)</h4>
 <p>The rate limiter must sit after auth (needs the tier and client ID from the JWT)
 but before route handlers. At <code>src/server.ts:22</code>, between the auth middleware
 and the router mount. Mika's concern about 429 info leakage: the response should
@@ -144,15 +144,15 @@ Kill switch via <code>RATE_LIMIT_ENABLED</code> env var (default: true).</p>
 <pre><code>Breakout results:
 
 1. [algorithm] Sliding window, 60s, Redis sorted sets
-   Confidence: high | Complexity 3 | Noa + Mika
+   Confidence: high | Complexity 3 | @noa + @mika
    &#x2192; breakout-algo.md
 
 2. [storage] Redis sorted sets with TTL expiry
-   Confidence: high | Complexity 2 | Sven + Rio
+   Confidence: high | Complexity 2 | @sven + @rio
    &#x2192; breakout-store.md
 
 3. [middleware] After auth, before routes, with kill switch
-   Confidence: high | Complexity 3 | Noa + Rio
+   Confidence: high | Complexity 3 | @noa + @rio
    &#x2192; breakout-middleware.md
 
 Conflicts: none
@@ -243,7 +243,7 @@ Ready to converge? [proceed / dig into N / revise N / add breakout]</code></pre>
 
 <p><span class="wt-user">User:</span> Why not just use express-rate-limit?</p>
 
-<p><span class="wt-persona">Noa:</span> <code>express-rate-limit</code> uses fixed window by default and
+<p><span class="wt-persona">@noa:</span> <code>express-rate-limit</code> uses fixed window by default and
 its sliding window option uses in-memory storage. Per Sven's breakout finding,
 in-memory doesn't survive restarts and won't work across multiple instances.
 We could use <code>rate-limit-redis</code> as the store, but at that point we're writing

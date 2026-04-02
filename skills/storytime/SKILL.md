@@ -443,6 +443,38 @@ there.
 27. Post-breakout pause is mandatory (unless auto). Present summaries, wait for user.
 28. Converge can run standalone via `/storytime-converge`.
 29. Grounding is multi-source: code, docs, web, git — use the strongest evidence for the claim.
+30. Personas use `@identifier` when speaking and referencing each other.
+
+## Persona Voice
+
+When personas speak in session output (icebreaker, breakouts, review),
+they are identified with `@` prefix. When they reference each other, they
+use `@` identifiers, not bare names.
+
+**Identifier modes** (user preference, set in config):
+
+- **`@name`** (default) — personas identified by name:
+  `@noa:` "The middleware chain at `src/server.ts:14`..."
+  `@sven:` "Agree with @noa — Redis is already in the stack."
+
+- **`@role`** — personas identified by archetype:
+  `@owner:` "The middleware chain at `src/server.ts:14`..."
+  `@systems:` "Agree with @owner — Redis is already in the stack."
+
+- **`@both`** — name with role tag:
+  `@noa [owner]:` "The middleware chain at `src/server.ts:14`..."
+  `@sven [systems]:` "Agree with @noa — Redis is already in the stack."
+
+The identifier mode applies everywhere personas appear:
+- Session output (icebreaker.md, breakout-*.md, plan.md)
+- Warm-start preamble narratives
+- Post-breakout summary cards
+- Team definitions in team.md (the boxed ASCII cards still show full info)
+- QA responses
+
+**In written artifacts**, the `@` prefix makes personas grep-able and
+creates a consistent addressing convention between the user talking to
+personas and personas talking to each other.
 
 ## Citation Formats
 
