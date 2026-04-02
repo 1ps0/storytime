@@ -15,7 +15,7 @@ claude --plugin-dir ~/workspace/storytime
 ```
 
 Verify it's loaded — you should see storytime skills in the slash command
-list. Any skill invocation starts with `storytime v0.2.0`.
+list. Any skill invocation starts with `storytime v0.3.0`.
 
 ---
 
@@ -97,25 +97,33 @@ The **plan.md** always includes:
 
 ## Returning to a Topic
 
-When you run `/storytime <topic>` on a topic that already has a thread,
-you get a warm start:
+Just run `/storytime` with no arguments:
 
 ```
-/storytime rate-limiting
+/storytime
 ```
 
-Storytime reads the thread state, decision log, persona histories, and
-git delta, then synthesizes a narrative recap. You pick:
+Storytime scans for existing threads and shows what's in progress:
 
-- **Continue** — resume where you left off or start a new episode
-- **Retro** — compare plan vs what was built
-- **New sub-topic** — focused episode within the same topic
-- **Reset** — archive everything, fresh start
+```
+Recent storytime threads:
 
-### Parking Mid-Session
+1. rate-limiting  (episode 2, last: 2026-04-01, DONE)
+2. auth-refactor  (episode 1, last: 2026-03-28, ICEBREAKER — incomplete)
+3. search-perf    (episode 1, last: 2026-03-25, DONE)
 
-Say "park it here" at any phase boundary. Storytime checkpoints the
-thread and exits. Next invocation picks up at the parked phase.
+Resume one? Or describe a new problem.
+```
+
+Incomplete sessions are highlighted. If there's only one incomplete thread,
+it auto-resumes. You can also invoke directly: `/storytime rate-limiting`.
+
+### Automatic Checkpointing
+
+The thread is checkpointed after every phase automatically. If your session
+is interrupted — context limit, terminal close, you walk away — the next
+`/storytime` detects the incomplete thread and offers to resume exactly
+where you left off. No explicit save needed.
 
 ---
 
@@ -343,8 +351,8 @@ That's the point.
 you just need one investigation. `/storytime-breakout` is faster and
 produces a focused recommendation.
 
-**Park when you need to think.** Say "park it here" at any phase boundary.
-The thread checkpoints and you can resume later with full context.
+**Just walk away.** The thread auto-checkpoints after every phase. Come back
+later with `/storytime` and pick up where you left off.
 
 **Check status regularly.** `/storytime-status` shows you everything:
 active threads, pending decisions, stale citations, persona state.

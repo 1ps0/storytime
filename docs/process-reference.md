@@ -117,7 +117,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 32. Warm start is detected, not requested — if `_thread.md` exists, warm-start
 33. Preamble narrative is always dynamic — synthesized fresh, never cached
 34. Personas skip introductions on warm start — speak from accumulated context
-35. Thread state is the checkpoint — updated at every phase boundary
+35. Thread auto-checkpoints at every phase boundary — created at first phase, no explicit save
 36. Episodes are chapters, not restarts — Reset is the explicit "new story" action
 37. Survey delta replaces full survey on warm start — only resurvey what changed
 38. Standalone breakouts are valid — not every investigation needs the full pipeline

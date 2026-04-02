@@ -5,7 +5,7 @@ argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.2.0" at start of execution -->
+<!-- version-echo: display "storytime v0.3.0" at start of execution -->
 # Storytime — Full Workflow
 
 Orchestrate a structured specification process that produces technical
@@ -26,7 +26,26 @@ the gears they need.
 
 ### Entry: Route
 
-Derive `<topic>` from the problem statement (kebab-case).
+**If no arguments provided** (bare `/storytime`), scan for existing threads:
+
+1. Find all `_thread.md` files in the storytime session directory
+2. If threads exist, present a **topic picker**:
+   ```
+   Recent storytime threads:
+
+   1. rate-limiting  (episode 2, last: 2026-04-01, DONE)
+   2. auth-refactor  (episode 1, last: 2026-03-28, ICEBREAKER — incomplete)
+   3. search-perf    (episode 1, last: 2026-03-25, DONE)
+
+   Resume one? Or describe a new problem.
+   ```
+   - Incomplete sessions are highlighted — they have unfinished phases
+   - If only one thread exists and it's incomplete, auto-resume it:
+     "Resuming rate-limiting (parked at ICEBREAKER)..."
+   - The user can pick a number, type a topic name, or describe a new problem
+3. If no threads exist, proceed as a fresh invocation
+
+**If arguments provided**, derive `<topic>` from the problem statement (kebab-case).
 
 Check for a prior thread: does `sessions/<topic>/_thread.md` exist (in
 `specs/.storytime/`, `specs/`, or wherever the repo keeps session output)?
@@ -364,29 +383,27 @@ Present the plan to the user. Enter inline mode — the user can:
 - Log session in `specs/.storytime/history/`
 - Evaluate specialist contracts (complete, promote, or release)
 - Commit any archive changes if artifacts were reviewed
-- **Write or update `sessions/<topic>/_thread.md`:**
-  - If this is episode 1: create `_thread.md` with the full thread state
-  - If this is a later episode: append the episode to the log, update
-    current state, add any new decisions to the summary
+- **Finalize `sessions/<topic>/_thread.md`** (already exists from auto-checkpointing):
+  - Append the completed episode to the episode log
+  - Add any new decisions to the summary
   - Set `last_completed_phase: DONE`, clear open questions
   - Record current `HEAD` as `last_commit`
 
-### Thread Checkpointing (applies to all phases)
+### Thread Checkpointing (automatic, every phase)
 
-At every phase boundary (when a phase completes and before the next begins),
-update `_thread.md` if it exists:
+Checkpointing is automatic. At every phase boundary (when a phase completes
+and before the next begins), write or update `_thread.md`:
 
+- **Create** `_thread.md` if it doesn't exist yet (first phase of episode 1)
 - Set `last_completed_phase` to the phase that just completed
 - Set `last_commit` to current `HEAD`
 - Update `open_questions` with any unresolved questions from the phase
 
-**Parking:** The user can say "park it here" or "let's stop" at any phase
-boundary. Update the thread, confirm the checkpoint, and exit. The next
-invocation warm-starts at the parked phase.
-
-If `_thread.md` doesn't exist yet (mid-episode-1), the checkpoint is
-implicit in the phase artifacts already written. The thread is created at
-DONE.
+The thread is always current. If the session is interrupted for any reason
+(context limit, terminal close, user walks away), the next `/storytime`
+invocation detects the incomplete thread and offers to resume exactly where
+it left off. No explicit "park" command needed — the checkpoint is already
+there.
 
 ## Process Rules
 

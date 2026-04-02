@@ -5,7 +5,7 @@ argument-hint: "@persona <question> or <question for full team>"
 allowed-tools: [Read, Glob, Grep, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.2.0" at start of execution -->
+<!-- version-echo: display "storytime v0.3.0" at start of execution -->
 # Storytime QA — Persona Query
 
 Route a direct question to a Storytime persona or the full team,

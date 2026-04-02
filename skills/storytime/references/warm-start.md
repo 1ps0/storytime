@@ -76,12 +76,12 @@ topic: <topic>
 
 ### Rules
 
-1. **Created at end of episode 1.** The first cold-start run creates
-   `_thread.md` during its DONE phase.
-2. **Updated at every phase boundary.** When a phase completes, update
-   `last_completed_phase`, `last_commit`, and `open_questions`. This is
-   the checkpoint — if the session is interrupted, the next invocation
-   can resume from this point.
+1. **Created at first phase completion.** The thread is written as soon as
+   the first phase produces output — not deferred to DONE. This means even
+   a session interrupted after SURVEY has a resumable checkpoint.
+2. **Updated automatically at every phase boundary.** When a phase completes,
+   update `last_completed_phase`, `last_commit`, and `open_questions`. No
+   user action required — the checkpoint is always current.
 3. **Episode log is append-only.** Each completed episode adds a row.
 4. **Decision summary mirrors the decision log** but filtered to this
    topic. It's a convenience index, not the source of truth.
@@ -244,9 +244,10 @@ Don't make the user sit through a survey that found nothing.
 
 ---
 
-## Phase Checkpointing
+## Automatic Checkpointing
 
-At every phase boundary, update `_thread.md`:
+Checkpointing is automatic, not user-triggered. At every phase boundary,
+the orchestrator writes or updates `_thread.md`:
 
 ```
 last_completed_phase: <PHASE>
@@ -255,14 +256,12 @@ open_questions:
   - <any unresolved questions from the completed phase>
 ```
 
-This is the mechanism that enables mid-session resumption. If a session is
-interrupted (user closes terminal, context window fills, explicit "park it
-here"), the next invocation reads the checkpoint and resumes.
+The `_thread.md` is created at the first phase completion (not deferred to
+DONE). This means the thread is always current. If a session is interrupted
+for any reason — context limit, terminal close, user walks away — the next
+invocation detects the incomplete thread and offers to resume.
 
-**Parking:** The user can say "park it here" or "let's stop here" at any
-phase boundary. The orchestrator updates the thread, confirms the
-checkpoint, and exits cleanly. Next invocation warm-starts at the parked
-phase.
+No explicit "park" command is needed. The checkpoint is already there.
 
 ---
 

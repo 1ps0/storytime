@@ -10,7 +10,7 @@
 
 <nav>
   <div class="container">
-    <a class="logo" href="index.html"><span>storytime</span> v0.2.0</a>
+    <a class="logo" href="index.html"><span>storytime</span> v0.3.0</a>
     <a href="index.html">Home</a>
     <a href="primer.html">Primer</a>
     <a href="howto.html" class="active">HOWTO</a>
@@ -27,7 +27,7 @@
 <span style="color:var(--text-muted)"># Or per-session</span>
 <span style="color:var(--green)">$</span> claude --plugin-dir ~/workspace/storytime</code></pre>
 
-<p>Every skill invocation echoes <code>storytime v0.2.0</code> so you know what version you're running.</p>
+<p>Every skill invocation echoes <code>storytime v0.3.0</code> so you know what version you're running.</p>
 
 <h2>Your First Session</h2>
 
@@ -52,11 +52,13 @@
 <p><a href="walkthrough.html">See the full simulated walkthrough &rarr;</a></p>
 
 <h2>Returning to a Topic</h2>
-<pre><code>/storytime rate-limiting</code></pre>
-<p>Warm start: narrative recap, team loaded, you pick Continue / Retro / Sub-topic / Reset.</p>
+<pre><code>/storytime</code></pre>
+<p>Run bare <code>/storytime</code> to see recent threads. Incomplete sessions are highlighted.
+If only one thread is incomplete, it auto-resumes. Or invoke directly: <code>/storytime rate-limiting</code>.</p>
 
-<h3>Parking</h3>
-<p>Say "park it here" at any phase boundary. Thread checkpoints. Next invocation resumes.</p>
+<h3>Automatic Checkpointing</h3>
+<p>The thread auto-checkpoints after every phase. If your session is interrupted, the next
+<code>/storytime</code> detects the incomplete thread and offers to resume. No explicit save needed.</p>
 
 <h2>Skill Reference</h2>
 
@@ -137,7 +139,7 @@
 
 <div class="container">
 <div class="footer">
-  <p>Storytime v0.2.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p>Storytime v0.3.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
   <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
 </div>
 </div>
