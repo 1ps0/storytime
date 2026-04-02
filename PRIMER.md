@@ -35,7 +35,7 @@ a plan that's actually anchored to the codebase.
 ## The Core Idea
 
 **Personas are domain-expert lenses, not characters.** When storytime
-creates "Kim the architect" or "Leo the SRE," they're not role-playing.
+creates "Noa the API architect" or "Rio the SRE," they're not role-playing.
 They're structured perspectives that ensure the plan considers:
 
 - Who owns this code? (OWNER)
@@ -51,15 +51,16 @@ to address the tension.
 ## How It Works
 
 ```
-You: /storytime "quiet callers aren't getting picked up by speech recognition"
+You: /storytime "our public API has no rate limiting and scrapers are abusing /search"
 
 Storytime:
   1. Surveys your codebase (what exists, what's relevant)
   2. Assembles a team (3-7 personas covering the problem's domains)
   3. Runs an icebreaker (team discusses the status quo, grounded in code)
   4. Executes breakouts (parallel deep dives on sub-problems)
-  5. Converges on a plan (ASCII slides, decisions, roadmap)
-  6. Presents for review (you challenge, they defend or revise)
+  5. Pauses for your input (you review breakout summaries before convergence)
+  6. Converges on a plan (ASCII slides, decisions, roadmap)
+  7. Presents for review (you challenge, they defend or revise)
 ```
 
 The team persists. Next time you run storytime in the same repo, the
@@ -75,21 +76,20 @@ like:
 
 ```
 ╔═══════════════════════════════════════════════════╗
-║  Previously on AGC                                ║
+║  Previously on rate-limiting                      ║
 ╠═══════════════════════════════════════════════════╣
 ║                                                   ║
-║  Kim noticed quiet callers vanishing in Nova      ║
-║  Sonic's input. Dana traced it through            ║
-║  ForkToWebSocket. Raj spec'd DSP math at          ║
-║  -40/-20 dBFS with a scratch buffer for zero      ║
-║  allocs. Leo got his kill switch and per-call      ║
-║  stats. 309ns/frame against a 1ms budget.         ║
+║  Noa identified the missing throttle layer in     ║
+║  the Express middleware chain. Sven pushed for     ║
+║  Redis-backed sliding window. Mika flagged the    ║
+║  auth bypass risk on 429 responses. Rio got the   ║
+║  kill switch and per-route Grafana dashboards.    ║
 ║                                                   ║
 ╠═══════════════════════════════════════════════════╣
-║  Team: Kim, Dana, Leo                             ║
-║  Episodes: 1 (last: 2026-03-24)                   ║
-║  Decisions: AGC-001 through AGC-006               ║
-║  Codebase drift: 4 commits, 2 in pkg/enhance/    ║
+║  Team: Noa, Sven, Mika, Rio                       ║
+║  Episodes: 1 (last: 2026-04-01)                   ║
+║  Decisions: RATE-001 through RATE-004             ║
+║  Codebase drift: 7 commits, 3 in src/            ║
 ╠═══════════════════════════════════════════════════╣
 ║  Continue · Retro · New sub-topic · Reset         ║
 ╚═══════════════════════════════════════════════════╝
@@ -128,7 +128,7 @@ The code tells you what exists — storytime tells you why.
 
 - **New feature design** — "we need caching for the API layer"
 - **Architecture decisions** — "should we split this service?"
-- **Bug investigation** — "quiet speakers aren't getting recognized"
+- **Bug investigation** — "webhooks are silently failing under load"
 - **Refactoring planning** — "this module needs to be cleaned up"
 - **Onboarding context** — "how did this system get to its current state?"
 - **Post-implementation review** — "did the plan match what we built?"

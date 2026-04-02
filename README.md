@@ -43,7 +43,7 @@ claude install-plugin ~/workspace/storytime
 claude --plugin-dir ~/workspace/storytime
 
 # Run it
-/storytime "we need automatic gain control for quiet SIP callers"
+/storytime "our public API has no rate limiting and scrapers are abusing /search"
 ```
 
 That's it. Storytime surveys your code, assembles a team, and produces a
@@ -121,7 +121,7 @@ claim in code citations.
 narrative. Warm start synthesizes a "previously on..." so you pick up
 without re-reading the book.
 
-**Decisions** are append-only, numbered per topic (AGC-001, AGC-002).
+**Decisions** are append-only, numbered per topic (RATE-001, RATE-002).
 They cite the code and personas that drove them. Never deleted, only
 superseded.
 
@@ -159,7 +159,7 @@ storytime/
 │       ├── worktrees-workflow.md
 │       └── git-archaeology.md
 ├── examples/
-│   ├── agc-session.md            Real AGC walkthrough
+│   ├── agc-session.md            Real session walkthrough
 │   └── persona-template.md       New persona starter
 ├── PRIMER.md                     What storytime is and why
 ├── HOWTO.md                      Developer-oriented usage guide

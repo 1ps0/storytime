@@ -101,7 +101,7 @@ When you run `/storytime <topic>` on a topic that already has a thread,
 you get a warm start:
 
 ```
-/storytime agc
+/storytime rate-limiting
 ```
 
 Storytime reads the thread state, decision log, persona histories, and
@@ -147,8 +147,8 @@ have a team and context but need a deep dive on one thing.
 Query a persona about past decisions or current code state.
 
 ```
-/storytime-qa @kim should we use the same env-var pattern for Opus?
-/storytime-qa @team does our AGC decision still hold after the resample change?
+/storytime-qa @noa should we use the same middleware pattern for WebSocket?
+/storytime-qa @team does our rate limit decision still hold after the auth refactor?
 ```
 
 ### `/storytime-converge <topic>`
@@ -158,7 +158,7 @@ breakouts were run independently or at different times, or when you want
 to re-converge with different constraints.
 
 ```
-/storytime-converge agc
+/storytime-converge rate-limiting
 /storytime-converge caching   # after running several /storytime-breakout sessions
 ```
 
@@ -167,7 +167,7 @@ to re-converge with different constraints.
 Reconvene the original team to compare outcomes against the plan.
 
 ```
-/storytime-retro agc
+/storytime-retro rate-limiting
 ```
 
 ### `/storytime-pr-qa <pr-number>`
@@ -186,10 +186,10 @@ Manage personas. The cohort persists across sessions.
 
 ```
 /storytime-cohort list              # show active roster
-/storytime-cohort hire raj domain-dsp "Audio DSP, 10yr embedded"
-/storytime-cohort bench dana        # temporarily inactive
-/storytime-cohort evolve kim "now knows Opus internals"
-/storytime-cohort promote raj       # specialist → permanent
+/storytime-cohort hire mika domain-security "AppSec, 8yr abuse prevention"
+/storytime-cohort bench sven        # temporarily inactive
+/storytime-cohort evolve noa "now knows WebSocket rate patterns"
+/storytime-cohort promote mika      # specialist → permanent
 /storytime-cohort fire old-persona  # remove from roster
 ```
 
@@ -244,8 +244,8 @@ Transform storytime output into other formats: ADRs, GitHub issues,
 Linear tickets, Kiro specs.
 
 ```
-/storytime-export agc --format=adr
-/storytime-export agc --format=github-issues
+/storytime-export rate-limiting --format=adr
+/storytime-export rate-limiting --format=github-issues
 ```
 
 ### `/storytime-undo`
@@ -314,10 +314,10 @@ instead of time estimates.
 
 ```bash
 # Check for stale code citations in storytime output
-./scripts/validate-citations.sh specs/.storytime/sessions/agc/
+./scripts/validate-citations.sh specs/.storytime/sessions/rate-limiting/
 
 # Verify breakout output completeness
-./scripts/validate-breakouts.sh specs/.storytime/sessions/agc/001/
+./scripts/validate-breakouts.sh specs/.storytime/sessions/rate-limiting/001/
 
 # Export decision log as JSON
 ./scripts/export-decisions.sh specs/.storytime/history/decisions.md
@@ -358,8 +358,8 @@ never stale. Let it catch you up.
 ## Further Reading
 
 - [PRIMER.md](PRIMER.md) — What storytime is and why it exists
-- [docs/process-reference.md](docs/process-reference.md) — Full reference: 41 rules, all events, all skills
+- [docs/process-reference.md](docs/process-reference.md) — Full reference: 43 rules, all events, all skills
 - [docs/architecture.md](docs/architecture.md) — How storytime maps to Claude Code agents
 - [docs/comparisons.md](docs/comparisons.md) — vs Speckit, Kiro, OpenSpec, ADRs
-- [examples/agc-session.md](examples/agc-session.md) — Real walkthrough of an AGC session
+- [examples/agc-session.md](examples/agc-session.md) — Real session walkthrough
 - [examples/persona-template.md](examples/persona-template.md) — Template for creating personas
