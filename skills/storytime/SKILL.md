@@ -305,8 +305,8 @@ For each sub-problem identified in the icebreaker:
 - Launch as a parallel sub-agent if independent
 - Each breakout can invoke skills mid-conversation:
   - VERIFY: Grep/Read to check a claim against code
-  - GROUND: Read repo docs (README, ADRs, specs) to verify context
-  - RESEARCH: WebSearch/WebFetch for external info (library docs, RFCs, benchmarks)
+  - GROUND: Read repo files (README, ADRs, config) to verify project context
+  - RESEARCH: WebSearch/WebFetch for library docs, API docs, RFCs, benchmarks
   - DISCOVERY: Explore agent for code mapping
   - PROTOTYPE: Write draft code for illustration
 - **Grounding is multi-source.** Personas should use whichever evidence is
@@ -449,25 +449,35 @@ there.
 Claims must be grounded. Use the format that matches the source:
 
 ```
-Code:     src/middleware/auth.ts:32 — JWT tier extraction
-Doc:      docs/api-design.md:15 — "all public endpoints require auth"
-Web:      [redis.io/commands/zrangebyscore] — sorted set range query
-Git:      commit abc123 — "revert Opus decoder, CGO dependency blocker"
-External: RFC 6585 §4 — 429 Too Many Requests status code
+Code:      src/middleware/auth.ts:32 — JWT tier extraction
+Repo file: docs/api-design.md:15 — "all public endpoints require auth"
+Lib docs:  [redis.io/commands/zrangebyscore] — sorted set range query
+Git:       commit abc123 — "revert Opus decoder, CGO dependency blocker"
+External:  RFC 6585 §4 — 429 Too Many Requests status code
+Web:       [blog.example.com/redis-sliding-window] — benchmark comparison
 ```
 
 **Evidence hierarchy** (strongest to weakest):
 1. **Code** — the actual runtime truth. If it's in the code, it's fact.
 2. **Git** — factual record of what changed and when. Needs interpretation.
-3. **Repo docs** — describes intent but may be stale. Check against code.
-4. **External docs** — library/API docs, RFCs. Authoritative for external systems.
-5. **Web** — blog posts, benchmarks, SO answers. Useful but verify freshness.
+3. **Repo files** — READMEs, ADRs, config comments. Describes intent, may be stale.
+4. **Library/API docs** — official documentation for dependencies. Authoritative
+   for external system behavior. Fetch via WebFetch when needed.
+5. **External standards** — RFCs, specs, compliance docs. Authoritative for protocols.
+6. **Web research** — blog posts, benchmarks, SO answers, CVE databases. Useful
+   but verify freshness. Use WebSearch to find, WebFetch to read.
 
 Personas should reach for the strongest available evidence. A claim about
-code behavior cites code. A claim about design intent cites docs. A claim
-about external system behavior cites that system's docs or a web source.
-If a persona makes a claim without citing, other personas should challenge:
-"can you ground that?"
+code behavior cites code. A claim about design intent cites a repo file.
+A claim about how Redis works cites Redis docs (fetched via web). A claim
+about HTTP status codes cites the RFC. If a persona makes a claim without
+grounding, other personas should challenge: "can you ground that?"
+
+**When to web search:** Personas should proactively research when discussing
+external systems, libraries, or protocols they're not certain about. "I think
+Redis supports X" should become "Let me check the Redis docs" → WebSearch →
+WebFetch → cite. The team should treat ungrounded external claims the same
+way they treat ungrounded code claims: with skepticism.
 
 ## Output Format
 

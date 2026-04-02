@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storytime Reference — All Skills, Rules, and Formats</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="logo" href="index.html"><span>storytime</span> v0.3.0</a>
+    <a href="index.html">Home</a>
+    <a href="primer.html">Primer</a>
+    <a href="howto.html">HOWTO</a>
+    <a href="walkthrough.html">Walkthrough</a>
+    <a href="concepts.html">Concepts</a>
+    <a href="reference.html" class="active">Reference</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<h2 style="margin-top: 2rem;">All 14 Skills</h2>
+
+<h3>Core Workflow</h3>
+<table class="skill-table">
+  <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
+  <tr><td>/storytime</td><td>"storytime", "build a spec", "design a feature"</td><td>Full workflow: survey &rarr; team &rarr; icebreaker &rarr; breakouts &rarr; plan</td></tr>
+  <tr><td>/storytime-survey</td><td>"survey the codebase", "scan for artifacts"</td><td>Standalone survey with artifact inventory and coverage fingerprint</td></tr>
+  <tr><td>/storytime-breakout</td><td>"breakout on", "deep dive", "investigate"</td><td>Focused 2-3 persona investigation without full pipeline</td></tr>
+  <tr><td>/storytime-converge</td><td>"converge", "merge the breakouts", "make the plan"</td><td>Synthesize breakout results into a unified plan</td></tr>
+  <tr><td>/storytime-retro</td><td>"retro on", "how did it go", "plan vs built"</td><td>Reconvene team: compare plan against implementation</td></tr>
+</table>
+
+<h3>Team and QA</h3>
+<table class="skill-table">
+  <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
+  <tr><td>/storytime-cohort</td><td>"hire", "fire", "bench", "promote", "evolve"</td><td>Manage the permanent persona team</td></tr>
+  <tr><td>/storytime-qa</td><td>"@persona ...", "@role ...", "@team ...", "what did we decide"</td><td>Query personas about past decisions or current state. Works in any conversation.</td></tr>
+  <tr><td>/storytime-pr-qa</td><td>"handle PR comments", "respond to PR"</td><td>Team formulates responses to PR review comments</td></tr>
+</table>
+
+<h3>Document Operations</h3>
+<table class="skill-table">
+  <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
+  <tr><td>/storytime-bootstrap</td><td>"bootstrap storytime", "set up storytime"</td><td>Initialize .storytime/ structure in a repo</td></tr>
+  <tr><td>/storytime-consolidate</td><td>"consolidate", "organize docs", "archive"</td><td>Organize, archive, roll up, backfill timestamps</td></tr>
+  <tr><td>/storytime-absorb</td><td>"absorb this", "have the team review"</td><td>Team reads and interprets existing docs or code</td></tr>
+  <tr><td>/storytime-export</td><td>"export", "convert to ADRs", "create issues"</td><td>Transform output to ADRs, issues, Kiro specs</td></tr>
+</table>
+
+<h3>Session Control</h3>
+<table class="skill-table">
+  <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
+  <tr><td>/storytime-status</td><td>"storytime status", "where are we"</td><td>Dashboard: cohort, threads, decisions, citations</td></tr>
+  <tr><td>/storytime-undo</td><td>"undo", "cancel", "roll back", "scratch that"</td><td>Revert at any granularity: phase, episode, thread, file</td></tr>
+</table>
+
+<h2>Breakout Skills (Available Mid-Conversation)</h2>
+
+<table class="skill-table">
+  <tr><th>Skill</th><th>Backing</th><th>When to use</th></tr>
+  <tr><td>VERIFY</td><td>Grep + Read</td><td>Check a claim against code</td></tr>
+  <tr><td>GROUND</td><td>Read</td><td>Check a claim against repo files (README, ADRs, config)</td></tr>
+  <tr><td>RESEARCH</td><td>WebSearch + WebFetch</td><td>Look up library docs, API docs, RFCs, benchmarks</td></tr>
+  <tr><td>DISCOVERY</td><td>Explore agent</td><td>Map dependencies, understand code structure</td></tr>
+  <tr><td>PROTOTYPE</td><td>Agent + Write</td><td>Sketch implementation for illustration</td></tr>
+  <tr><td>BENCHMARK</td><td>Agent + Bash</td><td>Measure performance</td></tr>
+</table>
+
+<h2>Citation Formats</h2>
+
+<table class="skill-table">
+  <tr><th>Source</th><th>Format</th><th>Example</th></tr>
+  <tr><td>Code</td><td><code>file:line</code></td><td><code>src/middleware/auth.ts:32</code> &mdash; JWT extraction</td></tr>
+  <tr><td>Repo file</td><td><code>file:line</code></td><td><code>docs/api-design.md:15</code> &mdash; auth requirement</td></tr>
+  <tr><td>Library docs</td><td><code>[url]</code></td><td><code>[redis.io/commands/zrangebyscore]</code> &mdash; range query</td></tr>
+  <tr><td>Git</td><td><code>commit sha</code></td><td><code>commit abc123</code> &mdash; revert decoder</td></tr>
+  <tr><td>Standard</td><td><code>RFC N &sect;S</code></td><td><code>RFC 6585 &sect;4</code> &mdash; 429 status code</td></tr>
+  <tr><td>Web</td><td><code>[url]</code></td><td><code>[blog.example.com/benchmarks]</code></td></tr>
+</table>
+
+<p>Evidence hierarchy: Code &gt; Git &gt; Repo files &gt; Library docs &gt; Standards &gt; Web</p>
+
+<h2>Output Structure</h2>
+
+<pre><code>specs/.storytime/
+&#x251c;&#x2500;&#x2500; sessions/&lt;topic&gt;/
+&#x2502;   &#x251c;&#x2500;&#x2500; _thread.md              Episode bookmark (auto-checkpointed)
+&#x2502;   &#x251c;&#x2500;&#x2500; 001/                    Episode 1
+&#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; survey.md           Codebase context + fingerprint
+&#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; team.md             Persona definitions
+&#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; icebreaker.md       Status quo discussion
+&#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; breakout-*.md       Sub-problem deep dives
+&#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; plan.md             Slide deck + decisions + roadmap
+&#x2502;   &#x2514;&#x2500;&#x2500; 002/                    Episode 2 (warm start)
+&#x2502;       &#x251c;&#x2500;&#x2500; preamble.md         "Previously on..." narrative
+&#x2502;       &#x2514;&#x2500;&#x2500; plan.md             Updated plan
+&#x251c;&#x2500;&#x2500; cohort/                     Permanent personas
+&#x251c;&#x2500;&#x2500; specialists/                Temporary personas
+&#x251c;&#x2500;&#x2500; history/
+&#x2502;   &#x251c;&#x2500;&#x2500; decisions.md            Append-only decision log
+&#x2502;   &#x2514;&#x2500;&#x2500; sessions/               Session summaries
+&#x251c;&#x2500;&#x2500; archive/
+&#x2502;   &#x251c;&#x2500;&#x2500; current/                Warm tier
+&#x2502;   &#x251c;&#x2500;&#x2500; rollups/                Compressed history
+&#x2502;   &#x2514;&#x2500;&#x2500; cold/                   Deep history
+&#x2514;&#x2500;&#x2500; config.md                   Project settings</code></pre>
+
+<h2>Process Rules (43)</h2>
+
+<ol>
+  <li>SURVEY before ASSEMBLE. Never build a team blind.</li>
+  <li>ICEBREAKER before BREAKOUT. Shared understanding before depth.</li>
+  <li>CONVERGE before showing the user. Internal consensus first.</li>
+  <li>Every technical claim must be grounded &mdash; cite code, docs, or external sources.</li>
+  <li>At least one OPERATOR archetype. Always.</li>
+  <li>Non-goals and success criteria are required, not optional.</li>
+  <li>Visual aids use ASCII box-drawing.</li>
+  <li>Personas are lenses, not characters. No role-play, only expertise.</li>
+  <li>Minimum 3 personas, maximum 7.</li>
+  <li>The user has veto power over everything.</li>
+  <li>Artifact scan is broad &mdash; expect variance across repos.</li>
+  <li>The user controls depth at every stage.</li>
+  <li>Rollups replace stale docs.</li>
+  <li>Archive artifacts must be git-committable and repo-local.</li>
+  <li>Phases collapse when empty.</li>
+  <li>Every phase writes its output &mdash; a run is a complete snapshot.</li>
+  <li>Prior runs are prior art &mdash; detect and present, never silently overwrite.</li>
+  <li>Every survey writes a coverage fingerprint.</li>
+  <li>Effort uses Complexity (how hard) and Scale (how big), never time estimates.</li>
+  <li>Evaluation hygiene: observe metrics and conclusions separately.</li>
+  <li>Warm start is detected, not requested.</li>
+  <li>Preamble narrative is always dynamic.</li>
+  <li>Personas skip introductions on warm start.</li>
+  <li>Thread auto-checkpoints at every phase boundary.</li>
+  <li>Episodes are chapters, not restarts.</li>
+  <li>Survey delta replaces full survey on warm start.</li>
+  <li>Post-breakout pause is mandatory (unless auto).</li>
+  <li>Converge can run standalone.</li>
+  <li>Grounding is multi-source: code, docs, web, git.</li>
+  <li>Scale Impact (1-5) alongside Complexity for magnitude.</li>
+  <li>Evaluation hygiene: don't conflate metrics and conclusions.</li>
+  <li>Warm start is detected, not requested.</li>
+  <li>Preamble narrative is always dynamic.</li>
+  <li>Personas skip introductions on warm start.</li>
+  <li>Thread auto-checkpoints at every phase boundary.</li>
+  <li>Episodes are chapters, not restarts.</li>
+  <li>Survey delta replaces full survey on warm start.</li>
+  <li>Standalone breakouts are valid.</li>
+  <li>Always confirm before destructive undo.</li>
+  <li>Prefer archive over delete.</li>
+  <li>Redo is undo + immediate retry.</li>
+  <li>Post-breakout pause is mandatory (unless auto).</li>
+  <li>Converge can run standalone.</li>
+</ol>
+
+<h2>Configuration</h2>
+
+<pre><code># specs/.storytime/config.md
+default_mode: inline          # inline | deliberation
+automation: guided            # manual | guided | auto
+max_team_size: 7
+max_concurrent_breakouts: 3
+require_operator: true
+require_nongoals: true
+visual_style: ascii
+citation_format: "file:line — snippet"
+auto_update_personas: true</code></pre>
+
+<h2>Validation Scripts</h2>
+
+<pre><code><span style="color:var(--text-muted)"># Check for stale code citations</span>
+./scripts/validate-citations.sh specs/.storytime/sessions/rate-limiting/
+
+<span style="color:var(--text-muted)"># Verify breakout output completeness</span>
+./scripts/validate-breakouts.sh specs/.storytime/sessions/rate-limiting/001/
+
+<span style="color:var(--text-muted)"># Export decision log as JSON</span>
+./scripts/export-decisions.sh specs/.storytime/history/decisions.md
+
+<span style="color:var(--text-muted)"># Bump version across all files</span>
+./scripts/bump-version.sh 0.4.0</code></pre>
+
+</div>
+
+<div class="container">
+<div class="footer">
+  <p>Storytime v0.3.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
+</div>
+</div>
+
+</body>
+</html>

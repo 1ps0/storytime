@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storytime Concepts — Core Ideas and Terminology</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="logo" href="index.html"><span>storytime</span> v0.3.0</a>
+    <a href="index.html">Home</a>
+    <a href="primer.html">Primer</a>
+    <a href="howto.html">HOWTO</a>
+    <a href="walkthrough.html">Walkthrough</a>
+    <a href="concepts.html" class="active">Concepts</a>
+    <a href="reference.html">Reference</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<h2 style="margin-top: 2rem;">Core Concepts</h2>
+
+<p>Everything in storytime builds on a few foundational ideas. This page defines
+them so the rest of the docs can reference without re-explaining.</p>
+
+<h2>Personas</h2>
+
+<p>Personas are <strong>domain-expert lenses</strong>, not characters. They don't role-play —
+they provide structured perspectives that ensure the plan considers all relevant
+dimensions of a problem.</p>
+
+<h3>Archetypes</h3>
+
+<table class="skill-table">
+  <tr><th>Archetype</th><th>Perspective</th><th>What they ask</th></tr>
+  <tr><td>OWNER</td><td>Wrote the code, knows where everything lives</td><td>"This touches X, which depends on Y..."</td></tr>
+  <tr><td>OPERATOR</td><td>Runs it in prod, wants observability</td><td>"What's the kill switch? How do I monitor this?"</td></tr>
+  <tr><td>DOMAIN</td><td>Deep expertise in the problem area</td><td>"The standard approach for this is..."</td></tr>
+  <tr><td>SYSTEMS</td><td>Knows the runtime, infra, failure modes</td><td>"At scale, this will bottleneck at..."</td></tr>
+  <tr><td>PLATFORM</td><td>Knows the product, users, business case</td><td>"Users expect... The business needs..."</td></tr>
+  <tr><td>SKEPTIC</td><td>Challenges assumptions, asks hard questions</td><td>"Do we actually need this? What if we don't?"</td></tr>
+</table>
+
+<p>Every session has at least one OPERATOR. Minimum 3 personas, maximum 7.</p>
+
+<h3>Permanent Cohort vs Specialists</h3>
+<p><strong>Cohort</strong> personas persist across sessions. They accumulate context, evolve their
+expertise, and remember past decisions. They live in <code>specs/.storytime/cohort/</code>.</p>
+<p><strong>Specialists</strong> are temporary — recruited for a specific problem, with an exit
+condition. When their contract completes, they can be promoted to the cohort or released.</p>
+
+<h3>Addressing Personas</h3>
+<p>You can talk to any persona at any time using <code>@name</code> or <code>@role</code> syntax:</p>
+<pre><code>@noa what do you think about adding WebSocket support?
+@operator is this safe to deploy without a kill switch?
+@skeptic do we actually need this?
+@team what did we decide about the cache TTL?</code></pre>
+<p>This works in any conversation where a storytime cohort exists — no active session required.</p>
+
+<h2>Episodes and Threads</h2>
+
+<p>Sessions for the same topic are <strong>episodes</strong> of an ongoing story. Episode 1 is
+the cold start. Episode 2+ are warm starts that continue the narrative.</p>
+
+<p>The <strong>thread</strong> (<code>_thread.md</code>) is the bookmark. It tracks:</p>
+<ul>
+  <li>Episode list with dates and phases completed</li>
+  <li>Current team roster</li>
+  <li>Open questions from the last phase</li>
+  <li>Last git commit (for drift detection)</li>
+</ul>
+
+<p>Threads auto-checkpoint after every phase. If a session is interrupted, the next
+invocation detects the incomplete thread and offers to resume.</p>
+
+<h2>Warm Start</h2>
+
+<p>When you revisit a topic, storytime synthesizes a <strong>narrative preamble</strong> — a
+"previously on..." that reconstructs the story arc from living documents, persona
+histories, and git delta. The preamble is dynamic (never cached) and persisted
+as an audit trail.</p>
+
+<h2>Decisions</h2>
+
+<p>Decisions are append-only, numbered per topic (RATE-001, RATE-002). Each records:</p>
+<ul>
+  <li>What was decided and why</li>
+  <li>Which personas drove it</li>
+  <li>Code or doc citations grounding it</li>
+  <li>Status: accepted, superseded, or revisited</li>
+</ul>
+<p>Decisions are never deleted, only superseded. The decision log is the institutional
+memory of the project.</p>
+
+<h2>Grounding and Citations</h2>
+
+<p>Every technical claim must be grounded — cited against evidence. Storytime uses
+a multi-source citation system:</p>
+
+<table class="skill-table">
+  <tr><th>Source</th><th>Format</th><th>When to use</th></tr>
+  <tr><td>Code</td><td><code>src/auth.ts:32</code></td><td>Claims about runtime behavior</td></tr>
+  <tr><td>Repo files</td><td><code>docs/api-design.md:15</code></td><td>Claims about project intent or conventions</td></tr>
+  <tr><td>Library docs</td><td><code>[redis.io/commands/zrangebyscore]</code></td><td>Claims about external system behavior</td></tr>
+  <tr><td>Git</td><td><code>commit abc123</code></td><td>Claims about what changed and when</td></tr>
+  <tr><td>Standards</td><td><code>RFC 6585 &sect;4</code></td><td>Claims about protocols or specs</td></tr>
+  <tr><td>Web</td><td><code>[url]</code></td><td>Benchmarks, blog posts, CVEs</td></tr>
+</table>
+
+<p>Evidence hierarchy: Code &gt; Git &gt; Repo files &gt; Library docs &gt; Standards &gt; Web.
+Personas should proactively research external claims via WebSearch/WebFetch.</p>
+
+<h2>Complexity and Scale</h2>
+
+<p><strong>Complexity</strong> measures how hard (cognitive integration cost). Fibonacci scale:</p>
+
+<table class="ciu-table">
+  <tr><th>Level</th><th>Complexity</th><th>Human analog</th></tr>
+  <tr><td>1</td><td>Single-file, single-concept</td><td>Quick fix</td></tr>
+  <tr><td>2</td><td>Few files, one system</td><td>Straightforward task</td></tr>
+  <tr><td>3</td><td>Multiple files, one system</td><td>A morning's work</td></tr>
+  <tr><td>5</td><td>Cross-system, multiple owners</td><td>Solid day of work</td></tr>
+  <tr><td>8</td><td>Architectural, multi-system</td><td>Multi-day effort</td></tr>
+  <tr><td>13</td><td>Foundational change</td><td>Sprint-sized (MUST decompose)</td></tr>
+</table>
+
+<p><strong>Scale</strong> (1-5) measures blast radius, not complexity:</p>
+<ul>
+  <li><strong>1</strong> (file) — a single file</li>
+  <li><strong>2</strong> (module) — a module or repo</li>
+  <li><strong>3</strong> (service cluster) — touches multiple services</li>
+  <li><strong>4</strong> (users) — affects users directly</li>
+  <li><strong>5</strong> (ecosystem) — crosses organizational boundaries</li>
+</ul>
+
+<p>Complexity and Scale are orthogonal. Both are always stated with prose.</p>
+
+<h2>Phases</h2>
+
+<table class="skill-table">
+  <tr><th>Phase</th><th>What happens</th><th>Output</th></tr>
+  <tr><td>SURVEY</td><td>Explore codebase, scan artifacts, build mental model</td><td>survey.md + fingerprint</td></tr>
+  <tr><td>ASSEMBLE</td><td>Build or load the team</td><td>team.md</td></tr>
+  <tr><td>ICEBREAKER</td><td>Team discusses status quo, identifies sub-problems</td><td>icebreaker.md</td></tr>
+  <tr><td>BREAKOUT</td><td>Parallel deep dives on sub-problems</td><td>breakout-*.md</td></tr>
+  <tr><td>PAUSE</td><td>User reviews breakout summaries before convergence</td><td>(user direction)</td></tr>
+  <tr><td>CONVERGE</td><td>Team merges findings into a plan</td><td>plan.md</td></tr>
+  <tr><td>REVIEW</td><td>User challenges, team defends or revises</td><td>(inline)</td></tr>
+  <tr><td>DONE</td><td>Update personas, log decisions, finalize thread</td><td>thread + history</td></tr>
+</table>
+
+<p>Phases collapse when empty. Not every run uses every phase.</p>
+
+<h2>Modes</h2>
+
+<h3>Conversation Modes</h3>
+<ul>
+  <li><strong>Inline</strong> (default) — user is present, can interject any time</li>
+  <li><strong>Deliberation</strong> — "go figure this out" — team works autonomously, returns with findings</li>
+  <li><strong>QA</strong> — <code>@persona question</code> — direct query, no session needed</li>
+</ul>
+
+<h3>Bootstrap Modes</h3>
+<ul>
+  <li><strong>Storytime-native</strong> — full <code>.storytime/</code> structure</li>
+  <li><strong>Adapt-in-place</strong> — work within the repo's existing doc conventions</li>
+  <li><strong>Export-only</strong> — one-shot output, no persistent state</li>
+</ul>
+
+<h3>Automation Levels</h3>
+<ul>
+  <li><strong>Manual</strong> — user approves each phase transition</li>
+  <li><strong>Guided</strong> (default) — phases run automatically, user reviews at pause + review</li>
+  <li><strong>Auto</strong> — runs end-to-end, presents final plan</li>
+</ul>
+
+</div>
+
+<div class="container">
+<div class="footer">
+  <p>Storytime v0.3.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
+</div>
+</div>
+
+</body>
+</html>
