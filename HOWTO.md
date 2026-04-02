@@ -15,7 +15,7 @@ claude --plugin-dir ~/workspace/storytime
 ```
 
 Verify it's loaded — you should see storytime skills in the slash command
-list. Any skill invocation starts with `storytime v0.3.0`.
+list. Any skill invocation starts with `storytime v0.4.0`.
 
 ---
 
