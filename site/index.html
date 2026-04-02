@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storytime — Persona-Driven Specs for Claude Code</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="logo" href="index.html"><span>storytime</span> v0.2.0</a>
+    <a href="index.html" class="active">Home</a>
+    <a href="primer.html">Primer</a>
+    <a href="howto.html">HOWTO</a>
+    <a href="walkthrough.html">Walkthrough</a>
+  </div>
+</nav>
+
+<div class="container">
+<div class="hero">
+  <h1>Storytime</h1>
+  <p class="tagline">A Claude Code plugin that builds technical specifications through
+  structured conversations between domain-expert personas.</p>
+  <div class="install-box">
+    <span class="prompt">$</span> <span class="cmd">claude install-plugin ~/workspace/storytime</span>
+  </div>
+  <br>
+  <small style="color: var(--text-muted)">or per-session: <code>claude --plugin-dir ~/workspace/storytime</code></small>
+</div>
+
+<h2>How It Works</h2>
+
+<p>Describe a problem. Storytime surveys your codebase, assembles a team of
+domain-expert personas, and runs a structured conversation that produces a
+plan &mdash; grounded in your actual code, with citations, decisions, and
+visual aids.</p>
+
+<div style="display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; margin: 1.5rem 0;">
+  <div class="phase"><span class="phase-num">0</span> <span class="phase-label">Survey</span></div>
+  <span class="phase-arrow">&rarr;</span>
+  <div class="phase"><span class="phase-num">1</span> <span class="phase-label">Assemble</span></div>
+  <span class="phase-arrow">&rarr;</span>
+  <div class="phase"><span class="phase-num">2</span> <span class="phase-label">Icebreaker</span></div>
+  <span class="phase-arrow">&rarr;</span>
+  <div class="phase"><span class="phase-num">3</span> <span class="phase-label">Breakout</span></div>
+  <span class="phase-arrow">&rarr;</span>
+  <div class="phase"><span class="phase-num" style="background: var(--orange);">&bull;</span> <span class="phase-label">Pause</span></div>
+  <span class="phase-arrow">&rarr;</span>
+  <div class="phase"><span class="phase-num">4</span> <span class="phase-label">Converge</span></div>
+  <span class="phase-arrow">&rarr;</span>
+  <div class="phase"><span class="phase-num">5</span> <span class="phase-label">Review</span></div>
+</div>
+
+<p style="color: var(--text-muted); font-size: 0.9rem;">Phases collapse when empty. Not every run uses every gear.
+<a href="walkthrough.html">See a full walkthrough &rarr;</a></p>
+
+<pre><code><span style="color: var(--green)">/storytime</span> "our public API has no rate limiting and we're getting abuse"
+
+Storytime surveys your code, finds the Express middleware chain has no
+throttling layer. Assembles Noa (API architect), Sven (infrastructure),
+Mika (security), Rio (SRE). They discuss, investigate, and produce:
+
+  specs/.storytime/sessions/rate-limiting/001/
+  &#x251c;&#x2500;&#x2500; survey.md          Codebase context + fingerprint
+  &#x251c;&#x2500;&#x2500; team.md            Persona definitions
+  &#x251c;&#x2500;&#x2500; icebreaker.md      Status quo discussion
+  &#x251c;&#x2500;&#x2500; breakout-algo.md   Token bucket vs sliding window
+  &#x251c;&#x2500;&#x2500; breakout-store.md  Redis vs in-memory for counters
+  &#x2514;&#x2500;&#x2500; plan.md            ASCII slide deck + implementation steps</code></pre>
+
+<h2>Key Concepts</h2>
+
+<dl class="concepts">
+  <dt>Personas</dt>
+  <dd>Domain-expert lenses, not characters. An OPERATOR asks about kill switches.
+  A SKEPTIC asks "do we need this?" Every claim cites <code>file:line</code>.</dd>
+  <dt>Episodes</dt>
+  <dd>Sessions are chapters in an ongoing story. Same topic, continuing narrative.
+  Warm start synthesizes a "previously on..." so you pick up without re-reading the book.</dd>
+  <dt>Decisions</dt>
+  <dd>Append-only, numbered per topic (RATE-001, RATE-002). They cite the code and
+  personas that drove them. Never deleted, only superseded.</dd>
+  <dt>Threads</dt>
+  <dd>The bookmark (<code>_thread.md</code>). Tracks episodes, team state, open questions,
+  and last git commit. Park mid-session and resume later with full context.</dd>
+</dl>
+
+<h2>All 14 Skills</h2>
+
+<h3>Core Workflow</h3>
+<table class="skill-table">
+  <tr><th>Skill</th><th>Description</th></tr>
+  <tr><td>/storytime</td><td>Full workflow: survey, team, icebreaker, breakouts, plan</td></tr>
+  <tr><td>/storytime-survey</td><td>Standalone codebase survey with artifact inventory</td></tr>
+  <tr><td>/storytime-breakout</td><td>Focused 2-3 persona investigation</td></tr>
+  <tr><td>/storytime-converge</td><td>Merge breakout results into a unified plan</td></tr>
+  <tr><td>/storytime-retro</td><td>Retrospective: plan vs what was built</td></tr>
+</table>
+
+<h3>Team &amp; QA</h3>
+<table class="skill-table">
+  <tr><th>Skill</th><th>Description</th></tr>
+  <tr><td>/storytime-cohort</td><td>Hire, fire, bench, promote, evolve personas</td></tr>
+  <tr><td>/storytime-qa</td><td>Query personas about past decisions</td></tr>
+  <tr><td>/storytime-pr-qa</td><td>Team handles PR review comments</td></tr>
+</table>
+
+<h3>Documents &amp; Control</h3>
+<table class="skill-table">
+  <tr><th>Skill</th><th>Description</th></tr>
+  <tr><td>/storytime-bootstrap</td><td>Initialize .storytime/ in a repo</td></tr>
+  <tr><td>/storytime-consolidate</td><td>Organize, archive, roll up documents</td></tr>
+  <tr><td>/storytime-absorb</td><td>Team reads and interprets existing docs</td></tr>
+  <tr><td>/storytime-export</td><td>Convert to ADRs, issues, Kiro specs</td></tr>
+  <tr><td>/storytime-status</td><td>Dashboard: cohort, threads, decisions</td></tr>
+  <tr><td>/storytime-undo</td><td>Revert: phase, episode, thread, or file</td></tr>
+</table>
+
+<h2>When To Use It</h2>
+
+<div class="grid">
+  <div class="card"><h3>Feature Design</h3><p>"We need rate limiting on the API"</p></div>
+  <div class="card"><h3>Architecture Decisions</h3><p>"Should we split this service?"</p></div>
+  <div class="card"><h3>Bug Investigation</h3><p>"Webhooks are silently failing"</p></div>
+  <div class="card"><h3>Refactoring</h3><p>"The auth middleware needs a rewrite"</p></div>
+  <div class="card"><h3>Onboarding</h3><p>"How did this system get here?"</p></div>
+  <div class="card"><h3>Post-Implementation</h3><p>"Did the plan match what we built?"</p></div>
+</div>
+</div>
+
+<div class="container">
+<div class="footer">
+  <p>Storytime v0.2.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
+</div>
+</div>
+
+</body>
+</html>

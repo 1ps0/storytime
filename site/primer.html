@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storytime Primer — What It Is and Why</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="logo" href="index.html"><span>storytime</span> v0.2.0</a>
+    <a href="index.html">Home</a>
+    <a href="primer.html" class="active">Primer</a>
+    <a href="howto.html">HOWTO</a>
+    <a href="walkthrough.html">Walkthrough</a>
+  </div>
+</nav>
+
+<div class="container">
+<h2 style="margin-top: 2rem;">What Storytime Is</h2>
+
+<p>Storytime is a Claude Code plugin that turns "figure out what to build"
+into a structured process. Instead of you writing a spec alone, you describe
+a problem and storytime assembles a team of domain-expert personas who
+discuss it, investigate the code, debate tradeoffs, and produce a plan &mdash;
+all grounded in your actual codebase.</p>
+
+<p>The output isn't a wish list. It's a plan with:</p>
+<ul>
+  <li>Code citations (<code>file:line</code>) for every technical claim</li>
+  <li>ASCII diagrams and slide decks</li>
+  <li>Numbered decisions with rationale</li>
+  <li>Non-goals (why we're NOT doing X)</li>
+  <li>Measurable success criteria</li>
+  <li>Effort estimates (CIU + Scale, never time)</li>
+</ul>
+
+<h2>Why It Exists</h2>
+
+<p>Writing specs is one of those things everyone knows they should do and
+nobody wants to. The usual failure modes:</p>
+
+<ol>
+  <li><strong>Skip the spec.</strong> Jump into code. Realize three days in that the
+  approach doesn't work. Start over.</li>
+  <li><strong>Write a thin spec.</strong> A page of bullet points that doesn't address
+  the hard questions. Ship it and discover the hard questions in prod.</li>
+  <li><strong>Write a fat spec.</strong> A 20-page doc that nobody reads. The code
+  diverges from it by day two.</li>
+</ol>
+
+<p>Storytime addresses these by making the spec process interactive,
+code-grounded, and fast. A session produces a plan that's actually
+anchored to the codebase.</p>
+
+<h2>The Core Idea</h2>
+
+<p><strong>Personas are domain-expert lenses, not characters.</strong> When storytime
+creates "Noa the API architect" or "Rio the SRE," they're not role-playing.
+They're structured perspectives that ensure the plan considers:</p>
+
+<ul>
+  <li>Who owns this code? <strong>(OWNER)</strong></li>
+  <li>What happens when it breaks at 3am? <strong>(OPERATOR)</strong></li>
+  <li>What's the domain expertise required? <strong>(DOMAIN)</strong></li>
+  <li>What are the system constraints? <strong>(SYSTEMS)</strong></li>
+  <li>Do we actually need this? <strong>(SKEPTIC)</strong></li>
+</ul>
+
+<p>Each persona reads your code, cites specific files and lines, and argues
+from evidence. If two personas disagree, that's signal &mdash; the plan needs
+to address the tension.</p>
+
+<h2>Episodes and Warm Start</h2>
+
+<p>Sessions are episodes of an ongoing story. When you revisit a topic,
+storytime synthesizes a "previously on..." narrative from the living state
+of documents, persona histories, and git history:</p>
+
+<pre><code>&#x2554;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2557;
+&#x2551;  Previously on rate-limiting                 &#x2551;
+&#x2560;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2563;
+&#x2551;                                             &#x2551;
+&#x2551;  Noa identified the missing throttle layer  &#x2551;
+&#x2551;  in the Express middleware chain. Sven       &#x2551;
+&#x2551;  pushed for Redis-backed sliding window.     &#x2551;
+&#x2551;  Mika flagged the auth bypass risk on 429    &#x2551;
+&#x2551;  responses. Rio got the kill switch and      &#x2551;
+&#x2551;  per-route Grafana dashboards.               &#x2551;
+&#x2551;                                             &#x2551;
+&#x2560;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2563;
+&#x2551;  Team: Noa, Sven, Mika, Rio                 &#x2551;
+&#x2551;  Decisions: RATE-001 through RATE-004        &#x2551;
+&#x2551;  Codebase drift: 7 commits, 3 in src/       &#x2551;
+&#x2560;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2563;
+&#x2551;  Continue &middot; Retro &middot; Sub-topic &middot; Reset    &#x2551;
+&#x255a;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x255d;</code></pre>
+
+<p>The synopsis is dynamic &mdash; synthesized fresh every time. Never cached, never stale.</p>
+
+<h2>What Makes It Different</h2>
+
+<div class="compare-grid">
+  <div class="compare-item">
+    <h3>vs writing specs by hand</h3>
+    <p>Storytime is interactive. The team asks questions you wouldn't have
+    thought of. An OPERATOR asks "what's the kill switch?" before you write code.</p>
+  </div>
+  <div class="compare-item">
+    <h3>vs ADRs</h3>
+    <p>ADRs document decisions after the fact. Storytime generates them as part
+    of the design process, with code citations and persona rationale built in.</p>
+  </div>
+  <div class="compare-item">
+    <h3>vs Kiro / Speckit</h3>
+    <p>Those tools focus on formatting. Storytime focuses on the conversation
+    that produces the spec &mdash; investigation, debate, and evidence.</p>
+  </div>
+  <div class="compare-item">
+    <h3>vs just asking Claude</h3>
+    <p>Structured multi-perspective conversation instead of one voice. 3-7 lenses
+    that ground claims in code and build on each other across sessions.</p>
+  </div>
+</div>
+
+<h2>The Lore Engine</h2>
+
+<p>Over time, storytime builds a living narrative for your codebase. Decision
+logs, persona evolution, session histories, and episode threads accumulate
+into a body of lore that tells the story of <em>why</em> your code is shaped the
+way it is. New team members can read it. Future sessions reference it.
+The code tells you what exists &mdash; storytime tells you why.</p>
+</div>
+
+<div class="container">
+<div class="footer">
+  <p>Storytime v0.2.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
+</div>
+</div>
+
+</body>
+</html>

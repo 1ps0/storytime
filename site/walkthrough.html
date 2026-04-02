@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storytime Walkthrough — Full Cold-Start Session</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="logo" href="index.html"><span>storytime</span> v0.2.0</a>
+    <a href="index.html">Home</a>
+    <a href="primer.html">Primer</a>
+    <a href="howto.html">HOWTO</a>
+    <a href="walkthrough.html" class="active">Walkthrough</a>
+  </div>
+</nav>
+
+<div class="container">
+<h2 style="margin-top: 2rem;">Full Cold-Start Walkthrough</h2>
+
+<p>A simulated session showing every phase. The scenario: a Node.js API with
+Express that has no rate limiting. Scrapers are hammering <code>/search</code> at
+200 req/s.</p>
+
+<pre><code><span style="color:var(--green)">/storytime</span> "our public API has no rate limiting and scrapers are abusing /search at 200 req/s, we need per-client throttling that respects our auth tier system"</code></pre>
+
+<p><code>storytime v0.2.0</code></p>
+
+<!-- SURVEY -->
+<div class="wt-phase">
+<div class="wt-label">Phase 0 &mdash; Survey</div>
+
+<p>Storytime explores the codebase. Finds the Express app, middleware chain,
+auth system, and existing monitoring.</p>
+
+<pre><code>Codebase survey complete.
+
+Key files:
+  src/server.ts:14           Express app setup, middleware chain
+  src/middleware/auth.ts:1    JWT validation, tier extraction (free/pro/enterprise)
+  src/routes/search.ts:23    The hot endpoint, no throttling
+  src/monitoring/metrics.ts:8 Prometheus counters, no rate metrics
+
+Artifact inventory:
+  [x] docs/api-design.md           [spec] API conventions doc
+  [ ] .cursor/rules                [config] (loaded silently)
+
+No prior storytime state. Mode: storytime-native.
+Creating specs/.storytime/</code></pre>
+</div>
+
+<!-- ASSEMBLE -->
+<div class="wt-phase">
+<div class="wt-label">Phase 1 &mdash; Assemble</div>
+
+<pre><code>&#x2554;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2557;
+&#x2551;  TEAM: rate-limiting                                 &#x2551;
+&#x2560;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2563;
+&#x2551;                                                     &#x2551;
+&#x2551;  Noa    OWNER      API architect, wrote the routes  &#x2551;
+&#x2551;  Sven   SYSTEMS    Infrastructure, Redis, scaling   &#x2551;
+&#x2551;  Mika   DOMAIN     Security, abuse prevention       &#x2551;
+&#x2551;  Rio    OPERATOR   SRE, monitoring, incident resp.  &#x2551;
+&#x2551;                                                     &#x2551;
+&#x255a;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x255d;</code></pre>
+</div>
+
+<!-- ICEBREAKER -->
+<div class="wt-phase">
+<div class="wt-label">Phase 2 &mdash; Icebreaker</div>
+
+<p><span class="wt-persona">Noa:</span> The middleware chain in <code>src/server.ts:14-28</code>
+goes auth &rarr; logging &rarr; routes. There's no throttle layer anywhere. Every
+request hits the route handler regardless of volume. The <code>/search</code> endpoint
+at <code>src/routes/search.ts:23</code> does a full Postgres text search per call &mdash;
+that's the expensive path.</p>
+
+<p><span class="wt-persona">Sven:</span> We're already running Redis for sessions
+(<code>src/config/redis.ts:5</code>). Adding rate limit counters there is zero new infra.
+The question is algorithm: fixed window is simplest but has the burst-at-boundary
+problem. Sliding window is smoother but needs more storage.</p>
+
+<p><span class="wt-persona">Mika:</span> The auth middleware at <code>src/middleware/auth.ts:32</code>
+already extracts the tier (free/pro/enterprise) from the JWT. Rate limits should
+key on that. But I want to flag: if we return 429, we need to make sure the
+response doesn't leak auth state. Some implementations echo back the rate limit
+key, which can be an info disclosure vector.</p>
+
+<p><span class="wt-persona">Rio:</span> Two things. One, I need a kill switch &mdash;
+an env var that disables rate limiting entirely if it's causing false positives in
+prod. Two, I need per-route metrics in Prometheus: request count, 429 count, and
+current utilization ratio. Without that, I'm flying blind on whether the limits
+are right.</p>
+
+<p><strong>Sub-problems identified:</strong></p>
+<ol>
+  <li>Algorithm choice: token bucket vs sliding window vs fixed window</li>
+  <li>Storage backend: Redis counters vs in-memory vs hybrid</li>
+  <li>Middleware integration: where in the chain, how it interacts with auth</li>
+</ol>
+</div>
+
+<!-- BREAKOUT -->
+<div class="wt-phase">
+<div class="wt-label">Phase 3 &mdash; Breakouts (parallel)</div>
+
+<p><span class="wt-muted">Three breakouts launched in parallel:</span></p>
+
+<h4>Breakout: algorithm (Noa + Mika)</h4>
+<p>Investigated token bucket, sliding window log, and fixed window counter.
+Sliding window log is the best fit: precise, no burst-at-boundary, and the
+memory cost is bounded by the window size. Token bucket is overkill for HTTP
+APIs (better for streaming). Fixed window is too coarse for our tier system.</p>
+<p><em>Recommendation:</em> Sliding window with 60s window. Per-key sorted set in Redis.
+<br><em>Confidence:</em> high | <em>CIU:</em> 3 | <em>Scale:</em> 2 (module)</p>
+
+<h4>Breakout: storage (Sven + Rio)</h4>
+<p>Redis is already in the stack (<code>src/config/redis.ts:5</code>). In-memory would be
+faster but doesn't survive restarts and won't work with multiple instances.
+Redis sorted sets with ZRANGEBYSCORE give us the sliding window primitive natively.
+TTL on keys handles cleanup. Tested: 0.3ms per rate check at 10k concurrent keys.</p>
+<p><em>Recommendation:</em> Redis sorted sets with automatic TTL expiry.
+<br><em>Confidence:</em> high | <em>CIU:</em> 2 | <em>Scale:</em> 2 (module)</p>
+
+<h4>Breakout: middleware (Noa + Rio)</h4>
+<p>The rate limiter must sit after auth (needs the tier and client ID from the JWT)
+but before route handlers. At <code>src/server.ts:22</code>, between the auth middleware
+and the router mount. Mika's concern about 429 info leakage: the response should
+include <code>Retry-After</code> and <code>X-RateLimit-*</code> headers but NOT the rate limit key.
+Kill switch via <code>RATE_LIMIT_ENABLED</code> env var (default: true).</p>
+<p><em>Recommendation:</em> New middleware at <code>src/middleware/rate-limit.ts</code>, mounted after auth.
+<br><em>Confidence:</em> high | <em>CIU:</em> 3 | <em>Scale:</em> 2 (module)</p>
+</div>
+
+<!-- POST-BREAKOUT PAUSE -->
+<div class="wt-phase pause">
+<div class="wt-label">Post-Breakout Pause</div>
+
+<pre><code>Breakout results:
+
+1. [algorithm] Sliding window, 60s, Redis sorted sets
+   Confidence: high | CIU 3 | Noa + Mika
+   &#x2192; breakout-algo.md
+
+2. [storage] Redis sorted sets with TTL expiry
+   Confidence: high | CIU 2 | Sven + Rio
+   &#x2192; breakout-store.md
+
+3. [middleware] After auth, before routes, with kill switch
+   Confidence: high | CIU 3 | Noa + Rio
+   &#x2192; breakout-middleware.md
+
+Conflicts: none
+Open questions: tier-specific limits (exact numbers TBD)
+
+Ready to converge? [proceed / dig into N / revise N / add breakout]</code></pre>
+
+<p><span class="wt-user">User:</span> proceed</p>
+</div>
+
+<!-- CONVERGE -->
+<div class="wt-phase">
+<div class="wt-label">Phase 4 &mdash; Converge + Plan</div>
+
+<p>The full team reconvenes and synthesizes the breakout findings into a unified plan.</p>
+
+<pre><code>&#x2554;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2557;
+&#x2551;  SLIDE 1: Problem                                   &#x2551;
+&#x2560;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2563;
+&#x2551;                                                     &#x2551;
+&#x2551;  request &#x2500;&#x2500;&#x25b6; [auth] &#x2500;&#x2500;&#x25b6; [???] &#x2500;&#x2500;&#x25b6; [routes] &#x2500;&#x2500;&#x25b6; db  &#x2551;
+&#x2551;                     &#x25b2;                               &#x2551;
+&#x2551;                     &#x2502;                               &#x2551;
+&#x2551;               no throttle                            &#x2551;
+&#x2551;               layer here                             &#x2551;
+&#x2551;                                                     &#x2551;
+&#x2551;  /search hit 200 req/s from scrapers.               &#x2551;
+&#x2551;  Each request runs full-text Postgres query.        &#x2551;
+&#x2551;  No per-client limits. No abuse detection.          &#x2551;
+&#x2551;                                                     &#x2551;
+&#x255a;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x255d;
+
+&#x2554;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2557;
+&#x2551;  SLIDE 2: Solution                                  &#x2551;
+&#x2560;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2563;
+&#x2551;                                                     &#x2551;
+&#x2551;  request &#x2500;&#x25b6; [auth] &#x2500;&#x25b6; [rate-limit] &#x2500;&#x25b6; [routes]     &#x2551;
+&#x2551;                        &#x2502;    &#x2502;                       &#x2551;
+&#x2551;                    &#x250c;&#x2500;&#x2500;&#x2500;&#x2518;    &#x2514;&#x2500;&#x2500;&#x2500;&#x2510;                   &#x2551;
+&#x2551;                    &#x25bc;              &#x25bc;                   &#x2551;
+&#x2551;                 [Redis]       [429 + headers]        &#x2551;
+&#x2551;                 sorted        Retry-After            &#x2551;
+&#x2551;                 sets          X-RateLimit-*          &#x2551;
+&#x2551;                                                     &#x2551;
+&#x2551;  Tier limits (per 60s window):                      &#x2551;
+&#x2551;    free: 30    pro: 300    enterprise: 3000         &#x2551;
+&#x2551;                                                     &#x2551;
+&#x255a;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x2550;&#x255d;</code></pre>
+
+<p><strong>Decisions:</strong></p>
+<ul>
+  <li><strong>RATE-001:</strong> Sliding window algorithm, 60s window. Token bucket rejected (overkill for HTTP). Fixed window rejected (burst-at-boundary).</li>
+  <li><strong>RATE-002:</strong> Redis sorted sets for counters. In-memory rejected (doesn't survive restarts, no multi-instance). Existing Redis instance at <code>src/config/redis.ts:5</code>.</li>
+  <li><strong>RATE-003:</strong> Middleware position: after auth, before routes. At <code>src/server.ts:22</code>. Key on <code>clientId + tier</code> from JWT.</li>
+  <li><strong>RATE-004:</strong> <code>RATE_LIMIT_ENABLED</code> env var kill switch (default: true). Per-route Prometheus metrics: <code>rate_limit_requests_total</code>, <code>rate_limit_rejected_total</code>, <code>rate_limit_utilization</code>.</li>
+</ul>
+
+<p><strong>Implementation steps:</strong></p>
+<ol>
+  <li>Create <code>src/middleware/rate-limit.ts</code> with sliding window logic</li>
+  <li>Add tier config to <code>src/config/rate-limits.ts</code> (free: 30, pro: 300, enterprise: 3000)</li>
+  <li>Mount middleware in <code>src/server.ts</code> between auth and routes</li>
+  <li>Add Prometheus counters to <code>src/monitoring/metrics.ts</code></li>
+  <li>Add <code>Retry-After</code> and <code>X-RateLimit-*</code> response headers</li>
+  <li>Add <code>RATE_LIMIT_ENABLED</code> env var check</li>
+  <li>Write integration tests against Redis</li>
+</ol>
+
+<p><strong>Non-goals:</strong></p>
+<ul>
+  <li>IP-based limiting (why: we have auth, client ID is better. revisit: if unauthenticated endpoints need protection)</li>
+  <li>Distributed rate limiting across regions (why: single-region for now. revisit: multi-region deploy)</li>
+  <li>Dynamic tier adjustment (why: config-based is simpler. revisit: if sales needs real-time tier changes)</li>
+</ul>
+
+<p><strong>Success criteria:</strong></p>
+<ul>
+  <li>0 unthrottled requests from known scrapers within 24h of deploy</li>
+  <li>&lt;1ms p99 latency overhead per request</li>
+  <li>Grafana dashboard showing per-tier utilization within 1h of deploy</li>
+  <li>Kill switch tested: disabling and re-enabling in staging</li>
+</ul>
+</div>
+
+<!-- REVIEW -->
+<div class="wt-phase">
+<div class="wt-label">Phase 5 &mdash; Review</div>
+
+<p><span class="wt-user">User:</span> Why not just use express-rate-limit?</p>
+
+<p><span class="wt-persona">Noa:</span> <code>express-rate-limit</code> uses fixed window by default and
+its sliding window option uses in-memory storage. Per Sven's breakout finding,
+in-memory doesn't survive restarts and won't work across multiple instances.
+We could use <code>rate-limit-redis</code> as the store, but at that point we're writing
+the same Redis sorted set logic with extra dependency overhead. The custom
+middleware is ~60 lines and gives us full control over the header format and
+Mika's security requirements.</p>
+
+<p><span class="wt-user">User:</span> Fair. Approved.</p>
+</div>
+
+<!-- DONE -->
+<div class="wt-phase">
+<div class="wt-label">Phase 6 &mdash; Done</div>
+
+<pre><code>Session complete: rate-limiting (episode 001)
+
+Output:
+  specs/.storytime/sessions/rate-limiting/001/
+  &#x251c;&#x2500;&#x2500; survey.md
+  &#x251c;&#x2500;&#x2500; team.md
+  &#x251c;&#x2500;&#x2500; icebreaker.md
+  &#x251c;&#x2500;&#x2500; breakout-algo.md
+  &#x251c;&#x2500;&#x2500; breakout-store.md
+  &#x251c;&#x2500;&#x2500; breakout-middleware.md
+  &#x2514;&#x2500;&#x2500; plan.md
+
+Cohort updated:
+  &#x2500; Noa (owner-api) &#x2014; created, active
+  &#x2500; Sven (systems-infra) &#x2014; created, active
+  &#x2500; Mika (domain-security) &#x2014; specialist, contract complete
+  &#x2500; Rio (operator-sre) &#x2014; created, active
+
+Decisions logged: RATE-001 through RATE-004
+Thread created: sessions/rate-limiting/_thread.md
+
+Next: implement the plan, then /storytime-retro rate-limiting</code></pre>
+</div>
+</div>
+
+<div class="container">
+<div class="footer">
+  <p>Storytime v0.2.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
+</div>
+</div>
+
+</body>
+</html>
