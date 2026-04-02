@@ -1,12 +1,17 @@
 # Storytime
 
 A Claude Code plugin that builds technical specifications through
-structured conversations between domain-expert personas.
+structured conversations between domain-expert personas. v0.2.0.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                                                              │
 │   Problem Statement                                          │
+│        │                                                     │
+│        ▼                                                     │
+│   ┌─────────┐                                                │
+│   │  ROUTE  │─── thread exists? ──► WARM START               │
+│   └────┬────┘         no            (previously on...)       │
 │        │                                                     │
 │        ▼                                                     │
 │   ┌─────────┐   ┌───────────┐   ┌──────────┐   ┌─────────┐ │
@@ -21,179 +26,150 @@ structured conversations between domain-expert personas.
 │   │  DONE   │◄──│  REVIEW   │◄───────────────│ CONVERGE │  │
 │   │         │   │           │                │          │  │
 │   │ update  │   │ user      │                │ plan.md  │  │
-│   │ cohort  │   │ approves  │                │ slides   │  │
+│   │ thread  │   │ approves  │                │ slides   │  │
 │   └─────────┘   └───────────┘                └──────────┘  │
 │                                                              │
+│   Phases collapse when empty. Not every run uses every gear. │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-## What Storytime Produces
+## Quick Start
 
-For each feature or problem you run through it, Storytime generates
-a `specs/<topic>/` directory containing:
+```bash
+# Install the plugin
+claude install-plugin ~/workspace/storytime
 
+# Or load for a single session
+claude --plugin-dir ~/workspace/storytime
+
+# Run it
+/storytime "we need automatic gain control for quiet SIP callers"
 ```
-specs/agc/
-├── team.md           5 personas with boxed ASCII definitions
-├── icebreaker.md     Status quo discussion, grounded in code
-├── breakout-*.md     Deep dives on sub-problems (optional)
-└── plan.md           ASCII slide deck with implementation plan
-```
 
-Plus persistent state in `specs/.storytime/`:
+That's it. Storytime surveys your code, assembles a team, and produces a
+plan. See [PRIMER.md](PRIMER.md) for what it is, [HOWTO.md](HOWTO.md)
+for how to use it.
+
+## What It Produces
+
+Per-topic session output with episode threading:
 
 ```
 specs/.storytime/
-├── cohort/
-│   ├── _roster.md                 Active team index
-│   ├── kim-owner-architect.md     Persona with accumulated context
-│   ├── dana-systems-voip.md
-│   └── leo-operator-sre.md
+├── sessions/<topic>/
+│   ├── _thread.md                   Episode bookmark
+│   ├── 001/                         Episode 1
+│   │   ├── survey.md                Codebase context + fingerprint
+│   │   ├── team.md                  Persona definitions (ASCII boxed)
+│   │   ├── icebreaker.md            Status quo discussion
+│   │   ├── breakout-*.md            Deep dives on sub-problems
+│   │   └── plan.md                  ASCII slide deck + roadmap
+│   └── 002/                         Episode 2 (warm start)
+│       ├── preamble.md              "Previously on..." narrative
+│       ├── survey-delta.md          Incremental changes only
+│       └── plan.md                  Updated plan
+├── cohort/                          Permanent personas
 ├── history/
-│   ├── decisions.md               Append-only decision log
-│   └── sessions/                  Session summaries
-└── config.md                      Project-level settings
-```
-
-## Installation
-
-```bash
-claude install-plugin ~/workspace/storytime
-```
-
-Or for development:
-
-```bash
-claude --plugin-dir ~/workspace/storytime
+│   ├── decisions.md                 Append-only decision log
+│   └── sessions/                    Session summaries
+└── config.md                        Project settings
 ```
 
 ## Skills
 
-### `/storytime <problem-statement>`
+### Core Workflow
 
-The main workflow. Surveys your codebase, assembles a persona team,
-runs an icebreaker discussion, executes breakouts, and produces a
-plan with ASCII visual aids.
+| Skill | What it does |
+|-------|-------------|
+| `/storytime <problem>` | Full workflow: survey, team, icebreaker, breakouts, plan |
+| `/storytime-survey` | Standalone codebase survey with artifact inventory |
+| `/storytime-breakout <sub-problem>` | Focused 2-3 persona investigation without the full pipeline |
+| `/storytime-retro <topic>` | Retrospective: plan vs what was actually built |
 
-```
-/storytime "we need automatic gain control for quiet SIP callers"
-```
+### Team Management
 
-**Automation gradient:**
-- `manual` — pauses for approval at each phase transition
-- `guided` (default) — runs phases automatically, pauses at REVIEW
-- `auto` — runs end-to-end, presents final plan for approval
+| Skill | What it does |
+|-------|-------------|
+| `/storytime-cohort <action>` | Hire, fire, bench, promote, evolve personas |
+| `/storytime-qa @persona <question>` | Query personas about past decisions or code |
+| `/storytime-pr-qa <pr-number>` | Team handles PR review comments with proposed responses |
 
-### `/storytime-qa @persona <question>`
+### Document Operations
 
-Query a specific persona or the full team about past decisions,
-current code state, or hypothetical changes.
+| Skill | What it does |
+|-------|-------------|
+| `/storytime-bootstrap` | Initialize `.storytime/` structure in a repo |
+| `/storytime-consolidate` | Organize, archive, roll up, backfill timestamps |
+| `/storytime-absorb` | Team reads and interprets existing docs or code |
+| `/storytime-export` | Convert output to ADRs, issues, Kiro specs, etc. |
 
-```
-/storytime-qa @kim should we use the same env-var pattern for Opus?
-/storytime-qa @team does our AGC decision still hold after the resample change?
-```
+### Session Control
 
-### `/storytime-retro <topic>`
+| Skill | What it does |
+|-------|-------------|
+| `/storytime-status` | Dashboard: cohort, sessions, decisions, citations |
+| `/storytime-undo` | Revert at any granularity: phase, episode, thread, or specific file |
 
-Run a retrospective on a completed spec. Reconvenes the original
-team to evaluate outcomes against the plan.
+## Key Concepts
 
-```
-/storytime-retro agc
-```
+**Personas** are domain-expert lenses, not characters. An OPERATOR asks
+about kill switches. A SKEPTIC asks "do we need this?" They ground every
+claim in code citations.
 
-### `/storytime-cohort <action> [args]`
+**Episodes** are chapters in an ongoing story. Same topic, continuing
+narrative. Warm start synthesizes a "previously on..." so you pick up
+without re-reading the book.
 
-Manage the permanent persona team.
+**Decisions** are append-only, numbered per topic (AGC-001, AGC-002).
+They cite the code and personas that drove them. Never deleted, only
+superseded.
 
-```
-/storytime-cohort list
-/storytime-cohort hire raj domain-dsp "Audio DSP engineer, 10yr embedded"
-/storytime-cohort fire old-persona
-/storytime-cohort bench dana
-/storytime-cohort evolve kim "now knows Opus codec internals"
-/storytime-cohort promote raj-dsp-agc
-```
-
-## Automation Gradient
-
-Storytime runs on a gradient from fully manual to fully automatic.
-Set via `specs/.storytime/config.md` or per-invocation.
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│  MANUAL          GUIDED (default)      AUTO                 │
-│  ────────        ─────────────────     ──────               │
-│                                                             │
-│  Pause at        Run phases auto,      Run end-to-end,     │
-│  every phase     pause at REVIEW       present final plan  │
-│  transition      for user approval     for approval only   │
-│                                                             │
-│  User approves   User reviews plan     User reviews plan   │
-│  team, each      and can challenge     and approves or     │
-│  breakout, and   decisions inline      requests revision   │
-│  the plan                                                  │
-│                                                             │
-│  Best for:       Best for:             Best for:           │
-│  Learning the    Day-to-day use,       Well-understood     │
-│  system, high-   most features         problems, trusted   │
-│  stakes specs                          cohort              │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Persona Co-Authoring
-
-When Storytime personas contribute to implementation decisions that
-lead to commits, you can credit them in commit messages:
-
-```
-feat: add per-frame AGC with RMS normalization
-
-Designed through Storytime session 2026-03-24-agc.
-Key contributors: Kim (integration), Raj (algorithm), Leo (observability).
-Decisions: AGC-001 through AGC-006.
-```
-
-This creates a traceable link from git history back to the Storytime
-narrative, making the "why" behind code changes discoverable.
-
-## Conversation Modes
-
-| Mode          | When                                     | How it works                          |
-|---------------|------------------------------------------|---------------------------------------|
-| **Inline**    | Active design session                    | User and personas share the thread    |
-| **Deliberation** | "Go figure this out"                 | Team works, returns with Q&A          |
-| **QA**        | Specific question about past decisions   | Target one persona or full team       |
-
-## How It Compares
-
-See [docs/comparisons.md](docs/comparisons.md) for detailed comparison with
-Speckit, Kiro, OpenSpec, ADRs, and traditional spec writing.
+**Threads** (`_thread.md`) are the bookmark. They track episodes, team
+state, open questions, and the last git commit. Phase checkpointing means
+you can park mid-session and resume later.
 
 ## Project Structure
 
 ```
 storytime/
-├── .claude-plugin/
-│   └── plugin.json           Plugin manifest
-├── skills/
-│   ├── storytime/            Main workflow skill
-│   ├── storytime-qa/         Persona query skill
-│   ├── storytime-retro/      Retrospective skill
-│   └── storytime-cohort/     Team management skill
+├── .claude-plugin/plugin.json    Plugin manifest (v0.2.0)
+├── VERSION                       Version file
+├── skills/                       13 skills (entry points)
+├── agents/
+│   └── breakout-runner.md        Lifecycle-enforced breakout agent
 ├── scripts/
-│   ├── bootstrap-cohort.sh   Initialize cohort in a project
-│   ├── validate-citations.sh Check for stale code references
-│   └── export-decisions.sh   Export decision log as JSON
-├── examples/
-│   ├── agc-session.md        Real example: AGC for VoIP gateway
-│   └── persona-template.md   Template for new personas
+│   ├── bootstrap-cohort.sh       Initialize cohort in any project
+│   ├── validate-citations.sh     Check for stale code references
+│   ├── validate-breakouts.sh     Verify breakout output completeness
+│   ├── export-decisions.sh       Decision log → JSON
+│   └── bump-version.sh           Update version across all files
 ├── docs/
-│   ├── comparisons.md        vs Speckit, Kiro, OpenSpec, ADRs
-│   ├── process-reference.md  Full event/skill/rule reference
-│   └── architecture.md       How Storytime maps to Claude Code agents
-└── BACKLOG.md                Enhancement ideas and roadmap
+│   ├── process-reference.md      Events, skills, 41 rules
+│   ├── architecture.md           Runtime model, agent dispatch
+│   ├── comparisons.md            vs Speckit, Kiro, OpenSpec, ADRs
+│   ├── multi-repo-distribution.md Installation models, org cohort
+│   ├── context-feelers.md        MCP connectors for external context
+│   ├── historical-absorption.md  Codebase archaeology
+│   ├── timestamps.md             Semantic timestamp principle
+│   ├── scale-impact.md           Scale 1-5 dimension framework
+│   ├── surface-area.md           Plugin surface area map
+│   └── proposals/                Future-looking design specs
+│       ├── cross-repo-interface.md
+│       ├── worktrees-workflow.md
+│       └── git-archaeology.md
+├── examples/
+│   ├── agc-session.md            Real AGC walkthrough
+│   └── persona-template.md       New persona starter
+├── PRIMER.md                     What storytime is and why
+├── HOWTO.md                      Developer-oriented usage guide
+├── BACKLOG.md                    Enhancement roadmap
+└── SESSION-CONTEXT.md            Genesis session context
 ```
+
+## Links
+
+- [PRIMER.md](PRIMER.md) — What storytime is, the value proposition
+- [HOWTO.md](HOWTO.md) — Developer guide to using storytime effectively
+- [docs/process-reference.md](docs/process-reference.md) — Complete reference
+- [docs/comparisons.md](docs/comparisons.md) — How it compares to other tools
+- [BACKLOG.md](BACKLOG.md) — What's next
