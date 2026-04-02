@@ -45,7 +45,7 @@ Output to `docs/adr/` or wherever the repo keeps ADRs.
 
 Transform a `plan.md` roadmap into GitHub issues:
 - Each roadmap item becomes an issue
-- CIU maps to labels (e.g., `complexity:3`, `complexity:5`)
+- Complexity maps to labels (e.g., `complexity:3`, `complexity:5`)
 - Non-goals become a tracking issue with "won't do" rationale
 - Success criteria become acceptance criteria in issue bodies
 - Use `gh` CLI to create issues if the user approves

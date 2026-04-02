@@ -104,7 +104,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 19. Every phase writes its output — a run is a complete snapshot
 20. Prior runs are prior art — detect and present, never silently overwrite
 21. Every survey writes a coverage fingerprint (commit, paths, gaps, ratios)
-22. Effort uses CIU (Complexity Integration Units), never time estimates
+22. Effort uses Complexity , never time estimates
 23. Rollups replace stale docs — originals go cold, rollup stays warm
 24. Archive artifacts must be git-committable and repo-local
 25. All storytime output lives under specs/.storytime/ — single root
@@ -112,7 +112,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 27. Universal frontmatter on every document: type, created, session
 28. Semantic events get explicit timestamps; file edits rely on git
 29. Inferred timestamps marked with confidence (git-derived, approximate, estimated)
-30. Scale Impact (1-5) alongside CIU for magnitude — dimension stated in prose
+30. Scale Impact (1-5) alongside Complexity for magnitude — dimension stated in prose
 31. Evaluation hygiene: observe metrics and conclusions separately, don't conflate
 32. Warm start is detected, not requested — if `_thread.md` exists, warm-start
 33. Preamble narrative is always dynamic — synthesized fresh, never cached
@@ -177,12 +177,12 @@ Examples:
   RESAMPLE-003
 ```
 
-## Complexity Integration Units (CIU)
+## Complexity
 
 Effort measurement for all scoped work — breakouts, roadmap items,
 success criteria, specialist contracts.
 
-| CIU | Complexity                    | Human Analog            |
+| Complexity | Complexity                   | Human Analog            |
 |-----|-------------------------------|-------------------------|
 | 1   | Single-file, single-concept   | Quick fix               |
 | 2   | Few files, one system         | Straightforward task    |
@@ -192,8 +192,8 @@ success criteria, specialist contracts.
 | 13  | Foundational change           | Sprint-sized (MUST decompose) |
 | 21+ | Rewrite / new system          | Epic (MUST decompose)   |
 
-Rules: Always pair CIU with the human analog. CIU ≥ 13 must be
-broken into sub-items ≤ 5. Persona disagreement on CIU is signal.
+Rules: Always pair Complexity with the human analog. Complexity ≥ 13 must be
+broken into sub-items ≤ 5. Persona disagreement on Complexity is signal.
 
 ## Survey Coverage Fingerprint
 

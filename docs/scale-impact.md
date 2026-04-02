@@ -10,18 +10,18 @@ How storytime measures magnitude — not complexity, but bigness.
 
 ---
 
-## Relationship to CIU
+## Relationship to Complexity
 
-CIU measures **how hard** something is to think about (cognitive complexity).
+Complexity measures **how hard** something is to think about (cognitive complexity).
 Scale measures **how big** something is in the world (magnitude of impact).
 
 These are orthogonal dimensions. A task can be:
-- CIU 1, Scale 5 — trivially simple but the sheer magnitude changes everything
-- CIU 8, Scale 1 — architecturally hard but contained to one small thing
-- CIU 3, Scale 3 — moderate work at moderate magnitude
+- Complexity 1, Scale 5 — trivially simple but the sheer magnitude changes everything
+- Complexity 8, Scale 1 — architecturally hard but contained to one small thing
+- Complexity 3, Scale 3 — moderate work at moderate magnitude
 
 Both appear in plans, breakouts, and roadmaps. Together they answer
-"how hard is this?" (CIU) and "how big is this?" (Scale).
+"how hard is this?" (Complexity) and "how big is this?" (Scale).
 
 ---
 
@@ -165,10 +165,10 @@ rating.
 
 ## Usage
 
-### In Roadmaps (alongside CIU)
+### In Roadmaps (alongside Complexity)
 
 ```markdown
-| Phase | Work Item              | CIU | Scale              | Analog                           |
+| Phase | Work Item              | Complexity | Scale              | Analog                           |
 |-------|------------------------|-----|--------------------|----------------------------------|
 | Now   | Add auth cache         | 3   | 4 (data)           | Morning's work, GB memory impact |
 | Soon  | Migrate auth service   | 5   | 3 (repos), 4 (users) | Day's work, 10 services, all users |
@@ -179,11 +179,11 @@ rating.
 
 ```
 Sub-problems identified:
-  1. Token validation    — CIU 2, Scale 1 (contained)
-  2. Session migration   — CIU 5, Scale 3 (repos), Scale 4 (users)
-  3. Rate limit overhaul — CIU 3, Scale 2 (files)
+  1. Token validation    — Complexity 2, Scale 1 (contained)
+  2. Session migration   — Complexity 5, Scale 3 (repos), Scale 4 (users)
+  3. Rate limit overhaul — Complexity 3, Scale 2 (files)
 
-Note: #2 is CIU 5 but Scale 4 on users — the code change is moderate
+Note: #2 is Complexity 5 but Scale 4 on users — the code change is moderate
 but the rollout touches everyone. Plan the rollout, not just the code.
 ```
 
@@ -192,10 +192,10 @@ but the rollout touches everyone. Plan the rollout, not just the code.
 When scale differs across dimensions, list them:
 
 ```
-"CIU 2, Scale 3 (time), Scale 4 (users)"
+"Complexity 2, Scale 3 (time), Scale 4 (users)"
  → Quick fix that takes a quarter to roll out to all users
 
-"CIU 1, Scale 5 (data)"
+"Complexity 1, Scale 5 (data)"
  → Flip a flag, but it enables 50GB model loading
 ```
 
@@ -252,7 +252,7 @@ understanding what they measure.
 2. Always pair the number with prose: dimension and why it matters.
 3. Dimensions are arbitrary — any dimension relevant to the task is valid.
 4. Multiple dimensions on one item when scale differs across them.
-5. Scale and CIU are orthogonal. Report both where effort is estimated.
+5. Scale and Complexity are orthogonal. Report both where effort is estimated.
 6. The example table is illustrative, not exhaustive. Don't limit
    dimensions to what's listed.
 7. Evaluation hygiene: observe and conclude separately. Don't conflate

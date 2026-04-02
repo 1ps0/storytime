@@ -4,7 +4,7 @@ created: 2026-03-29T13:35
 session: 2026-03-29-timestamps
 ---
 
-# Complexity Integration Units (CIU)
+# Complexity
 
 How Storytime measures effort — not in time, but in complexity.
 
@@ -17,7 +17,7 @@ the way a developer does. What actually varies is the complexity surface:
 how many files to read, how many interdependencies to reason about, how
 many decisions to evaluate, how much context must be held simultaneously.
 
-CIU measures the **cognitive integration cost** — how much reasoning must
+Complexity measures the **cognitive integration cost** — how much reasoning must
 be woven together to produce a coherent output.
 
 ---
@@ -26,8 +26,8 @@ be woven together to produce a coherent output.
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
-║  CIU    COMPLEXITY                     HUMAN ANALOG              ║
-║  ────   ───────────────────────────    ───────────────────────── ║
+║  LEVEL   COMPLEXITY                     HUMAN ANALOG              ║
+║  ─────   ───────────────────────────   ───────────────────────── ║
 ║                                                                   ║
 ║  1      Single-file, single-concept    "Quick fix"                ║
 ║         No cross-cutting concerns      A few minutes of thought   ║
@@ -55,7 +55,7 @@ be woven together to produce a coherent output.
 ║                                                                   ║
 ║  21+    Rewrite / new system           "Epic / quarter project"   ║
 ║         Unbounded complexity           Needs decomposition first  ║
-║         Must be broken into sub-CIUs                              ║
+║         Must be broken into sub-items                              ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
@@ -65,9 +65,9 @@ an 8 is not "twice as hard" as a 4, it's qualitatively different.
 
 ---
 
-## What Drives CIU
+## What Drives Complexity
 
-CIU is a composite of observable complexity signals:
+Complexity is a composite of observable complexity signals:
 
 | Signal                    | Low (1-2)           | Medium (3-5)          | High (8+)              |
 |---------------------------|---------------------|-----------------------|------------------------|
@@ -82,14 +82,14 @@ CIU is a composite of observable complexity signals:
 
 ---
 
-## Where CIU Appears
+## Where Complexity Appears
 
 ### In plan.md roadmaps
 
 ```markdown
 ## Roadmap
 
-| Phase | Work Item                    | CIU | Human Analog        |
+| Phase | Work Item                    | Complexity | Human Analog        |
 |-------|------------------------------|-----|---------------------|
 | Now   | Add auth middleware           | 3   | A morning's work    |
 | Now   | Update API schema            | 2   | Straightforward     |
@@ -99,57 +99,57 @@ CIU is a composite of observable complexity signals:
 
 ### In breakout scoping
 
-When identifying sub-problems in the icebreaker, estimate CIU per
+When identifying sub-problems in the icebreaker, estimate Complexity per
 breakout to help decide whether to parallelize or serialize:
 
 ```
 Sub-problems identified:
-  1. Auth token validation   — CIU 2 (straightforward)
-  2. Session migration       — CIU 5 (needs design, cross-system)
-  3. Rate limiting overhaul  — CIU 3 (meaningful but contained)
+  1. Auth token validation   — Complexity 2 (straightforward)
+  2. Session migration       — Complexity 5 (needs design, cross-system)
+  3. Rate limiting overhaul  — Complexity 3 (meaningful but contained)
 
 Recommendation: Parallelize 1+3, serialize 2 (blocking dependency)
 ```
 
 ### In success criteria
 
-CIU can calibrate expectations for what "done" looks like:
+Complexity can calibrate expectations for what "done" looks like:
 
 ```
 Success criteria:
-  - Auth flow consolidated (CIU 5 total across 3 sub-items)
-  - No more than 2 CIU of residual work identified as "soon"
-  - All CIU 8+ items decomposed into sub-CIUs ≤ 5
+  - Auth flow consolidated (Complexity 5 total across 3 sub-items)
+  - No more than 2 Complexity of residual work identified as "soon"
+  - All Complexity 8+ items decomposed into sub-items ≤ 5
 ```
 
 ---
 
 ## Rules
 
-1. **Always pair CIU with the human analog.** The number alone is
+1. **Always pair Complexity with the human analog.** The number alone is
    opaque to people unfamiliar with the scale.
-2. **CIU ≥ 13 must be decomposed.** If a work item is 13+, break it
+2. **Complexity ≥ 13 must be decomposed.** If a work item is 13+, break it
    into sub-items before planning implementation.
-3. **CIU is assessed by the team, not dictated.** Personas may disagree
+3. **Complexity is assessed by the team, not dictated.** Personas may disagree
    on complexity — that disagreement is signal. If the OPERATOR says 8
    and the DOMAIN expert says 3, the gap reveals hidden operational
    complexity.
-4. **CIU is not a promise.** It's a complexity signal, not a contract.
+4. **Complexity is not a promise.** It's a complexity signal, not a contract.
    Real work reveals complexity that estimation misses.
-5. **CIU applies to any scoped work** — breakouts, roadmap items,
+5. **Complexity applies to any scoped work** — breakouts, roadmap items,
    success criteria, specialist contracts.
 
 ---
 
-## CIU + Scale
+## Complexity + Scale
 
-CIU measures **how hard**. Scale Impact measures **how big**. They are
+Complexity measures **how hard**. Scale Impact measures **how big**. They are
 orthogonal and both appear wherever effort is estimated.
 
 ```
-CIU 3, Scale 4 (repos) — morning's work, but touches dozens of services
-CIU 8, Scale 1 (files) — hard problem, contained to one module
-CIU 1, Scale 5 (data) — flip a flag, enables 50GB model loading
+Complexity 3, Scale 4 (repos) — morning's work, but touches dozens of services
+Complexity 8, Scale 1 (files) — hard problem, contained to one module
+Complexity 1, Scale 5 (data) — flip a flag, enables 50GB model loading
 ```
 
 See `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md` for the full Scale

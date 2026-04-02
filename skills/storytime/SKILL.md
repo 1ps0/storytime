@@ -277,10 +277,10 @@ review entirely — go straight to status quo and sub-problem identification.
 ### Phase 3: BREAKOUT (parallel when possible)
 
 For each sub-problem identified in the icebreaker:
-- Estimate **CIU** (Complexity Integration Units) and **Scale** per breakout.
-  CIU measures how hard, Scale measures how big. See
+- Estimate **Complexity** and **Scale** per breakout.
+  Complexity measures how hard, Scale measures how big. See
   `references/complexity-units.md` and `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`.
-  Always pair each with prose (e.g., "CIU 5 — solid day of work,
+  Always pair each with prose (e.g., "Complexity 5 — solid day of work,
   Scale 3 (repos) — touches a service cluster").
 - Assign 2-3 personas
 - Launch as a parallel sub-agent if independent
@@ -292,7 +292,7 @@ For each sub-problem identified in the icebreaker:
 - Produce a recommendation
 
 **Write `specs/.storytime/sessions/<topic>/breakout-<subtopic>.md`** for each
-breakout with: findings, citations, recommendation, CIU estimate for the
+breakout with: findings, citations, recommendation, Complexity estimate for the
 recommended work, and which personas participated.
 
 **Post-breakout summary + pause:**
@@ -304,15 +304,15 @@ summary** — one card per breakout showing the team's proposed direction:
 Breakout results:
 
 1. [caching] Redis with 5min TTL, auth-aware invalidation
-   Confidence: high | CIU 3 | Kim + Dana
+   Confidence: high | Complexity 3 | Kim + Dana
    → breakout-caching.md (available for reading)
 
 2. [retry-logic] Exponential backoff with circuit breaker
-   Confidence: medium | CIU 5 | Leo + Raj
+   Confidence: medium | Complexity 5 | Leo + Raj
    → breakout-retry-logic.md (available for reading)
 
 3. [schema-migration] Additive-only, no downtime
-   Confidence: high | CIU 2 | Kim + Leo
+   Confidence: high | Complexity 2 | Kim + Leo
    → breakout-schema-migration.md (available for reading)
 
 Ready to converge? [proceed / dig into N / revise N / add breakout]
@@ -347,9 +347,9 @@ breakout results already exist and need to be synthesized into a plan.
 - Risk matrix
 - Non-goals section (REQUIRED — each with "why skip" + "when to revisit")
 - Success criteria (REQUIRED — measurable)
-- Roadmap sketch (now / soon / later) with **CIU and Scale per item**, each
-  with prose (e.g., "CIU 3 — a morning's work, Scale 4 (users) — all users").
-  CIU ≥ 13 must be decomposed. Scale dimensions stated, not assumed.
+- Roadmap sketch (now / soon / later) with **Complexity and Scale per item**, each
+  with prose (e.g., "Complexity 3 — a morning's work, Scale 4 (users) — all users").
+  Complexity ≥ 13 must be decomposed. Scale dimensions stated, not assumed.
 
 ### Phase 5: REVIEW
 
@@ -408,8 +408,8 @@ DONE.
 16. Every phase writes its output — a run is a complete snapshot, track everything.
 17. Prior runs are prior art — detect and present, never silently overwrite.
 18. Every survey writes a coverage fingerprint — commit, paths, gaps, ratios.
-19. Effort uses CIU (how hard) and Scale (how big), never time estimates.
-    Always pair each with prose. CIU ≥ 13 must decompose.
+19. Effort uses Complexity (how hard) and Scale (how big), never time estimates.
+    Always pair each with prose. Complexity ≥ 13 must decompose.
 20. Evaluation hygiene: observe metrics and conclusions separately.
     Don't weight signals without understanding what they measure.
 21. Warm start is detected, not requested. If `_thread.md` exists, warm-start.
@@ -509,7 +509,7 @@ For detailed format specifications and scan targets, consult:
 - **`references/artifact-tiers.md`** — Hot/warm/cold tiers, rollup format, archive structure
 - **`references/warm-start.md`** — Thread format, preamble synthesis, episode structure, checkpointing
 - **`references/survey-fingerprint.md`** — Coverage fingerprint format, incremental survey logic
-- **`references/complexity-units.md`** — CIU scale, signals, usage in plans and breakouts
+- **`references/complexity-units.md`** — Complexity scale, signals, usage in plans and breakouts
 - **`${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`** — Scale 1-5, dimension examples, evaluation hygiene
 - **`${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md`** — Events, skills, rules, automation levels
 - **`${CLAUDE_PLUGIN_ROOT}/docs/architecture.md`** — Runtime model and agent dispatch

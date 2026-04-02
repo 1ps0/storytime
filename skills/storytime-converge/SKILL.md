@@ -30,7 +30,7 @@ Read each breakout file. Extract:
 - Findings and citations
 - Recommendation
 - Confidence level
-- CIU and Scale estimates
+- Complexity and Scale estimates
 - Participating personas
 - Open questions
 
@@ -52,10 +52,10 @@ Before synthesizing, present the recommendation summary to the user:
 Converging breakouts for: <topic>
 
 1. [subtopic-a] <recommendation summary>
-   Confidence: high | CIU 3 | <personas>
+   Confidence: high | Complexity 3 | <personas>
 
 2. [subtopic-b] <recommendation summary>
-   Confidence: medium | CIU 5 | <personas>
+   Confidence: medium | Complexity 5 | <personas>
 
 Conflicts: <any where breakout recommendations contradict>
 Open questions: <aggregated from all breakouts>
@@ -74,7 +74,7 @@ All personas from all breakouts participate. The convergence discussion:
   decides. The user can weigh in.
 - **Identify gaps** — are there sub-problems the breakouts missed?
 - **Sequence the work** — order implementation steps considering dependencies
-- **Assign CIU + Scale** to each plan item
+- **Assign Complexity + Scale** to each plan item
 
 ### 5. Write the Plan
 
@@ -87,12 +87,12 @@ All personas from all breakouts participate. The convergence discussion:
 - Risk matrix
 - Non-goals section (REQUIRED — each with "why skip" + "when to revisit")
 - Success criteria (REQUIRED — measurable)
-- Roadmap sketch (now / soon / later) with CIU and Scale per item
+- Roadmap sketch (now / soon / later) with Complexity and Scale per item
 
 Each plan item should reference which breakout(s) informed it:
 ```
 3. Add Redis cache layer (from breakout-caching.md)
-   CIU 3 — a morning's work | Scale 2 (module)
+   Complexity 3 — a morning's work | Scale 2 (module)
 ```
 
 ### 6. Present for Approval
@@ -117,4 +117,4 @@ REVIEW phase in the full workflow.
 3. Conflicts between breakouts are surfaced and resolved, not papered over.
 4. The plan must reference which breakout informed each item.
 5. Non-goals and success criteria are required. Always.
-6. CIU and Scale on every plan item. Always with prose.
+6. Complexity and Scale on every plan item. Always with prose.

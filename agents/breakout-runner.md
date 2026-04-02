@@ -65,7 +65,7 @@ The breakout team converges on a recommendation:
 - Finding: what did the investigation discover?
 - Recommendation: what should we do?
 - Confidence: high/medium/low with rationale
-- CIU estimate with prose
+- Complexity estimate with prose
 - Scale estimate with prose
 - Open questions: what couldn't we resolve?
 - Citations: code references grounding the recommendation
@@ -106,7 +106,7 @@ Required sections (every breakout file MUST contain all of these):
 <high|medium|low> — <rationale>
 
 ## Effort Estimate
-- **CIU:** <N> — <prose>
+- **Complexity:** <N> — <prose>
 - **Scale:** <N> (<dimension>) — <prose>
 
 ## Citations
@@ -131,7 +131,7 @@ After writing, verify the file:
    - [ ] Findings section with at least one citation
    - [ ] Recommendation section
    - [ ] Confidence section
-   - [ ] Effort Estimate with CIU and Scale
+   - [ ] Effort Estimate with Complexity and Scale
    - [ ] Citations section with at least one `file:line` reference
    - [ ] Open Questions section
    - [ ] Participants section

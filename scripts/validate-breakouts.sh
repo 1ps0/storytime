@@ -86,9 +86,9 @@ for file in $breakouts; do
     errors="${errors}  - No code citations found (expected file:line pattern)\n"
   fi
 
-  # Check CIU mention
-  if ! grep -qi 'CIU' "$file" 2>/dev/null; then
-    errors="${errors}  - No CIU estimate found\n"
+  # Check Complexity mention
+  if ! grep -qi 'Complexity' "$file" 2>/dev/null; then
+    errors="${errors}  - No Complexity estimate found\n"
   fi
 
   # Check Scale mention

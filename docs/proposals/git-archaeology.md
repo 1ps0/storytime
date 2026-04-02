@@ -297,7 +297,7 @@ natural scoping.
 
 ## Implementation Phases
 
-| Phase | Scope | CIU | Scale |
+| Phase | Scope | Complexity | Scale |
 |-------|-------|-----|-------|
 | 1. Survey enhancement | Add git stats to SURVEY fingerprint | 3 — morning's work | 2 (repo) — storytime plugin |
 | 2. Breakout type | Add ARCHAEOLOGY to breakout types | 2 — straightforward | 2 (repo) — skill + reference |
@@ -305,7 +305,7 @@ natural scoping.
 | 4. Warm-start integration | Depth-scaled archaeology in preamble | 3 — morning's work | 2 (repo) — warm-start reference |
 | 5. Implicit decision extraction | Pattern detection engine | 5 — solid day | 3 (repos) — touches survey + plan |
 
-Total: CIU 18 — must decompose. The 5 phases above are the decomposition.
+Total: Complexity 18 — must decompose. The 5 phases above are the decomposition.
 
 ---
 

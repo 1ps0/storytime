@@ -21,8 +21,8 @@ Every document storytime produces has universal frontmatter:
 | `survey` | SURVEY phase, `/storytime-survey` | `sessions/<topic>/survey.md` | + coverage fingerprint (commit, paths, gaps, ratios) |
 | `team` | ASSEMBLE phase | `sessions/<topic>/team.md` | + personas listed |
 | `icebreaker` | ICEBREAKER phase | `sessions/<topic>/icebreaker.md` | + artifact review dispositions |
-| `breakout` | BREAKOUT phase | `sessions/<topic>/breakout-<sub>.md` | + CIU, Scale, participating personas |
-| `plan` | CONVERGE phase | `sessions/<topic>/plan.md` | + roadmap with CIU and Scale per item |
+| `breakout` | BREAKOUT phase | `sessions/<topic>/breakout-<sub>.md` | + Complexity, Scale, participating personas |
+| `plan` | CONVERGE phase | `sessions/<topic>/plan.md` | + roadmap with Complexity and Scale per item |
 | `retrospective` | `/storytime-retro` | `sessions/<topic>/retrospective.md` | + timestamp audit results |
 | `session-summary` | DONE phase | `history/sessions/<date>-<topic>.md` | + started, completed timestamps |
 | `persona` | ASSEMBLE, `/storytime-cohort` | `cohort/<name>-<archetype>-<specialty>.md` | + inception, last_active, evolved[], decisions_participated[] |
@@ -80,7 +80,7 @@ that export mode was chosen.
 
 | Concept | Measures | Scale | Documented in |
 |---------|----------|-------|---------------|
-| **CIU** (Complexity Integration Units) | How hard — cognitive complexity | Fibonacci: 1, 2, 3, 5, 8, 13, 21+ | `references/complexity-units.md` |
+| **Complexity** | How hard — cognitive complexity | Fibonacci: 1, 2, 3, 5, 8, 13, 21+ | `references/complexity-units.md` |
 | **Scale Impact** | How big — magnitude across any dimension | 1-5 (contained → massive) | `docs/scale-impact.md` |
 | **Timestamps** | When — semantic events vs file edits | Day / Minute / Approximate (~) | `docs/timestamps.md` |
 | **Survey Fingerprint** | What was covered — codebase coverage snapshot | Commit SHA + paths + ratios | `references/survey-fingerprint.md` |
@@ -88,7 +88,7 @@ that export mode was chosen.
 
 ### Where measurements appear
 
-| Context | CIU | Scale | Timestamps | Fingerprint | Tiers |
+| Context | Complexity | Scale | Timestamps | Fingerprint | Tiers |
 |---------|-----|-------|------------|-------------|-------|
 | Plan roadmap items | per item | per item (with dimension) | created | — | — |
 | Breakout scoping | per breakout | per breakout | created | — | — |
@@ -144,7 +144,7 @@ under `.storytime/`. Bias toward consolidation.
 **Measurement discipline (27-31):**
 Universal frontmatter on every document. Semantic timestamps, not
 duplicated git timestamps. Inferred timestamps marked with confidence.
-CIU + Scale, never time estimates. Evaluation hygiene.
+Complexity + Scale, never time estimates. Evaluation hygiene.
 
 ---
 

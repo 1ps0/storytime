@@ -67,7 +67,7 @@ The breakout converges on a recommendation:
 - **Finding:** What did the investigation discover?
 - **Recommendation:** What should we do?
 - **Confidence:** How sure are we? (high/medium/low with rationale)
-- **CIU estimate:** How hard is the recommended work?
+- **Complexity estimate:** How hard is the recommended work?
 - **Scale estimate:** How big is the blast radius?
 - **Open questions:** What couldn't we resolve?
 - **Citations:** Code references grounding the recommendation
@@ -95,7 +95,7 @@ completed step.
 1. Minimum 2 personas, maximum 3. Breakouts are small and focused.
 2. At least one persona must be able to verify claims against code.
 3. Every finding must cite evidence (code, docs, or research).
-4. The recommendation must include CIU and Scale with prose.
+4. The recommendation must include Complexity and Scale with prose.
 5. If the breakout reveals the problem is bigger than expected, say so
    and recommend escalating to a full storytime session.
 6. Breakouts are fast. If investigation exceeds the sub-problem scope,

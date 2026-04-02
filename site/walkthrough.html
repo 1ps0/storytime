@@ -115,7 +115,7 @@ Sliding window log is the best fit: precise, no burst-at-boundary, and the
 memory cost is bounded by the window size. Token bucket is overkill for HTTP
 APIs (better for streaming). Fixed window is too coarse for our tier system.</p>
 <p><em>Recommendation:</em> Sliding window with 60s window. Per-key sorted set in Redis.
-<br><em>Confidence:</em> high | <em>CIU:</em> 3 | <em>Scale:</em> 2 (module)</p>
+<br><em>Confidence:</em> high | <em>Complexity:</em> 3 | <em>Scale:</em> 2 (module)</p>
 
 <h4>Breakout: storage (Sven + Rio)</h4>
 <p>Redis is already in the stack (<code>src/config/redis.ts:5</code>). In-memory would be
@@ -123,7 +123,7 @@ faster but doesn't survive restarts and won't work with multiple instances.
 Redis sorted sets with ZRANGEBYSCORE give us the sliding window primitive natively.
 TTL on keys handles cleanup. Tested: 0.3ms per rate check at 10k concurrent keys.</p>
 <p><em>Recommendation:</em> Redis sorted sets with automatic TTL expiry.
-<br><em>Confidence:</em> high | <em>CIU:</em> 2 | <em>Scale:</em> 2 (module)</p>
+<br><em>Confidence:</em> high | <em>Complexity:</em> 2 | <em>Scale:</em> 2 (module)</p>
 
 <h4>Breakout: middleware (Noa + Rio)</h4>
 <p>The rate limiter must sit after auth (needs the tier and client ID from the JWT)
@@ -132,7 +132,7 @@ and the router mount. Mika's concern about 429 info leakage: the response should
 include <code>Retry-After</code> and <code>X-RateLimit-*</code> headers but NOT the rate limit key.
 Kill switch via <code>RATE_LIMIT_ENABLED</code> env var (default: true).</p>
 <p><em>Recommendation:</em> New middleware at <code>src/middleware/rate-limit.ts</code>, mounted after auth.
-<br><em>Confidence:</em> high | <em>CIU:</em> 3 | <em>Scale:</em> 2 (module)</p>
+<br><em>Confidence:</em> high | <em>Complexity:</em> 3 | <em>Scale:</em> 2 (module)</p>
 </div>
 
 <!-- POST-BREAKOUT PAUSE -->
@@ -142,15 +142,15 @@ Kill switch via <code>RATE_LIMIT_ENABLED</code> env var (default: true).</p>
 <pre><code>Breakout results:
 
 1. [algorithm] Sliding window, 60s, Redis sorted sets
-   Confidence: high | CIU 3 | Noa + Mika
+   Confidence: high | Complexity 3 | Noa + Mika
    &#x2192; breakout-algo.md
 
 2. [storage] Redis sorted sets with TTL expiry
-   Confidence: high | CIU 2 | Sven + Rio
+   Confidence: high | Complexity 2 | Sven + Rio
    &#x2192; breakout-store.md
 
 3. [middleware] After auth, before routes, with kill switch
-   Confidence: high | CIU 3 | Noa + Rio
+   Confidence: high | Complexity 3 | Noa + Rio
    &#x2192; breakout-middleware.md
 
 Conflicts: none

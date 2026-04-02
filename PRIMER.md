@@ -14,7 +14,7 @@ The output isn't a wish list. It's a plan with:
 - Numbered decisions with rationale
 - Non-goals (why we're NOT doing X)
 - Measurable success criteria
-- Effort estimates (CIU + Scale, never time)
+- Effort estimates (Complexity + Scale, never time)
 
 ## Why It Exists
 

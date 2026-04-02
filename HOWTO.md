@@ -90,7 +90,7 @@ Everything lands in `specs/.storytime/sessions/<topic>/<episode>/`:
 The **plan.md** always includes:
 - Non-goals (what we're NOT doing, and why)
 - Success criteria (measurable)
-- CIU estimates (effort, not time)
+- Complexity estimates (effort, not time)
 - Risk matrix
 
 ---
@@ -289,10 +289,10 @@ auto_update_personas: true
 
 ## Effort Estimation
 
-Storytime uses **CIU** (Complexity Integration Units) and **Scale**
+Storytime uses **Complexity** and **Scale**
 instead of time estimates.
 
-| CIU | Complexity | Human analog |
+| Complexity | Complexity | Human analog |
 |-----|-----------|-------------|
 | 1 | Single-file, single-concept | Quick fix |
 | 2 | Few files, one system | Straightforward task |
