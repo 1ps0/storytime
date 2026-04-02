@@ -5,7 +5,7 @@ argument-hint: "<documents, directories, or topic to absorb>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.3.0" at start of execution -->
+<!-- version-echo: display "storytime v0.5.0" at start of execution -->
 # Storytime Absorb — Team Interpretation
 
 Have the storytime team read, interpret, and build shared understanding
