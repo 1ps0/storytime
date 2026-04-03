@@ -5,6 +5,20 @@ created: 2026-03-29T16:00
 
 # Storytime Cohort Roster
 
+## Address Resolution
+
+Roles are the functional address. Names resolve to roles.
+
+| @name  | Resolves to   | Focus            |
+|--------|---------------|------------------|
+| @reva  | @owner        | architecture     |
+| @deshi | @operator     | reliability      |
+| @oona  | @domain       | info-architecture|
+| @pike  | @skeptic      | developer-experience |
+| @taro  | @platform     | ai-human-interaction |
+
+## Active Roster
+
 | Name  | File                            | Archetype | Status | Since      | Sessions | Last Active |
 |-------|---------------------------------|-----------|--------|------------|----------|-------------|
 | Reva  | reva-owner-architect.md         | owner     | active | 2026-03-29 | 0        | 2026-03-29  |

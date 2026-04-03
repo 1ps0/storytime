@@ -18,19 +18,27 @@ The user's question: $ARGUMENTS
 
 ## Addressing
 
-**By name:** `@noa what do you think about the middleware approach?`
-Routes to the named persona. Loads their accumulated context and decisions.
+Roles are the functional anchor. Names are ornaments that resolve to roles.
 
-**By role/archetype:** `@operator is this safe to deploy?` / `@skeptic do we need this?`
-Finds the persona with that archetype in the active cohort and routes to them.
-If multiple personas share the archetype, all respond.
+**By role** (preferred — strongest model attention anchor):
+  `@operator is this safe to deploy?`
+  `@skeptic do we need this?`
+  `@critic:architecture is this the right boundary?`
+  Finds the persona(s) with that archetype. If multiple share the archetype,
+  qualify with focus: `@critic:architecture` vs `@critic:performance`.
+  If unqualified and multiple match, all respond.
+
+**By name** (shorthand — resolves to role via roster):
+  `@reva what do you think?` → resolves to `@owner`
+  `@pike do we need this?` → resolves to `@skeptic`
+  Loads their accumulated context and decisions.
 
 **By team:** `@team what did we decide about caching?` / "ask the team"
 All active cohort personas respond from their perspectives.
 
-**Implicit:** If the user's message mentions a persona name without @,
+**Implicit:** If the user's message mentions a persona name or role without @,
 and the context makes it clear they're asking that persona, route to them.
-"What would noa think about this?" → routes to Noa.
+"What would the operator think about this?" → routes to @operator.
 
 ## Process
 

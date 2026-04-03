@@ -471,38 +471,69 @@ there.
 27. Post-breakout pause is mandatory (unless auto). Present summaries, wait for user.
 28. Converge can run standalone via `/storytime-converge`.
 29. Grounding is multi-source: code, docs, web, git — use the strongest evidence for the claim.
-30. Personas use `@identifier` when speaking and referencing each other.
+30. Personas use `@role` when speaking and referencing each other — roles
+    are functional model attention anchors, names are ornaments.
 
-## Persona Voice
+## Persona Voice — The @ Convention
 
-When personas speak in session output (icebreaker, breakouts, review),
-they are identified with `@` prefix. When they reference each other, they
-use `@` identifiers, not bare names.
+The `@` prefix is a **model attention anchor**, not decoration. Chat-format
+turn-taking (`@role: says something`) gets structurally different attention
+weight than prose describing what someone thinks. This is the mechanism that
+keeps the model reasoning from a consistent perspective.
 
-**Identifier modes** (user preference, set in config):
+**Roles are functional. Names are ornaments.**
 
-- **`@name`** (default) — personas identified by name:
-  `@noa:` "The middleware chain at `src/server.ts:14`..."
-  `@sven:` "Agree with @noa — Redis is already in the stack."
+The role is the load-bearing address — it anchors model behavior. The name
+makes it readable and memorable for humans. Both work as addresses, but the
+role is what drives the reasoning.
 
-- **`@role`** — personas identified by archetype:
+### Addressing Formats
+
+**`@role`** (default) — the functional anchor:
   `@owner:` "The middleware chain at `src/server.ts:14`..."
   `@systems:` "Agree with @owner — Redis is already in the stack."
 
-- **`@both`** — name with role tag:
-  `@noa [owner]:` "The middleware chain at `src/server.ts:14`..."
-  `@sven [systems]:` "Agree with @noa — Redis is already in the stack."
+**`@role:focus`** — qualified when roles are shared or specialized:
+  `@critic:architecture` "The boundary between these services is wrong."
+  `@critic:performance` "That's O(n²) and the dataset is growing."
+  `@domain:dsp` "The sample rate mismatch needs addressing."
 
-The identifier mode applies everywhere personas appear:
+**`@name`** — name shorthand, resolves to a role via roster:
+  `@reva:` resolves to `@owner`
+  `@pike:` resolves to `@skeptic`
+  User can address by name when the role mapping is known.
+
+**`@role [name]`** — role-first with name ornament:
+  `@owner [reva]:` "The middleware chain at `src/server.ts:14`..."
+  `@systems [deshi]:` "Agree with @owner — Redis is already in the stack."
+
+### Where @ Applies
+
+The `@` convention applies everywhere personas appear:
 - Session output (icebreaker.md, breakout-*.md, plan.md)
 - Warm-start preamble narratives
 - Post-breakout summary cards
 - Team definitions in team.md (the boxed ASCII cards still show full info)
 - QA responses
+- Skill instructions that invoke persona reasoning
+- Cross-persona references ("@operator flagged this in the last session")
 
 **In written artifacts**, the `@` prefix makes personas grep-able and
 creates a consistent addressing convention between the user talking to
 personas and personas talking to each other.
+
+### Why Roles First
+
+1. **Model attention** — `@operator: is this safe?` creates a stronger
+   behavioral anchor than `@deshi: is this safe?` because the role word
+   itself primes the model's reasoning frame.
+2. **Portability** — `@operator` means the same thing in every repo.
+   `@deshi` only means something if you know this cohort.
+3. **Composability** — `@critic:architecture` and `@critic:performance`
+   let the same archetype address different facets without inventing
+   new archetype names.
+4. **QA addressing** — users can ask `@operator is this safe?` without
+   knowing the operator's name. Role-based queries always resolve.
 
 ## Citation Formats
 
