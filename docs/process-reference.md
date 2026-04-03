@@ -89,7 +89,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 2. ICEBREAKER before BREAKOUT or CONVERGE
 3. CONVERGE before REVIEW
 4. Phases collapse when empty — never present ceremony for absent content
-5. Minimum 3 personas, maximum 7
+5. Minimum 3 personas, maximum 12
 6. At least one OPERATOR archetype (always)
 7. Permanent cohort participates by default
 8. User can fire, bench, or recruit at any time
@@ -233,8 +233,8 @@ or trust prior.
 ```yaml
 default_mode: inline          # inline | deliberation
 automation: guided            # manual | guided | auto
-max_team_size: 7
-max_concurrent_breakouts: 3
+max_team_size: 12
+max_concurrent_breakouts: 10
 max_deliberation_rounds: 3
 require_operator: true
 require_nongoals: true

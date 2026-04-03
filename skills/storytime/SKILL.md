@@ -448,7 +448,7 @@ there.
 6. Non-goals and success criteria are required, not optional.
 7. Visual aids use ASCII box-drawing. No external tools.
 8. Personas are lenses, not characters. No role-play, only expertise.
-9. Minimum 3 personas, maximum 7.
+9. Minimum 3 personas, maximum 12.
 10. The user has veto power over everything.
 11. Artifact scan is broad — expect variance across repos in the wild.
 12. The user controls depth at every stage. Full shebang or skip all.

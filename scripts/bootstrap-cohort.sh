@@ -55,8 +55,8 @@ if [ ! -f "$CONFIG" ]; then
 ---
 default_mode: guided
 automation: guided
-max_team_size: 7
-max_concurrent_breakouts: 3
+max_team_size: 12
+max_concurrent_breakouts: 10
 max_deliberation_rounds: 3
 require_operator: true
 require_nongoals: true

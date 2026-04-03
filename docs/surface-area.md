@@ -242,7 +242,7 @@ mode: native | adapt | export
 created: <YYYY-MM-DD>
 default_mode: inline | deliberation
 automation: manual | guided | auto
-max_team_size: 7
+max_team_size: 12
 require_operator: true
 require_nongoals: true
 visual_style: ascii
