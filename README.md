@@ -47,8 +47,7 @@ claude --plugin-dir ~/workspace/storytime
 ```
 
 That's it. Storytime surveys your code, assembles a team, and produces a
-plan. See [PRIMER.md](PRIMER.md) for what it is, [HOWTO.md](HOWTO.md)
-for how to use it.
+plan. See the [Guide](site/guide.html) for what it is and how to use it.
 
 ## What It Produces
 
@@ -161,16 +160,19 @@ storytime/
 ├── examples/
 │   ├── agc-session.md            Real session walkthrough
 │   └── persona-template.md       New persona starter
-├── PRIMER.md                     What storytime is and why
-├── HOWTO.md                      Developer-oriented usage guide
+├── site/                         Documentation site (4 HTML pages)
+│   ├── index.html               Landing page
+│   ├── guide.html               What, why, how, all skills
+│   ├── walkthrough.html         Full cold-start simulation
+│   └── reference.html           Rules, formats, config
 ├── BACKLOG.md                    Enhancement roadmap
 └── SESSION-CONTEXT.md            Genesis session context
 ```
 
 ## Links
 
-- [PRIMER.md](PRIMER.md) — What storytime is, the value proposition
-- [HOWTO.md](HOWTO.md) — Developer guide to using storytime effectively
-- [docs/process-reference.md](docs/process-reference.md) — Complete reference
-- [docs/comparisons.md](docs/comparisons.md) — How it compares to other tools
+- [site/guide.html](site/guide.html) — What, why, how to use, all 14 skills
+- [site/walkthrough.html](site/walkthrough.html) — Full simulated cold-start session
+- [site/reference.html](site/reference.html) — All 44 rules, citation formats, config
+- [docs/process-reference.md](docs/process-reference.md) — Internal process reference
 - [BACKLOG.md](BACKLOG.md) — What's next

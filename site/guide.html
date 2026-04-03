@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storytime Guide — What, Why, and How</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a class="logo" href="index.html"><span>storytime</span> v0.5.0</a>
+    <a href="index.html">Home</a>
+    <a href="guide.html" class="active">Guide</a>
+    <a href="walkthrough.html">Walkthrough</a>
+    <a href="reference.html">Reference</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<h2 style="margin-top: 2rem;">What Storytime Is</h2>
+
+<p>A Claude Code plugin that turns "figure out what to build" into a structured
+process. Describe a problem and storytime assembles a team of domain-expert
+personas who discuss it, investigate the code, debate tradeoffs, and produce
+a plan &mdash; grounded in your actual codebase.</p>
+
+<p>The output is a plan with code citations (<code>file:line</code>), ASCII diagrams,
+numbered decisions with rationale, non-goals, measurable success criteria, and
+effort estimates (Complexity + Scale, never time).</p>
+
+<h3>Why not just write a spec?</h3>
+<ol>
+  <li><strong>Skip the spec</strong> &mdash; jump into code, realize three days in the approach doesn't work.</li>
+  <li><strong>Thin spec</strong> &mdash; bullet points that don't address the hard questions. Discover them in prod.</li>
+  <li><strong>Fat spec</strong> &mdash; 20-page doc nobody reads. Code diverges by day two.</li>
+</ol>
+<p>Storytime makes the spec process interactive, code-grounded, and fast.</p>
+
+<!-- ─── PERSONAS ─── -->
+
+<h2>Personas</h2>
+
+<p><strong>Domain-expert lenses, not characters.</strong> They provide structured perspectives
+that ensure the plan considers all relevant dimensions.</p>
+
+<table class="skill-table">
+  <tr><th>Archetype</th><th>Perspective</th><th>What they ask</th></tr>
+  <tr><td>OWNER</td><td>Wrote the code, knows where everything lives</td><td>"This touches X, which depends on Y..."</td></tr>
+  <tr><td>OPERATOR</td><td>Runs it in prod, wants observability</td><td>"What's the kill switch? How do I monitor this?"</td></tr>
+  <tr><td>DOMAIN</td><td>Deep expertise in the problem area</td><td>"The standard approach for this is..."</td></tr>
+  <tr><td>SYSTEMS</td><td>Knows the runtime, infra, failure modes</td><td>"At scale, this will bottleneck at..."</td></tr>
+  <tr><td>PLATFORM</td><td>Knows the product, users, business case</td><td>"Users expect... The business needs..."</td></tr>
+  <tr><td>SKEPTIC</td><td>Challenges assumptions</td><td>"Do we actually need this? What if we don't?"</td></tr>
+  <tr><td>CRITIC</td><td>Code quality, DRY, optimization</td><td>"This duplicates X &mdash; extract a shared abstraction"</td></tr>
+</table>
+
+<p>Every session has at least one OPERATOR. Minimum 3 personas, maximum 7.</p>
+
+<p><strong>Cohort</strong> personas persist across sessions &mdash; they accumulate context and remember
+past decisions. <strong>Specialists</strong> are temporary, recruited for a specific problem.</p>
+
+<h3>Addressing personas</h3>
+<pre><code>@noa what do you think about adding WebSocket support?
+@operator is this safe to deploy without a kill switch?
+@critic can we reuse the existing retry logic here?
+@team what did we decide about the cache TTL?</code></pre>
+<p>Works in any conversation where a cohort exists. No active session required.
+Set <code>persona_voice</code> in config: <code>name</code> (default), <code>role</code>, or <code>both</code>.</p>
+
+<!-- ─── GETTING STARTED ─── -->
+
+<h2>Getting Started</h2>
+
+<pre><code><span style="color:var(--text-muted)"># Permanent install</span>
+<span style="color:var(--green)">$</span> claude install-plugin ~/workspace/storytime
+
+<span style="color:var(--text-muted)"># Or per-session</span>
+<span style="color:var(--green)">$</span> claude --plugin-dir ~/workspace/storytime</code></pre>
+
+<h3>First session</h3>
+<pre><code>/storytime "our public API has no rate limiting, scrapers are hammering /search at 200 req/s"</code></pre>
+<p>Be specific. Context drives quality. <a href="walkthrough.html">See a full walkthrough &rarr;</a></p>
+
+<h3>What happens</h3>
+<p><strong>SURVEY</strong> &mdash; explores codebase, presents artifact inventory.<br>
+<strong>ASSEMBLE</strong> &mdash; proposes 3-7 personas. You can adjust.<br>
+<strong>ICEBREAKER</strong> &mdash; team discusses status quo, identifies sub-problems.<br>
+<strong>BREAKOUT</strong> &mdash; parallel deep dives with 2-3 personas each.<br>
+<strong>PAUSE</strong> &mdash; summary cards per breakout. Proceed, dig in, revise, or add more.<br>
+<strong>CONVERGE</strong> &mdash; full team merges findings into a plan.<br>
+<strong>REVIEW</strong> &mdash; plan presented to you. Challenge, revise, or approve.</p>
+
+<!-- ─── EPISODES + WARM START ─── -->
+
+<h2>Episodes and Warm Start</h2>
+
+<p>Sessions are <strong>episodes</strong> of an ongoing story. When you revisit a topic,
+storytime synthesizes a narrative "previously on..." from living documents,
+persona histories, and git delta.</p>
+
+<pre><code><span style="color:var(--text-muted)"># See recent threads, auto-resume incomplete ones</span>
+/storytime
+
+<span style="color:var(--text-muted)"># Or go directly to a topic</span>
+/storytime rate-limiting</code></pre>
+
+<p>Threads auto-checkpoint after every phase. If your session is interrupted,
+the next <code>/storytime</code> detects the incomplete thread and offers to resume.
+No explicit save needed.</p>
+
+<!-- ─── GROUNDING ─── -->
+
+<h2>Grounding and Citations</h2>
+
+<p>Every technical claim must be grounded. Personas use the strongest available evidence:</p>
+
+<table class="skill-table">
+  <tr><th>Source</th><th>Format</th><th>When</th></tr>
+  <tr><td>Code</td><td><code>src/auth.ts:32</code></td><td>Runtime behavior</td></tr>
+  <tr><td>Repo files</td><td><code>docs/api-design.md:15</code></td><td>Project intent</td></tr>
+  <tr><td>Library docs</td><td><code>[redis.io/commands/...]</code></td><td>External system behavior</td></tr>
+  <tr><td>Git</td><td><code>commit abc123</code></td><td>What changed and when</td></tr>
+  <tr><td>Standards</td><td><code>RFC 6585 &sect;4</code></td><td>Protocols and specs</td></tr>
+  <tr><td>Web</td><td><code>[url]</code></td><td>Benchmarks, CVEs, blog posts</td></tr>
+</table>
+
+<p>Evidence hierarchy: Code &gt; Git &gt; Repo files &gt; Library docs &gt; Standards &gt; Web.
+Ungrounded claims get challenged: "can you ground that?"</p>
+
+<!-- ─── EFFORT ─── -->
+
+<h2>Complexity and Scale</h2>
+
+<p><strong>Complexity</strong> (how hard) uses a Fibonacci scale. <strong>Scale</strong> (how big) uses 1-5.
+Both always stated with prose. Never time estimates.</p>
+
+<table class="ciu-table">
+  <tr><th>Complexity</th><th>What it means</th><th>Human analog</th></tr>
+  <tr><td>1</td><td>Single-file, single-concept</td><td>Quick fix</td></tr>
+  <tr><td>2</td><td>Few files, one system</td><td>Straightforward</td></tr>
+  <tr><td>3</td><td>Multiple files, one system</td><td>A morning</td></tr>
+  <tr><td>5</td><td>Cross-system</td><td>Solid day</td></tr>
+  <tr><td>8</td><td>Architectural</td><td>Multi-day</td></tr>
+  <tr><td>13+</td><td>Foundational</td><td>Must decompose</td></tr>
+</table>
+
+<p>Scale: 1 (file) &rarr; 2 (module) &rarr; 3 (services) &rarr; 4 (users) &rarr; 5 (ecosystem)</p>
+
+<!-- ─── ALL SKILLS ─── -->
+
+<h2>All Skills</h2>
+
+<h4>/storytime &lt;problem&gt;</h4>
+<p>Full workflow. Use for features, architecture decisions, investigations.</p>
+
+<h4>/storytime-breakout &lt;sub-problem&gt;</h4>
+<p>Focused 2-3 persona investigation without the full pipeline.</p>
+
+<h4>/storytime-converge &lt;topic&gt;</h4>
+<p>Merge breakout results into a unified plan.</p>
+
+<h4>/storytime-qa @persona &lt;question&gt;</h4>
+<p>Query personas about past decisions or current code state.</p>
+
+<h4>/storytime-retro &lt;topic&gt;</h4>
+<p>Reconvene team: plan vs what was built.</p>
+
+<h4>/storytime-pr-qa &lt;pr&gt;</h4>
+<p>Team handles PR review comments with proposed responses.</p>
+
+<h4>/storytime-cohort &lt;action&gt;</h4>
+<p>Manage personas: <code>list</code>, <code>hire</code>, <code>fire</code>, <code>bench</code>, <code>evolve</code>, <code>promote</code>.</p>
+
+<h4>/storytime-survey</h4>
+<p>Standalone codebase survey with artifact inventory and fingerprint.</p>
+
+<h4>/storytime-status</h4>
+<p>Dashboard: cohort, threads, decisions, stale citations.</p>
+
+<h4>/storytime-bootstrap</h4>
+<p>Initialize <code>.storytime/</code>. Storytime-native, adapt-in-place, or export-only.</p>
+
+<h4>/storytime-consolidate</h4>
+<p>Organize, archive, roll up documents, backfill timestamps.</p>
+
+<h4>/storytime-absorb</h4>
+<p>Team reads and discusses existing docs or code.</p>
+
+<h4>/storytime-export</h4>
+<p>Convert output to ADRs, GitHub issues, Linear tickets, Kiro specs.</p>
+
+<h4>/storytime-undo</h4>
+<p>Revert at any granularity: phase, episode, thread, specific file, or redo.</p>
+
+<!-- ─── TIPS ─── -->
+
+<h2>Tips</h2>
+
+<ul>
+  <li><strong>Be specific</strong> in your problem statement. Context drives quality.</li>
+  <li><strong>Challenge the team</strong> during REVIEW. That's what it's for.</li>
+  <li><strong>Use breakouts</strong> for focused questions. Don't run the full pipeline for one investigation.</li>
+  <li><strong>Just walk away.</strong> The thread auto-checkpoints. Come back with <code>/storytime</code> and resume.</li>
+  <li><strong>Trust the warm start.</strong> The narrative preamble is always fresh.</li>
+</ul>
+
+<p>Full rules, formats, and config: <a href="reference.html">Reference &rarr;</a></p>
+
+</div>
+
+<div class="container">
+<div class="footer">
+  <p>Storytime v0.5.0 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
+</div>
+</div>
+
+</body>
+</html>
