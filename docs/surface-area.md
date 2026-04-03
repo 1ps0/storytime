@@ -155,7 +155,7 @@ Complexity + Scale, never time estimates. Evaluation hygiene.
 ```yaml
 type: <document-type>
 created: <YYYY-MM-DDTHH:MM>
-session: <session-id | null>
+session: <session-id | null>    # omitted for persona files (they exist independently)
 ```
 
 ### Survey fingerprint

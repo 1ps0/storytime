@@ -39,7 +39,7 @@ session: <session-id | null>
 |-----------|--------------------------------------------------------|
 | `type`    | Document type: survey, team, icebreaker, breakout, plan, rollup, persona, decision, absorption, retrospective, session-summary |
 | `created` | When this document was first written. ISO 8601 with minute precision. |
-| `session` | The session that produced it (e.g., `2026-03-29-timestamps`), or null for documents created outside a session. |
+| `session` | The session that produced it (e.g., `2026-03-29-timestamps`), or null for documents created outside a session. **Exception:** persona files omit this field — personas exist independently of any session. Their session history is tracked in `sessions: []`. |
 
 These three fields are non-negotiable. Everything else is format-specific.
 
@@ -116,16 +116,16 @@ events specific to its lifecycle.
 ---
 type: persona
 created: <YYYY-MM-DDTHH:MM>
-session: <session-id>
 name: <name>
 archetype: <archetype>
 status: <active|inactive|alumni>
 inception: <YYYY-MM-DD>
 last_active: <YYYY-MM-DD>
+sessions: [<session-ids>]
 evolved:
   - date: <YYYY-MM-DD>
     change: "<what changed>"
-    session: <session-id>
+    session: <session-id>      # session goes HERE — on the event, not the persona
 decisions_participated:
   - id: <TOPIC-NNN>
     decision: "<summary>"
@@ -349,7 +349,7 @@ available evidence.
 type: persona
 created: 2026-03-24T10:30
 created_confidence: git-derived    # from first commit adding this file
-session: 2026-03-24-agc
+sessions: [2026-03-24-agc]        # session history, not a top-level identity field
 last_active: ~2026-03-24
 last_active_confidence: approximate  # inferred from session filename
 ---

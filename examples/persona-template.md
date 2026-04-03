@@ -1,7 +1,6 @@
 ---
 type: persona
 created: <YYYY-MM-DDTHH:MM>
-session: <session-id>
 name: <Name>
 archetype: <domain|systems|platform|owner|operator|skeptic|critic>
 focus: <specific sub-focus within the archetype, if sharing with another>

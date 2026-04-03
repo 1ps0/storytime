@@ -56,7 +56,6 @@ The management action: $ARGUMENTS
 ---
 type: persona
 created: <YYYY-MM-DDTHH:MM>
-session: <session-id that created this persona>
 name: <name>
 archetype: <domain|systems|platform|owner|operator|skeptic|critic>
 focus: <specific sub-focus, if sharing archetype with another persona>
