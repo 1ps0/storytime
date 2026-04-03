@@ -5,7 +5,7 @@ argument-hint: "@persona <question> or @role <question> or <question for full te
 allowed-tools: [Read, Glob, Grep, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.5.0" at start of execution -->
+<!-- version-echo: display "storytime v0.6.0" at start of execution -->
 # Storytime QA — Persona Query
 
 Route a direct question to a Storytime persona, role, or the full team.
@@ -44,7 +44,8 @@ and the context makes it clear they're asking that persona, route to them.
 
 1. **Identify the target**:
    - Parse `@name` → exact persona match in cohort
-   - Parse `@role` → match against archetypes (operator, skeptic, critic, owner, domain, systems, platform)
+   - Parse `@role` → match against archetypes (owner, operator, critic, domain, systems, platform, skeptic, educator)
+   - Parse `@role:explain` → the named role responds in explain-mode (teaching, not deciding)
    - Parse `@team` → all active personas
    - No match in cohort → suggest assembling a team first
 2. **Load persona context**:

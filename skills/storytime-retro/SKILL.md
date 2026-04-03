@@ -5,7 +5,7 @@ argument-hint: "<topic> (e.g., agc, opus-negotiation)"
 allowed-tools: [Read, Glob, Grep, Bash, Agent]
 ---
 
-<!-- version-echo: display "storytime v0.5.0" at start of execution -->
+<!-- version-echo: display "storytime v0.6.0" at start of execution -->
 # Storytime Retrospective
 
 Run a retrospective on a completed Storytime spec by reconvening

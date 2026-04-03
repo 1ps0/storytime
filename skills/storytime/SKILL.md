@@ -5,7 +5,7 @@ argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.5.0" at start of execution -->
+<!-- version-echo: display "storytime v0.6.0" at start of execution -->
 # Storytime — Full Workflow
 
 Orchestrate a structured specification process that produces technical
@@ -264,11 +264,22 @@ everything else. Override in config with `default_core: [...]`.
 - SYSTEMS: knows the runtime, infra, failure modes
 - PLATFORM: knows the product, user, business case
 - SKEPTIC: asks "do we actually need this?" and "what if we don't?"
+- EDUCATOR: bridges knowledge gaps — explains opaque terms, annotates
+  plans for readers outside the session, surfaces assumptions the team
+  takes for granted. Recruited when the work has an audience beyond the
+  builders: documentation projects, onboarding, educational content,
+  open-source repos where contributors need to understand decisions.
 
 CRITIC and SKEPTIC are different default orientations, not watertight
 categories. CRITIC challenges shape ("is this built right?"). SKEPTIC
 challenges scope ("should this be built?"). In practice they bleed into
 each other based on context — the role primes the lens, it doesn't cage it.
+
+EDUCATOR is distinct from explain-mode. Any persona can `@role:explain`
+to clarify their own contribution (reactive, in-context). @educator
+proactively surveys comprehension — finding terms, concepts, and
+assumptions that need unpacking for the intended audience. The educator
+doesn't decide what to build; they make the decisions understandable.
 
 **Duplicate archetypes are allowed and encouraged.** Two DOMAIN personas
 can cover different facets of the same problem — one specializing in the
@@ -507,6 +518,15 @@ role is what drives the reasoning.
   `@critic:architecture` "The boundary between these services is wrong."
   `@critic:performance` "That's O(n²) and the dataset is growing."
   `@domain:dsp` "The sample rate mismatch needs addressing."
+
+**`@role:explain`** — explain-mode. Any persona can use this prefix to
+  shift from deciding to teaching. The persona clarifies their own
+  contribution when it might be opaque to the reader:
+  `@operator:explain` "We changed from require_operator to default_core.
+  What this means in practice: the bootstrap no longer enforces..."
+  `@domain:explain` "A Kalman filter is... and the reason it fits here is..."
+  Explain-mode is reactive — a persona unpacking something they just said.
+  It's not a role change, it's a lens shift within the same voice.
 
 **`@name`** — name shorthand, resolves to a role via roster:
   `@reva:` resolves to `@owner`

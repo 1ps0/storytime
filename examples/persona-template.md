@@ -2,7 +2,7 @@
 type: persona
 created: <YYYY-MM-DDTHH:MM>
 name: <Name>
-archetype: <domain|systems|platform|owner|operator|skeptic|critic>
+archetype: <domain|systems|platform|owner|operator|skeptic|critic|educator>
 focus: <specific sub-focus within the archetype, if sharing with another>
 status: active
 inception: <YYYY-MM-DD>

@@ -5,7 +5,7 @@ argument-hint: "<action> <persona> [details]"
 allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
 
-<!-- version-echo: display "storytime v0.5.0" at start of execution -->
+<!-- version-echo: display "storytime v0.6.0" at start of execution -->
 # Storytime Cohort Management
 
 Manage the Storytime persona roster — hiring, firing, benching,
@@ -81,7 +81,7 @@ The user picks who to hire from what they heard.
 type: persona
 created: <YYYY-MM-DDTHH:MM>
 name: <name>
-archetype: <domain|systems|platform|owner|operator|skeptic|critic>
+archetype: <domain|systems|platform|owner|operator|skeptic|critic|educator>
 focus: <specific sub-focus, if sharing archetype with another persona>
 status: <active|inactive|alumni>
 inception: <YYYY-MM-DD>

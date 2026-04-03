@@ -5,7 +5,7 @@ argument-hint: "<pr-url-or-number>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent]
 ---
 
-<!-- version-echo: display "storytime v0.5.0" at start of execution -->
+<!-- version-echo: display "storytime v0.6.0" at start of execution -->
 # Storytime PR QA — Async Review Handler
 
 The storytime team handles incoming PR review comments with proposed
