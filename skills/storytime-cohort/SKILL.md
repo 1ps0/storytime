@@ -59,6 +59,7 @@ created: <YYYY-MM-DDTHH:MM>
 session: <session-id that created this persona>
 name: <name>
 archetype: <domain|systems|platform|owner|operator|skeptic|critic>
+focus: <specific sub-focus, if sharing archetype with another persona>
 status: <active|inactive|alumni>
 inception: <YYYY-MM-DD>
 last_active: <YYYY-MM-DD>

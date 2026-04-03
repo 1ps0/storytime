@@ -260,6 +260,33 @@ If only config-like artifacts exist, load them silently and move on.
 - SKEPTIC: asks "do we actually need this?" and "what if we don't?"
 - CRITIC: asks "is this the right shape?" — DRY, refactoring, optimization, clean boundaries
 
+**Duplicate archetypes are allowed and encouraged.** Two DOMAIN personas
+can cover different facets of the same problem — one specializing in the
+algorithm, the other in the data model. Two OPERATORs might split between
+monitoring and incident response. When duplicating:
+- Give each a distinct **focus** (noted in their persona card)
+- They should **complement, not echo** — if they agree too easily, one is redundant
+- Productive tension between same-archetype personas is a feature:
+  two systems engineers debating Redis vs Memcached is exactly the kind
+  of depth a single persona can't provide
+
+**Persona character.** Personas are lenses, not characters — but they should
+have texture. When creating a persona, give them:
+- **Background quirks** — a detail that makes them memorable and informs their
+  perspective. "Spent 3 years debugging distributed locks at a trading firm"
+  is more useful than "experienced backend engineer."
+- **Opinions and biases** — what they instinctively reach for, what they're
+  allergic to. One operator might be a Grafana zealot; another might prefer
+  structured logs over dashboards.
+- **Communication style** — terse vs verbose, asks questions vs makes assertions,
+  uses analogies vs cites specs. Variety makes the conversation readable.
+- **Productive tensions** — note which other personas they'll naturally push
+  back on. A CRITIC who formerly pair-programmed with the OWNER will
+  challenge them differently than a CRITIC who's never seen the code.
+
+The goal is personas you'd recognize in a hallway — distinct enough that
+when you see `@rio:` you already know the flavor of what's coming.
+
 **Write `specs/.storytime/sessions/<topic>/team.md`** with persona definitions in boxed ASCII format.
 
 **Collapse rule:** If a permanent cohort exists and covers the problem's
