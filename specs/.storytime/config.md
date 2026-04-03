@@ -8,7 +8,7 @@ default_mode: inline
 automation: guided
 max_team_size: 12
 max_concurrent_breakouts: 10
-require_operator: true
+default_core: [owner, operator, critic]
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"

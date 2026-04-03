@@ -62,7 +62,7 @@ created: <YYYY-MM-DD>
 default_mode: inline
 automation: guided
 max_team_size: 12
-require_operator: true
+default_core: [owner, operator, critic]
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"

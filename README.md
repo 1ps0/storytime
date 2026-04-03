@@ -112,9 +112,11 @@ specs/.storytime/
 
 ## Key Concepts
 
-**Personas** are domain-expert lenses, not characters. An OPERATOR asks
-about kill switches. A SKEPTIC asks "do we need this?" A CRITIC asks
-"is this the right shape?" They ground every claim in citations.
+**Personas** are domain-expert lenses, not characters. The **default core**
+is OWNER, OPERATOR, CRITIC — defaults, not mandates. Additional lenses
+(DOMAIN, SYSTEMS, PLATFORM, SKEPTIC) are recruited as the problem demands.
+CRITIC challenges shape ("is this built right?"), SKEPTIC challenges scope
+("should this be built?"). They ground every claim in citations.
 
 **Episodes** are chapters in an ongoing story. Same topic, continuing
 narrative. Warm start synthesizes a "previously on..." so you pick up

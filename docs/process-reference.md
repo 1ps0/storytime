@@ -90,7 +90,7 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 3. CONVERGE before REVIEW
 4. Phases collapse when empty — never present ceremony for absent content
 5. Minimum 3 personas, maximum 12
-6. At least one OPERATOR archetype (always)
+6. Default core: OWNER, OPERATOR, CRITIC — defaults, not mandates. Collapsible.
 7. Permanent cohort participates by default
 8. User can fire, bench, or recruit at any time
 9. Every technical claim must be grounded (code, docs, web, or git citation)
@@ -237,7 +237,7 @@ automation: guided            # manual | guided | auto
 max_team_size: 12
 max_concurrent_breakouts: 10
 max_deliberation_rounds: 3
-require_operator: true
+default_core: [owner, operator, critic]
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"

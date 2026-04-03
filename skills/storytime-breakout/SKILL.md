@@ -33,7 +33,7 @@ The sub-problem to investigate: $ARGUMENTS
 
 **If standalone** (no related thread):
 - Quick codebase scan (Explore agent, scoped to the sub-problem)
-- Assemble a minimal team: 2-3 personas, at least one OPERATOR
+- Assemble a minimal team: 2-3 personas, draw from the default core (owner, operator, critic) unless the problem suggests otherwise
 - The user can name specific personas or archetypes, or let the system pick
 - Output goes wherever makes sense: `specs/.storytime/sessions/<topic>/001/`
   for a new topic, or a location the user specifies

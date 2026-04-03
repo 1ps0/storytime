@@ -251,14 +251,24 @@ If only config-like artifacts exist, load them silently and move on.
 - For each domain not covered by the cohort or rehired personas, propose a specialist
 - Each specialist gets: name, archetype, background, scope, exit condition
 
-**Archetype checklist** (minimum 3 personas, at least one OPERATOR):
+**Default core** — what you get if you don't specify. Collapsible like
+everything else. Override in config with `default_core: [...]`.
+
+- OWNER: wrote the code, knows where everything lives
+- OPERATOR: runs it in prod, wants observability and kill switches
+- CRITIC: asks "is this the right shape?" — DRY, refactoring, optimization, clean boundaries
+
+**Additional lenses** — recruited based on what the problem touches:
+
 - DOMAIN: deep expertise in the problem domain
 - SYSTEMS: knows the runtime, infra, failure modes
 - PLATFORM: knows the product, user, business case
-- OWNER: wrote the code, knows where everything lives
-- OPERATOR: runs it in prod, wants observability and kill switches
 - SKEPTIC: asks "do we actually need this?" and "what if we don't?"
-- CRITIC: asks "is this the right shape?" — DRY, refactoring, optimization, clean boundaries
+
+CRITIC and SKEPTIC are different default orientations, not watertight
+categories. CRITIC challenges shape ("is this built right?"). SKEPTIC
+challenges scope ("should this be built?"). In practice they bleed into
+each other based on context — the role primes the lens, it doesn't cage it.
 
 **Duplicate archetypes are allowed and encouraged.** Two DOMAIN personas
 can cover different facets of the same problem — one specializing in the
@@ -444,7 +454,7 @@ there.
 2. ICEBREAKER before BREAKOUT. Shared understanding before depth.
 3. CONVERGE before showing the user. Internal consensus first.
 4. Every technical claim must be grounded — cite code, docs, or external sources.
-5. At least one OPERATOR archetype. Always.
+5. Default core: OWNER, OPERATOR, CRITIC. Override in config, collapse when solo.
 6. Non-goals and success criteria are required, not optional.
 7. Visual aids use ASCII box-drawing. No external tools.
 8. Personas are lenses, not characters. No role-play, only expertise.
