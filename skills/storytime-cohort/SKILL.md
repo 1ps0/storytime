@@ -52,27 +52,18 @@ The management action: $ARGUMENTS
 
 ### echo <role or description>
 **Spawning pool echo test.** Before committing to a hire, spawn a
-temporary voice from the pool to hear how a perspective *sounds* on
-the current problem. No persona file created — this is a tryout, not
-a commitment.
+temporary voice to hear how a perspective sounds on the current problem.
 
-Process:
-1. User says: `echo @critic` or `echo "someone who's built payment systems"`
-2. Generate a one-shot response from that perspective on the current
-   context — recent session topic, latest decisions, active problem
-3. The echo speaks once, directly. No name, no backstory, just the lens.
-4. User evaluates: does this perspective add something the team is missing?
-5. If yes → `hire` with the role and let the user give it a name and shape
-6. If no → the echo dissolves. Nothing written, nothing persisted.
+Echo is now its own skill: **`/storytime:storytime-echo`**. Invoke it
+directly for one-shot voices without going through cohort management.
+See `${CLAUDE_PLUGIN_ROOT}/skills/storytime-echo/SKILL.md` for full
+invocation forms (`@role`, `@role:scope`, descriptive, `:session` context).
 
-Echo testing helps answer "do we need this perspective?" before investing
-in a full persona with history and relationships. It's the spawning pool —
-a place where potential voices surface briefly so you can listen before
-you commit.
-
-Multiple echoes can run in sequence: `echo @skeptic`, `echo @domain:security`,
-`echo "someone who's been burned by this exact pattern"`. Each speaks once.
-The user picks who to hire from what they heard.
+Workflow integration:
+- `/storytime:storytime-echo @critic` — hear the voice
+- Decide if the perspective adds something the team is missing
+- If yes → `/storytime:storytime-cohort hire` to formalize based on what you heard
+- If no → the echo dissolves, nothing persisted
 
 ## Persona File Format
 
