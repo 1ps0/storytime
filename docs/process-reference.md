@@ -92,7 +92,7 @@ Standalone: CONVERGE via /storytime-converge, BUILDOUT via /storytime-buildout
 3. CONVERGE before REVIEW
 4. Phases collapse when empty — never present ceremony for absent content
 5. Minimum 3 personas, maximum 12
-6. Default core: OWNER, OPERATOR, CRITIC — defaults, not mandates. Collapsible.
+6. Default core: OWNER, OPERATOR, CRITIC ×2 — two critics minimum, they contest each other.
 7. Permanent cohort participates by default
 8. User can fire, bench, or recruit at any time
 9. Every technical claim must be grounded (code, docs, web, or git citation)

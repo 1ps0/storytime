@@ -256,7 +256,12 @@ everything else. Override in config with `default_core: [...]`.
 
 - OWNER: wrote the code, knows where everything lives
 - OPERATOR: runs it in prod, wants observability and kill switches
-- CRITIC: asks "is this the right shape?" — DRY, refactoring, optimization, clean boundaries
+- CRITIC ×2: **always two critics, minimum.** Each with a different focus
+  (e.g., `@critic:architecture` and `@critic:performance`). They contest
+  each other's assessments — no single critic holds all the weight. If one
+  says "extract this to a helper," the other can push back: "the duplication
+  is intentional here, a helper adds indirection for no gain." The tension
+  between critics is where the best shape decisions come from.
 
 **Additional lenses** — recruited based on what the problem touches:
 
@@ -468,7 +473,7 @@ there.
 2. ICEBREAKER before BREAKOUT. Shared understanding before depth.
 3. CONVERGE before showing the user. Internal consensus first.
 4. Every technical claim must be grounded — cite code, docs, or external sources.
-5. Default core: OWNER, OPERATOR, CRITIC. Override in config, collapse when solo.
+5. Default core: OWNER, OPERATOR, CRITIC ×2. Two critics minimum — they contest each other.
 6. Non-goals and success criteria are required, not optional.
 7. Visual aids use ASCII box-drawing. No external tools.
 8. Personas are lenses, not characters. No role-play, only expertise.
