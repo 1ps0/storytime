@@ -74,7 +74,41 @@ The user can:
 - **Split** — break a slice into smaller pieces
 - **Merge** — combine related slices into one coding session
 
-### 3. Execute a Slice (the coding session)
+### 3. Pre-Slice Synopsis
+
+Before starting each slice, the assigned subteam presents a **synopsis**
+of what they're about to do:
+
+```
+Slice 1: Create rate limiter middleware
+
+  @owner: I'll write the sliding window logic in src/middleware/rate-limit.ts.
+          Redis sorted sets for counters, atomic pipeline for the check.
+  @systems: I'll review the Redis interaction — making sure the pipeline
+            is correct and we handle connection failures.
+
+  Decisions driving this: RATE-001, RATE-002
+  Files: src/middleware/rate-limit.ts (create), src/config/redis.ts (read)
+  Estimated scope: ~60 lines of middleware + tests
+
+  [approve / join / defer / pause / deprioritize / cancel]
+```
+
+The user directs:
+- **Approve** — proceed, the subteam runs the slice
+- **Join** — user participates inline, pair programming with the team
+- **Inline** — like join, but user drives and team advises
+- **Defer** — skip this slice for now, come back to it later
+- **Pause** — stop the buildout entirely, checkpoint the thread
+- **Deprioritize** — move this slice to the end of the queue
+- **Cancel** — remove this slice from the buildout (with confirmation)
+- **Adjust** — change team composition, scope, or approach before starting
+
+If the user approves without comment, the subteam proceeds autonomously
+and reports back with the trace document. If the user joins, the session
+becomes interactive pair programming.
+
+### 4. Execute a Slice (the coding session)
 
 Each slice is a **persona-driven coding session**. The assigned personas
 work the code together — this is pair (or mob) programming, not a
@@ -109,7 +143,7 @@ challenges in real-time:
 - The actual code files (created or modified)
 - The trace document (see below)
 
-### 4. Trace Document
+### 5. Trace Document
 
 Every buildout slice produces a **trace** — a structured record that maps
 plan decisions to code changes. This is the traceability backbone.
@@ -172,7 +206,7 @@ Decisions: RATE-001 (sliding window algorithm), RATE-002 (Redis sorted sets).
   - Returns correct Retry-After header
 ```
 
-### 5. Testing
+### 6. Testing
 
 Every buildout slice ends with testing. This is not optional.
 
@@ -183,7 +217,7 @@ Every buildout slice ends with testing. This is not optional.
 If tests fail, the team investigates and fixes in the same session.
 The trace document records what failed and how it was resolved.
 
-### 6. Slice Boundaries
+### 7. Slice Boundaries
 
 Slices end when one of these is true:
 - **The plan item is complete** — all code written, tests passing
@@ -197,7 +231,7 @@ Slices do NOT end because of artificial phase gates. If the work flows
 naturally from items 1→2→3 without stopping, that's one slice. If item 2
 reveals a blocker that item 3 depends on, that's where to stop.
 
-### 7. Buildout Completion
+### 8. Buildout Completion
 
 When all slices are done (or the user stops):
 

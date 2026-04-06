@@ -41,7 +41,19 @@ Output: <output_path>
 - Read persona files for assigned personas
 - Read any prior breakout files for this topic (avoid duplicating work)
 
-### Step 3: FRAME
+### Step 3: SYNOPSIS
+
+Present what the subteam plans to investigate:
+- Each persona's angle of approach
+- What's known vs unknown
+- Exit condition
+- Estimated scope
+
+If running as a background agent, the synopsis is written to the output
+file header so the orchestrator (or user) can review it. If running
+inline, present for user direction before proceeding.
+
+### Step 4: FRAME
 
 State the question clearly. Identify:
 - What we know (cite code or prior decisions)
@@ -49,7 +61,7 @@ State the question clearly. Identify:
 - Constraints
 - Exit condition (what does "answered" look like?)
 
-### Step 4: INVESTIGATE
+### Step 5: INVESTIGATE
 
 Run the investigation. Available skills:
 - VERIFY: Grep/Read to check claims against code
@@ -59,7 +71,7 @@ Run the investigation. Available skills:
 
 Each persona contributes from their domain lens.
 
-### Step 5: CONVERGE
+### Step 6: CONVERGE
 
 The breakout team converges on a recommendation:
 - Finding: what did the investigation discover?
@@ -70,7 +82,7 @@ The breakout team converges on a recommendation:
 - Open questions: what couldn't we resolve?
 - Citations: code references grounding the recommendation
 
-### Step 6: WRITE OUTPUT (MANDATORY)
+### Step 7: WRITE OUTPUT (MANDATORY)
 
 **This step is non-negotiable. The breakout is not complete until the
 output file exists with all required sections.**
@@ -122,7 +134,7 @@ Required sections (every breakout file MUST contain all of these):
 - <name> (<archetype>) — <their key contribution>
 ```
 
-### Step 7: VERIFY OUTPUT
+### Step 8: VERIFY OUTPUT
 
 After writing, verify the file:
 

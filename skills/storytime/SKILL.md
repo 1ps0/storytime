@@ -351,7 +351,10 @@ For each sub-problem identified in the icebreaker:
   Always pair each with prose (e.g., "Complexity 5 — solid day of work,
   Scale 3 (repos) — touches a service cluster").
 - Assign 2-3 personas
-- Launch as a parallel sub-agent if independent
+- **Pre-breakout synopsis**: each subteam presents what they plan to
+  investigate — their angle, what's known vs unknown, exit condition.
+  User directs: approve / join / defer / pause / cancel.
+- Launch as a parallel sub-agent if independent (approved breakouts)
 - Each breakout can invoke skills mid-conversation:
   - VERIFY: Grep/Read to check a claim against code
   - GROUND: Read repo files (README, ADRs, config) to verify project context
@@ -494,6 +497,8 @@ there.
 29. Grounding is multi-source: code, docs, web, git — use the strongest evidence for the claim.
 30. Personas use `@role` when speaking and referencing each other — roles
     are functional model attention anchors, names are ornaments.
+31. Pre-work synopsis before every breakout and buildout slice — subteam presents
+    their plan, user directs (approve/join/defer/pause/cancel).
 
 ## Persona Voice — The @ Convention
 
