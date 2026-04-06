@@ -102,7 +102,9 @@ Set <code>persona_voice</code> in config: <code>name</code> (default), <code>rol
 <strong>BREAKOUT</strong> &mdash; parallel deep dives with 2-3 personas each.<br>
 <strong>PAUSE</strong> &mdash; summary cards per breakout. Proceed, dig in, revise, or add more.<br>
 <strong>CONVERGE</strong> &mdash; full team merges findings into a plan.<br>
-<strong>REVIEW</strong> &mdash; plan presented to you. Challenge, revise, or approve.</p>
+<strong>REVIEW</strong> &mdash; plan presented to you. Challenge, revise, or approve.<br>
+<strong>BUILDOUT</strong> &mdash; implement the plan. Persona-driven pair programming with trace docs.
+Invoke with <code>/storytime-buildout</code> after plan approval.</p>
 
 <!-- ─── EPISODES + WARM START ─── -->
 
@@ -172,6 +174,11 @@ Both always stated with prose. Never time estimates.</p>
 
 <h4>/storytime-converge &lt;topic&gt;</h4>
 <p>Merge breakout results into a unified plan.</p>
+
+<h4>/storytime-buildout &lt;topic&gt;</h4>
+<p>Implement the plan. Persona-driven pair programming — slices the plan into
+work units, assigns personas, produces code with trace documents mapping
+every change back to decisions.</p>
 
 <h4>/storytime-qa @persona &lt;question&gt;</h4>
 <p>Query personas about past decisions or current code state.</p>

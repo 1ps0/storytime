@@ -619,7 +619,8 @@ specs/.storytime/
 │   │   ├── team.md                  (cold start or team changes)
 │   │   ├── icebreaker.md
 │   │   ├── breakout-<subtopic>.md
-│   │   └── plan.md
+│   │   ├── plan.md
+│   │   └── buildout-<slice>.md   (implementation trace — decisions to code)
 ├── archive/
 │   ├── _index.md                    — browsable TOC
 │   ├── current/                     — warm tier

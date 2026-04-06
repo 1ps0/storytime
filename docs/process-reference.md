@@ -26,6 +26,7 @@ Complete reference for events, skills, rules, and file formats.
 | REVIEW      | user + team     | plan.md            | feedback/revisions | no             |
 | RETROSPECT  | full team       | plan + actuals     | retrospective.md   | no             |
 | QA          | user + persona  | question           | answer w/ citations| no             |
+| BUILDOUT    | sub-team (2-3)  | plan item + code   | code + buildout.md | **yes** (slices)|
 | BREAKOUT(s) | sub-team (2-3)  | sub-problem        | breakout.md        | standalone     |
 | UNDO        | (system + user) | scope + confirm    | reverted state     | no             |
 
@@ -51,9 +52,10 @@ START → ROUTE ─┬─ cold start ─→ SURVEY → ASSEMBLE → ICEBREAKER �
                                     ├─ New sub-topic → ICEBREAKER (scoped)
                                     └─ Reset → archive thread → cold start
 
+Post-plan: BUILDOUT (persona-driven implementation with trace docs)
 Post-delivery: QA (anytime), RETROSPECT (after implementation)
 Thread checkpoint: _thread.md updated at every phase boundary
-Standalone: CONVERGE can be invoked independently via /storytime-converge
+Standalone: CONVERGE via /storytime-converge, BUILDOUT via /storytime-buildout
 ```
 
 ## Skills (Available to Personas Mid-Conversation)
@@ -130,6 +132,11 @@ Standalone: CONVERGE can be invoked independently via /storytime-converge
 43. Converge can run standalone — breakout results as input, plan as output
 44. Personas use `@role` by default in all output — roles are functional anchors,
     names are ornaments. Qualified with focus: `@critic:architecture`. Configurable.
+45. Buildout requires an approved plan — no plan, no buildout
+46. Every buildout slice produces a trace document mapping decisions to code changes
+47. Buildout slices are natural seams, not prescribed phases — merge or split as the code demands
+48. Every buildout slice includes tests — no slice is done without verification
+49. Buildout divergence from plan must be traced and explained, never silent
 
 ## File Naming Conventions
 
@@ -157,6 +164,7 @@ specs/.storytime/sessions/<topic>/
     icebreaker.md
     breakout-<subtopic>.md
     plan.md
+    buildout-<slice>.md         (implementation trace — decisions to code)
     changelog.md
     retrospective.md
 ```

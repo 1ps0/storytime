@@ -84,6 +84,7 @@ specs/.storytime/
 | `/storytime-survey` | Standalone codebase survey with artifact inventory |
 | `/storytime-breakout <sub-problem>` | Focused 2-3 persona investigation without the full pipeline |
 | `/storytime-converge <topic>` | Merge breakout results into a unified plan |
+| `/storytime-buildout <topic>` | Implement the plan — persona-driven coding with trace docs |
 | `/storytime-retro <topic>` | Retrospective: plan vs what was actually built |
 
 ### Team Management
@@ -136,7 +137,7 @@ you can park mid-session and resume later.
 storytime/
 ├── .claude-plugin/plugin.json    Plugin manifest (v0.6.0)
 ├── VERSION                       Version file
-├── skills/                       14 skills (entry points)
+├── skills/                       16 skills (entry points)
 ├── agents/
 │   └── breakout-runner.md        Lifecycle-enforced breakout agent
 ├── scripts/
