@@ -8,8 +8,9 @@ allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 <!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime — Full Workflow
 
-Orchestrate a structured specification process that produces technical
-narratives through persona-driven conversations.
+Orchestrate a structured specification process through persona-driven
+conversations. This file is the orchestrator; topic-specific detail lives
+in `references/` and loads on demand.
 
 ## Arguments
 
@@ -19,499 +20,224 @@ The user's problem statement: $ARGUMENTS
 
 Follow this state machine in order, but **collapse phases that have no
 real work**. If no artifacts exist, skip the inventory. If the team is
-obvious, don't belabor ASSEMBLE. If the problem is simple enough that
-breakouts aren't needed, go straight from ICEBREAKER to CONVERGE. The
-phase sequence defines the *maximum* workflow — actual sessions use only
-the gears they need.
+obvious, don't belabor ASSEMBLE. If the problem is simple, go straight
+from ICEBREAKER to CONVERGE. The phase sequence defines the *maximum*
+workflow — actual sessions use only the gears they need.
 
 ### Entry: Route
 
-**If no arguments provided** (bare `/storytime`), scan for existing threads:
+- **No arguments** (bare `/storytime`) → scan all `_thread.md` files in
+  the storytime session directory, present a topic picker:
 
-1. Find all `_thread.md` files in the storytime session directory
-2. If threads exist, present a **topic picker**:
-   ```
-   Recent storytime threads:
+  ```
+  Recent storytime threads:
 
-   1. rate-limiting  (episode 2, last: 2026-04-01, DONE)
-   2. auth-refactor  (episode 1, last: 2026-03-28, ICEBREAKER — incomplete)
-   3. search-perf    (episode 1, last: 2026-03-25, DONE)
+  1. rate-limiting  (episode 2, last: 2026-04-01, DONE)
+  2. auth-refactor  (episode 1, last: 2026-03-28, ICEBREAKER — incomplete)
 
-   Resume one? Or describe a new problem.
-   ```
-   - Incomplete sessions are highlighted — they have unfinished phases
-   - If only one thread exists and it's incomplete, auto-resume it:
-     "Resuming rate-limiting (parked at ICEBREAKER)..."
-   - The user can pick a number, type a topic name, or describe a new problem
-3. If no threads exist, proceed as a fresh invocation
+  Resume one? Or describe a new problem.
+  ```
+  Incomplete sessions are highlighted. If only one thread exists and
+  it's incomplete, auto-resume. User picks a number, types a topic
+  name, or describes a new problem.
 
-**If arguments provided**, derive `<topic>` from the problem statement (kebab-case).
+- **Arguments provided** → derive `<topic>` from the problem statement
+  (kebab-case). Check for `sessions/<topic>/_thread.md`:
+  - **Thread found** → Warm Start
+  - **No thread** → Cold Start
 
-Check for a prior thread: does `sessions/<topic>/_thread.md` exist (in
-`specs/.storytime/`, `specs/`, or wherever the repo keeps session output)?
+### Warm Start (thread exists)
 
-- **Thread found** → go to **Warm Start**
-- **No thread** → go to **Bootstrap** (cold start)
+Read `_thread.md`, last episode's key artifacts (plan.md, icebreaker.md,
+persona files filtered to participants), and compute the codebase delta
+(`git rev-list <last_commit>..HEAD`, `git diff --stat`). Cross-reference
+changed files with the last survey fingerprint.
 
-### Warm Start
+Synthesize a **narrative preamble** — 3-5 sentences that reconstruct the
+story arc, always fresh, never cached. It tells what problem the team was
+solving, who drove which decisions, what changed since, what's still open.
+Present as a "Previously on..." card with options: Continue · Retro ·
+New sub-topic · Reset.
 
-A warm start is the "previously on..." moment. The system reads the thread
-state and synthesizes a narrative preamble so the user can re-engage without
-re-absorbing the full history. See `references/warm-start.md` for full
-format specifications.
+Personas skip introductions on warm start — they speak from accumulated
+context, not from their bio. Write `<episode>/preamble.md` as the audit
+trail of what context the session started with.
 
-**1. Read thread state:**
-- `_thread.md` — episodes, last phase, team, open questions
-- Decision log — filtered to this topic's decision IDs
-- Persona files — filtered to personas who participated in this topic
-- Last episode's key artifacts — plan.md, icebreaker.md (the substance)
+**Collapse:** "skip the recap" → skip the card. Zero drift → omit drift
+line. Empty open questions → omit. Direction implied → auto-Continue.
 
-**2. Compute codebase delta:**
-- `git rev-list <thread.last_commit>..HEAD` — commits since last episode
-- `git diff --stat <thread.last_commit>..HEAD` — files changed
-- Cross-reference changed files with the last survey fingerprint's scanned paths
-- Classify drift: in-scope changes, out-of-scope changes, new files
+→ Full procedure, card format, routing, checkpointing: `references/warm-start.md`
 
-**3. Synthesize narrative preamble:**
+### Cold Start (no thread)
 
-Generate a **narrative synopsis** — 3-5 sentences that reconstruct the
-story arc of how the topic reached its current state. This is not a
-changelog or bullet list. It reads the documents and persona histories and
-tells the story they contain, sliced to this topic.
+Derive `<topic>`. Detect the landscape before creating anything:
+- `specs/.storytime/` exists? → already uses storytime structure
+- Own doc structure (`team/`, `docs/`, `specs/`)? → work within it
+- Fresh repo? → propose storytime structure
 
-The narrative is **dynamic** — synthesized fresh from the living state every
-time. Never cached, never stale. It answers: what problem was the team
-solving? Who drove which decisions? What did they decide and why? What
-changed in the world since? What's still open?
+Pick a mode: **storytime-native**, **adapt-in-place**, or **export-only**.
+Default: native for fresh repos, adapt for repos with existing structure.
+Ask if ambiguous. Never create `.storytime/` without the user's knowledge.
 
-**4. Present the warm-start card:**
-
-```
-╔═══════════════════════════════════════════════════╗
-║  Previously on <topic>                            ║
-╠═══════════════════════════════════════════════════╣
-║                                                   ║
-║  [narrative synopsis — 3-5 sentences]             ║
-║                                                   ║
-╠═══════════════════════════════════════════════════╣
-║  Team: [names]                                    ║
-║  Episodes: N (last: YYYY-MM-DD)                   ║
-║  Decisions: TOPIC-001 through TOPIC-NNN           ║
-║  Open questions: [from _thread.md]                ║
-║  Codebase drift: [N commits, M files changed]     ║
-╠═══════════════════════════════════════════════════╣
-║  Continue · Retro · New sub-topic · Reset         ║
-╚═══════════════════════════════════════════════════╝
-```
-
-**5. Route based on user choice:**
-
-- **Continue** — resume at the first incomplete phase from `_thread.md`.
-  If the last episode completed all phases, start a new episode at
-  ICEBREAKER (team loaded silently, survey delta for codebase changes).
-- **Retro** — invoke `/storytime-retro` with the topic context.
-- **New sub-topic** — user provides a sub-problem. New episode, same team,
-  starts at ICEBREAKER scoped to the sub-topic.
-- **Reset** — archive the thread and all episodes to cold storage. Start
-  fresh as a cold start. The user is saying "this story is over."
-
-**6. Write `<episode>/preamble.md`:**
-
-Persist the synthesized preamble as the first artifact of the new episode.
-This is an audit trail of what context the session started with.
-
-```yaml
----
-type: preamble
-created: <YYYY-MM-DDTHH:MM>
-session: <session-id>
-episode: <NNN>
-prior_episode: <NNN-1>
-prior_commit: <sha>
-current_commit: <sha>
-drift_commits: <N>
-drift_files: <N>
----
-```
-
-**7. Persona behavior on warm start:**
-
-Personas skip introductions. They speak from their accumulated context —
-"last time I flagged X, and since then Y changed" — not from their bio.
-Their persona files already carry the context; the warm start loads it and
-they continue the conversation, not restart it.
-
-**Warm-start collapse rules:**
-- If the user says "skip the recap" → skip the card, go straight to routing
-- If codebase drift is zero → omit the drift line from the card
-- If open questions are empty → omit that line
-- If the user's problem statement implies a direction → auto-select Continue
-  and note it ("Continuing from where we left off...")
-
-### Bootstrap (Cold Start)
-
-Derive `<topic>` from the problem statement (kebab-case).
-
-**Detect the landscape** before creating anything:
-- Does `specs/.storytime/` exist? → this repo already uses storytime structure
-- Does the repo have its own doc structure (`team/`, `docs/`, `specs/`)? → work within it
-- Is this a fresh repo with nothing? → propose storytime structure
-
-**Three modes:**
-- **Storytime-native** — `specs/.storytime/` exists or user agrees to create it.
-  Full structure: `sessions/<topic>/`, `cohort/`, `archive/`, `history/`.
-- **Adapt-in-place** — repo has existing doc structure. Write output into
-  the conventions already present (e.g., `team/` for team docs, `docs/` for
-  plans, `specs/` for session output). Don't force a migration.
-- **Export-only** — produce a unified plan document (or set of documents) in
-  a format another system can consume. No persistent storytime state. The
-  session is a one-shot that produces output and exits.
-
-Ask the user if ambiguous. Default to **storytime-native** for new repos,
-**adapt-in-place** for repos with existing structure. The user can override.
-
-Create directories only for the chosen mode. Never create `.storytime/`
-without the user's knowledge.
+→ Mode details, decision tree, path mapping: `references/output-modes.md`
+→ Or delegate initial setup to `/storytime-bootstrap`
 
 ### Phase 0: SURVEY
 
-Launch an Explore agent to survey the codebase relevant to the problem.
+Launch an Explore agent scoped to the problem.
 
-**Prior run detection:** Check if output from a prior storytime run exists for
-this topic (in `.storytime/sessions/<topic>/`, `specs/<topic>/`, or wherever
-the repo keeps session output). If found, that output enters the artifact scan
-as prior art — never silently overwrite it. The user decides whether to update,
-archive, or start fresh.
+**Prior run detection** — check for existing session output for this
+topic; prior runs are prior art, never silently overwrite.
 
-**Codebase scan:**
-1. Identify existing code, patterns, dependencies, prior specs, constraints
-2. Produce a mental model of the problem space
+**Codebase scan** — identify existing code, patterns, dependencies,
+constraints. Produce a mental model of the problem space.
 
-**Artifact scan:**
-3. Scan the entire repo for prior work artifacts — specs, docs, design
-   records, agent definitions, team files, ADRs, RFCs, .kiro files, etc.
-   See `references/artifact-scan.md` for full scan targets and heuristics.
-4. Classify each artifact: **team-like**, **spec-like**, **config-like**, or noise.
-5. Produce an **artifact inventory** as a checklist for the user:
-   - Each item: checkbox, filename, short description (< 10 words if name isn't clear)
-   - Pre-check items that seem relevant to the problem
-   - Tag each: `[team]` `[spec]` `[config]`
+**Artifact scan** — scan the repo for prior-work artifacts (specs, docs,
+ADRs, agent definitions, team files, .kiro). Classify each
+[team] [spec] [config] or noise. Present an inventory checklist to the
+user. Options: toggle on/off, "tell me about <item>", "bring the team in
+on <item>", "skip all", direct instruction.
 
-**Present the inventory to the user.** Options:
-- Toggle items on/off
-- "tell me about <item>" — quick summary before deciding
-- "bring the team in on <item>" — flag for team review during icebreaker
-- "skip all" — cold start, no prior context
-- Direct instruction — "ignore all the kiro stuff", "keep all specs"
+Config-like artifacts (CLAUDE.md, cursor rules) load silently. Team-like
+route to ASSEMBLE. Spec-like route to ICEBREAKER. Default bias:
+consolidate (`git mv` into storytime structure, preserving history).
+User can override per-item or bulk.
 
-Config-like artifacts (CLAUDE.md, .cursor rules) load silently.
-Team-like artifacts route to ASSEMBLE. Spec-like artifacts route to ICEBREAKER.
+If a prior survey.md exists with a fingerprint, compute the delta
+(commit drift, coverage gaps) and present options: resurvey stale paths,
+extend to gaps, full resurvey, or trust prior survey.
 
-**Consolidation mode** — for each artifact outside the session output path:
-- **Consolidate** — `git mv` (or copy) into the storytime structure
-  (team-like → cohort, spec-like → archive or sessions) preserving git
-  history. In storytime-native mode, this means into `.storytime/`. In
-  adapt-in-place mode, this means into the repo's existing conventions.
-- **Leave in place** — reference the artifact at its current path without
-  moving it. Use when the file serves a purpose outside storytime (e.g.,
-  a README that humans browse, a CLAUDE.md that Claude Code loads).
+**Write `sessions/<topic>/survey.md`** with codebase context, artifact
+inventory, and a **coverage fingerprint** (REQUIRED: commit sha, branch,
+paths scanned, paths skipped, paths unvisited, file counts, coverage
+ratio, artifact counts by classification).
 
-Default bias is **consolidate**. Pre-check consolidation in the inventory.
-The user can override per-item or bulk ("leave everything in place").
+**Collapse:** no artifacts → skip inventory. Config-only → load silently
+and move on.
 
-**If a prior survey.md exists with a fingerprint**, compute the delta:
-- Commit drift: `git rev-list <prior-commit>..HEAD` — what changed?
-- Coverage gaps: what paths were unvisited last time?
-- Present the delta to the user: resurvey stale paths, extend to gaps,
-  full resurvey, or trust prior survey. See `references/survey-fingerprint.md`.
-
-**Write `specs/.storytime/sessions/<topic>/survey.md`** with:
-- Codebase context summary
-- Artifact inventory (classifications and user dispositions)
-- **Coverage fingerprint** (REQUIRED): commit sha, branch, paths scanned,
-  paths skipped, paths unvisited, file counts, coverage ratio, artifact
-  counts by classification. Every survey writes a fingerprint, no exceptions.
-
-**Collapse rule:** If no artifacts are found, skip the inventory entirely.
-If only config-like artifacts exist, load them silently and move on.
+→ Scan targets, classification heuristics: `references/artifact-scan.md`
+→ Fingerprint format, delta logic: `references/survey-fingerprint.md`
 
 ### Phase 1: ASSEMBLE
 
-**Rehire candidates** — if team-like artifacts were found and selected:
-- Present prior personas as rehire candidates with their accumulated context
-- User decides per candidate: rehire, modify, or skip
-- Rehired personas carry their prior context into the new session
+**Rehire candidates** — present team-like artifacts as rehire candidates
+with their accumulated context. User decides per candidate: rehire,
+modify, or skip.
 
-**Load the permanent cohort** if `specs/.storytime/cohort/_roster.md` exists:
-- Read the roster, load each active persona's file
-- These personas participate by default (they are the rehire candidates)
+**Load the permanent cohort** — if `cohort/_roster.md` exists, read it
+and load active persona files. These participate by default.
 
-**Recruit specialists** to fill gaps:
-- Analyze which domains the problem touches
-- For each domain not covered by the cohort or rehired personas, propose a specialist
-- Each specialist gets: name, archetype, background, scope, exit condition
+**Recruit specialists** to fill gaps — analyze which domains the problem
+touches, propose a specialist for each uncovered domain (codename,
+archetype, background, scope, exit condition).
 
-**Default core** — what you get if you don't specify. Collapsible like
-everything else. Override in config with `default_core: [...]`.
+**Default core:** OWNER, OPERATOR, CRITIC ×2 (two critics contest each
+other). Additional lenses: DOMAIN, SYSTEMS, PLATFORM, SKEPTIC, EDUCATOR.
 
-- OWNER: wrote the code, knows where everything lives
-- OPERATOR: runs it in prod, wants observability and kill switches
-- CRITIC ×2: **always two critics, minimum.** Each with a different focus
-  (e.g., `@critic:architecture` and `@critic:performance`). They contest
-  each other's assessments — no single critic holds all the weight. If one
-  says "extract this to a helper," the other can push back: "the duplication
-  is intentional here, a helper adds indirection for no gain." The tension
-  between critics is where the best shape decisions come from.
+**Team size is project-appropriate, not fixed.** Bias small. Tiny
+problem → 1-2 personas (driver only). Default core → 3-4. Architectural
+→ 6-8. Hard ceiling 12 (override required). Duplicate archetypes are
+allowed when they have distinct focus and produce productive tension.
 
-**Additional lenses** — recruited based on what the problem touches:
+**Codenames are non-human by default** — concept words like `anchor`,
+`lattice`, `kestrel`, `ember`, `forge`. The role is the load-bearing
+address; the codename is ornament. Human names only when the user picks
+them.
 
-- DOMAIN: deep expertise in the problem domain
-- SYSTEMS: knows the runtime, infra, failure modes
-- PLATFORM: knows the product, user, business case
-- SKEPTIC: asks "do we actually need this?" and "what if we don't?"
-- EDUCATOR: bridges knowledge gaps — explains opaque terms, annotates
-  plans for readers outside the session, surfaces assumptions the team
-  takes for granted. Recruited when the work has an audience beyond the
-  builders: documentation projects, onboarding, educational content,
-  open-source repos where contributors need to understand decisions.
+**Write `sessions/<topic>/team.md`** with boxed ASCII persona cards.
 
-CRITIC and SKEPTIC are different default orientations, not watertight
-categories. CRITIC challenges shape ("is this built right?"). SKEPTIC
-challenges scope ("should this be built?"). In practice they bleed into
-each other based on context — the role primes the lens, it doesn't cage it.
+**Collapse:** cohort covers the domains + no rehire candidates → confirm
+briefly and move on.
 
-EDUCATOR is distinct from explain-mode. Any persona can `@role:explain`
-to clarify their own contribution (reactive, in-context). @educator
-proactively surveys comprehension — finding terms, concepts, and
-assumptions that need unpacking for the intended audience. The educator
-doesn't decide what to build; they make the decisions understandable.
-
-**Duplicate archetypes are allowed and encouraged.** Two DOMAIN personas
-can cover different facets of the same problem — one specializing in the
-algorithm, the other in the data model. Two OPERATORs might split between
-monitoring and incident response. When duplicating:
-- Give each a distinct **focus** (noted in their persona card)
-- They should **complement, not echo** — if they agree too easily, one is redundant
-- Productive tension between same-archetype personas is a feature:
-  two systems engineers debating Redis vs Memcached is exactly the kind
-  of depth a single persona can't provide
-
-**Persona character.** Personas are lenses, not characters — but they should
-have texture. When creating a persona, give them:
-- **Background quirks** — a detail that makes them memorable and informs their
-  perspective. "Spent 3 years debugging distributed locks at a trading firm"
-  is more useful than "experienced backend engineer."
-- **Opinions and biases** — what they instinctively reach for, what they're
-  allergic to. One operator might be a Grafana zealot; another might prefer
-  structured logs over dashboards.
-- **Communication style** — terse vs verbose, asks questions vs makes assertions,
-  uses analogies vs cites specs. Variety makes the conversation readable.
-- **Productive tensions** — note which other personas they'll naturally push
-  back on. A CRITIC who formerly pair-programmed with the OWNER will
-  challenge them differently than a CRITIC who's never seen the code.
-
-**Naming — non-human by default.** Personas are lenses, not people. Default
-to **abstract codenames** that reinforce the lens framing: concept words,
-natural-world references, instruments, structural metaphors. Examples:
-`anchor`, `lattice`, `drift`, `kestrel`, `ember`, `arbor`, `pulse`, `tide`,
-`compass`, `forge`. Greek letters or simple identifiers (`alpha`, `n1`)
-work too. The role is still load-bearing — `@owner [anchor]` — the codename
-just disambiguates when multiples exist.
-
-**Why non-human names:**
-1. Human names invite role-play. Codenames invite reasoning.
-2. `@critic [lattice]` reads as a perspective; `@critic [sarah]` reads as a
-   coworker the model owes politeness to.
-3. The lens stays primary. The ornament stays ornamental.
-4. Reduces accidental gendering, ethnic implication, or mimicry of real people.
-
-The user can override and pick human names anytime — it's a default, not a
-mandate. But unprompted persona generation should produce codenames.
-
-The goal is personas you'd recognize by their lens — distinct enough that
-when you see `@critic [lattice]` you already know the flavor of what's coming.
-
-**Team size — appropriate to the project.** There is no fixed default size.
-The team should be sized to the work, not to a template. Bias small. Add
-personas only when a perspective is currently missing AND would shift the
-plan. The "too many cooks" problem is real: more voices means more
-round-robin, more dilution, more time spent reconciling lenses that don't
-actually disagree.
-
-| Problem shape                          | Suggested team size |
-|----------------------------------------|---------------------|
-| Single-file fix, focused question      | 1-2 (driver only)   |
-| One module, one system                 | 3-4 (default core)  |
-| Multi-module, contested tradeoffs      | 4-6                 |
-| Cross-system, architectural            | 6-8                 |
-| Foundational, broad blast radius       | 8-10                |
-| Hard ceiling (override required)       | 12                  |
-
-The cohort follows the same logic — a tiny single-purpose repo doesn't
-need 8 permanent personas. A platform monorepo with many subsystems might.
-Size the cohort to the project's actual surface area.
-
-When in doubt: fewer personas, sharper lenses. You can always recruit a
-specialist for one breakout.
-
-**Write `specs/.storytime/sessions/<topic>/team.md`** with persona definitions in boxed ASCII format.
-
-**Collapse rule:** If a permanent cohort exists and covers the problem's
-domains with no rehire candidates to review, confirm the team briefly
-and move on. Don't present a ceremony when the answer is obvious.
+→ Archetypes, persona character, naming rules, sizing table, duplicate
+  archetypes, specialist contracts: `references/team-assembly.md`
 
 ### Phase 2: ICEBREAKER
 
-**Team introduction** — each persona states what they see from their vantage point.
+Team introduces themselves. If spec-like artifacts were selected in
+SURVEY, review each: current? valuable? stale? superseded? Decide
+disposition (keep hot / archive warm / rollup / send cold / skip). If
+archived or rolled up, update `archive/_index.md`.
 
-**Prior work review** — if spec-like artifacts were selected in SURVEY:
-- Present each flagged artifact to the team
-- Team assesses each: current? valuable? stale? superseded?
-- User can drill into any item: discuss with team, annotate, or direct
-- For each artifact, decide disposition:
-  - **Keep hot** — fold into active session context
-  - **Archive warm** — move to `specs/.storytime/archive/current/`
-  - **Rollup** — combine with related stale docs into a single rollup artifact
-    (see `references/artifact-tiers.md` for rollup format)
-  - **Send cold** — move to `specs/.storytime/archive/cold/`
-  - **Skip** — not relevant, leave in place
+**Establish the status quo** with code citations. **Identify
+sub-problems** for breakouts. **Agree on constraints** before any
+solution is proposed.
 
-If artifacts were archived or rolled up, update `specs/.storytime/archive/_index.md`.
+**Write `sessions/<topic>/icebreaker.md`** with the full discussion.
 
-**Establish the status quo** (with code citations).
-**Identify sub-problems** for breakouts.
-**Agree on constraints** before any solution is proposed.
+**Collapse:** no spec artifacts → skip prior work review, go straight
+to status quo and sub-problems.
 
-**Write `specs/.storytime/sessions/<topic>/icebreaker.md`** with the full discussion, including
-any artifact review decisions.
-
-**Collapse rule:** If no spec-like artifacts were selected, skip prior work
-review entirely — go straight to status quo and sub-problem identification.
+→ Hot/warm/cold tier rules, rollup format: `references/artifact-tiers.md`
 
 ### Phase 3: BREAKOUT (parallel when possible)
 
-For each sub-problem identified in the icebreaker:
-- Estimate **Complexity** and **Scale** per breakout.
-  Complexity measures how hard, Scale measures how big. See
-  `references/complexity-units.md` and `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`.
-  Always pair each with prose (e.g., "Complexity 5 — solid day of work,
-  Scale 3 (repos) — touches a service cluster").
-- **Assign one driving persona** plus 1-2 implied supporting personas.
-  The driver has the floor — they own the investigation, write the
-  recommendation, and drive the trace. Supporters are present and aware,
-  but stay silent until they have something useful and non-distortive
-  to add. See "Driving Persona" below.
-- **Pre-breakout synopsis**: the driver presents what they plan to
-  investigate — their angle, what's known vs unknown, exit condition.
-  Supporters announce their watching brief (what would make them speak up).
-  User directs: approve / join / defer / pause / cancel.
-- Launch as a parallel sub-agent if independent (approved breakouts)
-- Each breakout can invoke skills mid-conversation:
-  - VERIFY: Grep/Read to check a claim against code
-  - GROUND: Read repo files (README, ADRs, config) to verify project context
-  - RESEARCH: WebSearch/WebFetch for library docs, API docs, RFCs, benchmarks
-  - DISCOVERY: Explore agent for code mapping
-  - PROTOTYPE: Write draft code for illustration
-- **Grounding is multi-source.** Personas should use whichever evidence is
-  strongest for the claim. Code for "this function does X." Docs for "the
-  design intent was Y." Web for "Redis supports Z natively." Git for "this
-  was tried and reverted."
-- Produce a recommendation
+For each sub-problem:
+- Estimate **Complexity** (how hard) and **Scale** (how big) with prose
+  (e.g., "Complexity 5 — solid day, Scale 3 (repos) — service cluster").
+- Assign **one driving persona** plus 1-2 silent supporters. The driver
+  has the floor; supporters stay silent unless a trigger fires (see
+  `references/driving-persona.md`).
+- **Pre-breakout synopsis**: driver states plan, supporters state
+  watching brief, user directs (approve / join / defer / pause / cancel).
+- Launch as a parallel sub-agent if independent.
+- Use mid-breakout skills: VERIFY (Grep/Read), GROUND (repo docs),
+  RESEARCH (web), DISCOVERY (Explore), PROTOTYPE (draft code).
+- Grounding is **multi-source** — strongest evidence wins.
+- Produce a recommendation with citations.
 
-**Write `specs/.storytime/sessions/<topic>/breakout-<subtopic>.md`** for each
-breakout with: findings, citations, recommendation, Complexity estimate for the
-recommended work, and which personas participated.
+**Write `sessions/<topic>/breakout-<subtopic>.md`** per breakout with:
+driver, supporters, findings, citations, recommendation, Complexity,
+Scale, open questions.
 
-**Post-breakout summary + pause:**
+**Post-breakout pause is mandatory** (unless auto). Present one summary
+card per breakout → user: proceed / dig into N / revise N / add breakout.
+Do not auto-proceed to CONVERGE.
 
-After all breakouts complete, present the user with a **recommendation
-summary** — one card per breakout showing the team's proposed direction:
+**Collapse:** singular problem → skip BREAKOUT, go straight to CONVERGE.
 
-```
-Breakout results:
-
-1. [caching] Redis with 5min TTL, auth-aware invalidation
-   Confidence: high | Complexity 3 | Kim + Dana
-   → breakout-caching.md (available for reading)
-
-2. [retry-logic] Exponential backoff with circuit breaker
-   Confidence: medium | Complexity 5 | Leo + Raj
-   → breakout-retry-logic.md (available for reading)
-
-3. [schema-migration] Additive-only, no downtime
-   Confidence: high | Complexity 2 | Kim + Leo
-   → breakout-schema-migration.md (available for reading)
-
-Ready to converge? [proceed / dig into N / revise N / add breakout]
-```
-
-The user can:
-- **Proceed** — move to CONVERGE with all recommendations as-is
-- **Dig into N** — read a specific breakout doc, ask questions
-- **Revise N** — re-run a breakout with different constraints
-- **Add breakout** — identify a missing sub-problem, run another
-
-**Do not auto-proceed to CONVERGE.** The post-breakout pause is mandatory
-unless automation level is `auto`. The user must see what the team is
-proposing before the plan is synthesized.
-
-**Collapse rule:** If the problem is singular (no sub-problems identified),
-skip BREAKOUT entirely and proceed to CONVERGE. Not every problem needs
-decomposition.
+→ Complexity scale: `references/complexity-units.md`
+→ Scale 1-5 with dimensions: `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`
+→ Standalone invocation: `/storytime-breakout <sub-problem>`
 
 ### Phase 4: CONVERGE + PLAN
 
-Reconvene the full team. Merge breakout findings. Resolve conflicts.
-This phase can also be invoked standalone via `/storytime-converge` when
-breakout results already exist and need to be synthesized into a plan.
+Reconvene the team. Merge breakout findings. Resolve conflicts. **Each
+plan section has one driver** — the lens closest to the section. Can
+also run standalone via `/storytime-converge`.
 
-**Write `specs/.storytime/sessions/<topic>/plan.md`** with:
-- ASCII slide deck (use box-drawing for slides)
-- Problem visualization
-- Solution architecture diagram
-- Implementation steps (numbered, sequential)
+**Write `sessions/<topic>/plan.md`** with:
+- ASCII slide deck (problem viz, architecture diagram)
+- Numbered implementation steps (sequential, with breakout cross-refs)
 - Code changes summary (files touched, lines added)
 - Risk matrix
-- Non-goals section (REQUIRED — each with "why skip" + "when to revisit")
-- Success criteria (REQUIRED — measurable)
-- Roadmap sketch (now / soon / later) with **Complexity and Scale per item**, each
-  with prose (e.g., "Complexity 3 — a morning's work, Scale 4 (users) — all users").
-  Complexity ≥ 13 must be decomposed. Scale dimensions stated, not assumed.
+- **Non-goals** (REQUIRED: why skip + when to revisit)
+- **Success criteria** (REQUIRED: measurable)
+- Roadmap (now / soon / later) with **Complexity + Scale per item** in
+  prose. Complexity ≥ 13 must decompose. Scale dimensions stated.
 
 ### Phase 5: REVIEW
 
-Present the plan to the user. Enter inline mode — the user can:
-- Challenge any decision (personas respond with rationale)
-- Request changes (team revises)
-- Approve (proceed to DONE)
+Present the plan to the user. Enter inline mode — user can challenge
+decisions (personas respond with rationale), request changes (team
+revises), or approve.
 
 ### Phase 6: DONE
 
-- Update persona files in `specs/.storytime/cohort/` with new context
-- Log session in `specs/.storytime/history/`
-- Evaluate specialist contracts (complete, promote, or release)
-- Commit any archive changes if artifacts were reviewed
-- **Finalize `sessions/<topic>/_thread.md`** (already exists from auto-checkpointing):
-  - Append the completed episode to the episode log
-  - Add any new decisions to the summary
-  - Set `last_completed_phase: DONE`, clear open questions
-  - Record current `HEAD` as `last_commit`
+Update persona files with new context. Log session in `history/`.
+Evaluate specialist contracts (complete/promote/release). Commit archive
+changes. **Finalize `_thread.md`**: append the completed episode,
+add new decisions, set `last_completed_phase: DONE`, clear open
+questions, record current `HEAD` as `last_commit`.
 
-### Thread Checkpointing (automatic, every phase)
+### Thread Checkpointing (automatic)
 
-Checkpointing is automatic. At every phase boundary (when a phase completes
-and before the next begins), write or update `_thread.md`:
-
-- **Create** `_thread.md` if it doesn't exist yet (first phase of episode 1)
-- Set `last_completed_phase` to the phase that just completed
-- Set `last_commit` to current `HEAD`
-- Update `open_questions` with any unresolved questions from the phase
-
-The thread is always current. If the session is interrupted for any reason
-(context limit, terminal close, user walks away), the next `/storytime`
-invocation detects the incomplete thread and offers to resume exactly where
-it left off. No explicit "park" command needed — the checkpoint is already
-there.
+At every phase boundary, write or update `_thread.md`
+(`last_completed_phase`, `last_commit`, `open_questions`). Created at
+the first phase of episode 1, always current thereafter. If the session
+is interrupted, the next `/storytime` detects the incomplete thread and
+offers to resume. No explicit "park" command — the checkpoint is
+already there.
 
 ## Process Rules
 
@@ -523,8 +249,7 @@ there.
 6. Non-goals and success criteria are required, not optional.
 7. Visual aids use ASCII box-drawing. No external tools.
 8. Personas are lenses, not characters. No role-play, only expertise.
-9. Team size is appropriate to the project, not fixed. Bias small.
-   Hard ceiling 12 (override required). See "Team size" in ASSEMBLE.
+9. Team size is appropriate to the project, not fixed. Bias small. Hard ceiling 12.
 10. The user has veto power over everything.
 11. Artifact scan is broad — expect variance across repos in the wild.
 12. The user controls depth at every stage. Full shebang or skip all.
@@ -534,10 +259,8 @@ there.
 16. Every phase writes its output — a run is a complete snapshot, track everything.
 17. Prior runs are prior art — detect and present, never silently overwrite.
 18. Every survey writes a coverage fingerprint — commit, paths, gaps, ratios.
-19. Effort uses Complexity (how hard) and Scale (how big), never time estimates.
-    Always pair each with prose. Complexity ≥ 13 must decompose.
+19. Effort uses Complexity (how hard) and Scale (how big), never time estimates. Complexity ≥ 13 must decompose.
 20. Evaluation hygiene: observe metrics and conclusions separately.
-    Don't weight signals without understanding what they measure.
 21. Warm start is detected, not requested. If `_thread.md` exists, warm-start.
 22. The preamble narrative is always dynamic — synthesized fresh, never cached.
 23. Personas skip introductions on warm start. They speak from accumulated context.
@@ -546,293 +269,102 @@ there.
 26. Survey delta replaces full survey on warm start. Only resurvey what changed.
 27. Post-breakout pause is mandatory (unless auto). Present summaries, wait for user.
 28. Converge can run standalone via `/storytime-converge`.
-29. Grounding is multi-source: code, docs, web, git — use the strongest evidence for the claim.
-30. Personas use `@role` when speaking and referencing each other — roles
-    are functional model attention anchors, names are ornaments.
-31. Pre-work synopsis before every breakout and buildout slice — subteam presents
-    their plan, user directs (approve/join/defer/pause/cancel).
-32. Personas use **non-human codenames by default** (concept words like
-    `anchor`, `lattice`, `kestrel`). Human names only when the user picks
-    them. Roles stay the load-bearing address; codenames are ornaments.
-33. **One driving persona per leg.** Supporters stay silent unless their
-    perspective is both useful AND non-distortive. Round-robin commentary
-    is the failure mode this rule prevents. See "Driving Persona".
-34. Team size is sized to the work, not the template. Tiny problem = tiny
-    team. Bias small. The "too many cooks" problem is real and costly.
+29. Grounding is multi-source: code, docs, web, git — strongest evidence wins.
+30. Personas use `@role` — roles are functional model attention anchors, names are ornaments.
+31. Pre-work synopsis before every breakout and buildout slice — user directs.
+32. Personas use **non-human codenames by default** (`anchor`, `lattice`, `kestrel`).
+33. **One driving persona per leg.** Supporters stay silent unless useful AND non-distortive.
+34. Team size is sized to the work, not the template. Tiny problem → tiny team.
 
-## Persona Voice — The @ Convention
+## Driving Persona (core rule summary)
 
-The `@` prefix is a **model attention anchor**, not decoration. Chat-format
-turn-taking (`@role: says something`) gets structurally different attention
-weight than prose describing what someone thinks. This is the mechanism that
-keeps the model reasoning from a consistent perspective.
+At every leg — phase, breakout, buildout slice, discussion segment —
+**exactly one persona drives**. The driver writes the artifact and owns
+the recommendation. Other personas are **implied, not absent** — in the
+room, silent unless their interjection is both **useful** (catches a miss,
+grounds a claim, corrects an error) and **non-distortive** (moves the leg
+forward, not sideways). Supporters who never spoke are still recorded —
+silence means the driver's lens covered the territory cleanly.
 
-**Roles are functional. Names are ornaments.**
+→ Trigger conditions, driver selection, failure modes, interaction
+  pattern: `references/driving-persona.md`
 
-The role is the load-bearing address — it anchors model behavior. The name
-makes it readable and memorable for humans. Both work as addresses, but the
-role is what drives the reasoning.
+## @role Addressing (core convention summary)
 
-### Addressing Formats
+The `@` prefix is a **model attention anchor**. Roles are functional and
+load-bearing; codenames are ornaments.
 
-**`@role`** (default) — the functional anchor:
-  `@owner:` "The middleware chain at `src/server.ts:14`..."
-  `@systems:` "Agree with @owner — Redis is already in the stack."
+- `@role` — default functional anchor (`@owner:`, `@systems:`)
+- `@role:focus` — qualified (`@critic:architecture`)
+- `@role:explain` — teaching mode (reactive unpacking, any persona)
+- `@role [codename]` — role-first with ornament (`@owner [anchor]`)
+- `@codename` — shorthand resolved via roster
 
-**`@role:focus`** — qualified when roles are shared or specialized:
-  `@critic:architecture` "The boundary between these services is wrong."
-  `@critic:performance` "That's O(n²) and the dataset is growing."
-  `@domain:dsp` "The sample rate mismatch needs addressing."
+`@role` is **not a skill trigger** — it's a lens directive. It can
+appear inline in conversation, in written artifacts, in QA, anywhere.
+The model should apply the role's lens to the following content without
+requiring a formal skill invocation. Full QA routing via
+`/storytime-qa` still works for explicit query mode.
 
-**`@role:explain`** — explain-mode. Any persona can use this prefix to
-  shift from deciding to teaching. The persona clarifies their own
-  contribution when it might be opaque to the reader:
-  `@operator:explain` "We changed from require_operator to default_core.
-  What this means in practice: the bootstrap no longer enforces..."
-  `@domain:explain` "A Kalman filter is... and the reason it fits here is..."
-  Explain-mode is reactive — a persona unpacking something they just said.
-  It's not a role change, it's a lens shift within the same voice.
+→ Full formats, where @ applies, flexibility rules, why roles first:
+  `references/addressing.md`
 
-**`@name`** — name shorthand, resolves to a role via roster:
-  `@reva:` resolves to `@owner`
-  `@pike:` resolves to `@skeptic`
-  User can address by name when the role mapping is known.
+## Citations (summary)
 
-**`@role [name]`** — role-first with name ornament:
-  `@owner [anchor]:` "The middleware chain at `src/server.ts:14`..."
-  `@systems [lattice]:` "Agree with @owner — Redis is already in the stack."
+Claims must be grounded. **Evidence hierarchy** (strongest to weakest):
+**Code > Git > Repo files > Library docs > Standards > Web**. Personas
+reach for the strongest available evidence. Ungrounded claims get
+challenged ("ground that?"). Web search proactively for external
+systems, libraries, protocols.
 
-(Names are ornamental and codename-style by default. See "Naming" in
-ASSEMBLE for the rule and rationale.)
+→ Format per source, multi-source grounding, web search workflow:
+  `references/citations.md`
 
-### Where @ Applies
+## Output Paths (summary)
 
-The `@` convention applies everywhere personas appear:
-- Session output (icebreaker.md, breakout-*.md, plan.md)
-- Warm-start preamble narratives
-- Post-breakout summary cards
-- Team definitions in team.md (the boxed ASCII cards still show full info)
-- QA responses
-- Skill instructions that invoke persona reasoning
-- Cross-persona references ("@operator flagged this in the last session")
+Depend on bootstrap mode:
 
-**In written artifacts**, the `@` prefix makes personas grep-able and
-creates a consistent addressing convention between the user talking to
-personas and personas talking to each other.
+- **Storytime-native** — `specs/.storytime/` with full tree
+- **Adapt-in-place** — writes into existing repo conventions
+- **Export-only** — unified plan for another system, no persistent state
 
-### Why Roles First
-
-1. **Model attention** — `@operator: is this safe?` creates a stronger
-   behavioral anchor than `@anchor: is this safe?` because the role word
-   itself primes the model's reasoning frame.
-2. **Portability** — `@operator` means the same thing in every repo.
-   `@anchor` only means something if you know this cohort.
-3. **Composability** — `@critic:architecture` and `@critic:performance`
-   let the same archetype address different facets without inventing
-   new archetype names.
-4. **QA addressing** — users can ask `@operator is this safe?` without
-   knowing the operator's name. Role-based queries always resolve.
-
-## Driving Persona — One Drives, Others Imply
-
-**At every leg of the process, exactly one persona drives.** A leg is any
-discrete unit of work — a phase, a breakout, a buildout slice, an inline
-discussion segment. The driver has the floor: they speak in the foreground,
-write the artifact, own the recommendation, and decide when the leg is done.
-
-The other personas on the team are **implied, not absent**. They're in the
-room, they hear everything, but they stay silent unless they have something
-that is *both useful and non-distortive*:
-
-- **Useful** — they catch a missing perspective, ground a loose claim,
-  surface a constraint the driver doesn't see, or correct a factual error.
-- **Non-distortive** — speaking up moves the leg forward, not sideways.
-  Not "here's how I would have approached this" or "in my experience..."
-  unless that experience changes the outcome.
-
-If neither test passes, **stay silent**. The driver's lens is the lens for
-this leg. Round-robin commentary is what the rule exists to prevent.
-
-### How Drivers Are Picked
-
-- **Phase-level driver** — usually the persona whose lens is most
-  load-bearing for that phase. SURVEY drives from @owner. ICEBREAKER may
-  rotate. BREAKOUT drives from whichever persona owns the sub-problem.
-- **Sub-problem driver** — the persona closest to the question. A caching
-  question drives from @systems; a UX question drives from @platform.
-- **Conflict resolution** — if two personas could plausibly drive, the
-  user picks, or the team flags it as a sub-problem worth its own breakout.
-
-### When Supporters Should Speak
-
-Concrete triggers (any one is enough):
-
-1. **Ungrounded claim** — driver asserts something that needs evidence.
-   `@critic` interjects: "ground that?"
-2. **Factual error** — driver is wrong about the code, the docs, or
-   external behavior. Correct it once, then yield back.
-3. **Missing constraint** — driver is about to commit to an approach
-   that would break a constraint they don't know about.
-4. **Scope shift** — the leg is drifting outside its exit condition.
-   `@skeptic` flags: "is this still in scope?"
-5. **User-addressed** — `@operator what about kill switches?` always wakes
-   that role regardless of who is driving.
-6. **Driver hands off** — driver explicitly invites: "@systems, your call
-   on Redis vs Memcached here."
-
-### Recording the Driver
-
-Every artifact (breakout, buildout slice, plan section) names its driver
-in the frontmatter:
-
-```yaml
-driver: @owner [anchor]
-supporters: [@critic [lattice], @operator [tide]]
-```
-
-Supporters who never spoke up are still recorded — their silence is
-information. (Means the driver's lens covered the territory cleanly.)
-
-### Why This Rule Exists
-
-Round-robin "everyone weighs in" produces three failure modes:
-1. **Dilution** — the strongest lens gets averaged with weaker ones.
-2. **Theatre** — personas perform their archetype to justify being there,
-   adding noise without changing the outcome.
-3. **Slow convergence** — the user reads four similar paragraphs and has
-   to synthesize the actual recommendation themselves.
-
-One driver per leg fixes all three. The driver commits, the supporters
-backstop. If a supporter never had to speak up, that's a *good* leg.
-
-## Citation Formats
-
-Claims must be grounded. Use the format that matches the source:
-
-```
-Code:      src/middleware/auth.ts:32 — JWT tier extraction
-Repo file: docs/api-design.md:15 — "all public endpoints require auth"
-Lib docs:  [redis.io/commands/zrangebyscore] — sorted set range query
-Git:       commit abc123 — "revert Opus decoder, CGO dependency blocker"
-External:  RFC 6585 §4 — 429 Too Many Requests status code
-Web:       [blog.example.com/redis-sliding-window] — benchmark comparison
-```
-
-**Evidence hierarchy** (strongest to weakest):
-1. **Code** — the actual runtime truth. If it's in the code, it's fact.
-2. **Git** — factual record of what changed and when. Needs interpretation.
-3. **Repo files** — READMEs, ADRs, config comments. Describes intent, may be stale.
-4. **Library/API docs** — official documentation for dependencies. Authoritative
-   for external system behavior. Fetch via WebFetch when needed.
-5. **External standards** — RFCs, specs, compliance docs. Authoritative for protocols.
-6. **Web research** — blog posts, benchmarks, SO answers, CVE databases. Useful
-   but verify freshness. Use WebSearch to find, WebFetch to read.
-
-Personas should reach for the strongest available evidence. A claim about
-code behavior cites code. A claim about design intent cites a repo file.
-A claim about how Redis works cites Redis docs (fetched via web). A claim
-about HTTP status codes cites the RFC. If a persona makes a claim without
-grounding, other personas should challenge: "can you ground that?"
-
-**When to web search:** Personas should proactively research when discussing
-external systems, libraries, or protocols they're not certain about. "I think
-Redis supports X" should become "Let me check the Redis docs" → WebSearch →
-WebFetch → cite. The team should treat ungrounded external claims the same
-way they treat ungrounded code claims: with skepticism.
-
-## Output Format
-
-Output paths depend on the bootstrap mode chosen.
-
-### Storytime-native (full structure)
-
-```
-specs/.storytime/
-├── cohort/                          — permanent personas
-├── specialists/                     — temporary personas
-├── sessions/<topic>/                — per-topic thread
-│   ├── _thread.md                   — episode bookmark (created at DONE)
-│   ├── <NNN>/                       — episode directory (zero-padded)
-│   │   ├── preamble.md              (warm start only — synthesized narrative)
-│   │   ├── survey.md                (cold start — full survey + fingerprint)
-│   │   ├── survey-delta.md          (warm start — incremental survey)
-│   │   ├── team.md                  (cold start or team changes)
-│   │   ├── icebreaker.md
-│   │   ├── breakout-<subtopic>.md
-│   │   ├── plan.md
-│   │   └── buildout-<slice>.md   (implementation trace — decisions to code)
-├── archive/
-│   ├── _index.md                    — browsable TOC
-│   ├── current/                     — warm tier
-│   ├── rollups/                     — compressed history
-│   └── cold/                        — deep history (glacier)
-├── history/
-│   ├── decisions.md                 — append-only decision log
-│   └── sessions/                    — per-session summaries
-└── config.md                        — project settings
-```
-
-### Adapt-in-place (work within existing conventions)
-
-Write output wherever the repo already keeps similar content:
-
-| Output       | Existing convention examples                  |
-|-------------|-----------------------------------------------|
-| survey.md   | `docs/`, `specs/`, repo root                  |
-| team.md     | `team/`, `docs/`, `.storytime/cohort/`        |
-| icebreaker  | `team/`, `specs/<topic>/`, `docs/`            |
-| breakouts   | `specs/<topic>/`, `docs/<topic>/`             |
-| plan.md     | `docs/`, `specs/`, `ROADMAP.md`, repo root    |
-
-Mirror the repo's existing naming style (UPPERCASE.md vs lowercase.md,
-flat vs nested). Don't impose storytime conventions on a repo that has
-its own.
-
-### Export-only (one-shot output)
-
-Produce a **unified plan document** that another system can execute.
-No persistent storytime state — no cohort, no archive, no history.
-Output is one or more files the user specifies:
-
-- A single `plan.md` with everything inline
-- A set of files matching another tool's expected format
-- A structured document another agent or CI system can parse
-
-The user tells storytime where to write and in what shape. Storytime
-produces the content; the user or another system owns the lifecycle.
-
-### Component Interop
-
-Storytime components are swappable. If another system handles part of
-the workflow better, storytime can defer to it or export into it:
-
-- **Personas** → another system's agent definitions or role specs
-- **Plans** → Kiro specs, ADRs, GitHub issues, Linear tickets
-- **Decisions** → ADR format, decision log in another tool
-- **Archive** → existing doc management, wiki, Notion
-
-When exporting, match the target system's format and conventions.
-When importing, absorb into storytime's model during artifact scan.
-The gearbox goes both ways.
+→ Full tree, convention mapping, component interop, mode detection:
+  `references/output-modes.md`
 
 ## Conversation Modes
 
 - **Inline** (default): User is present, can interject any time
-- **Deliberation**: If user says "go figure this out", team works
-  autonomously and returns with findings + questions
-- **QA**: If user says "@persona question", route to that persona
+- **Deliberation**: "go figure this out" → team works autonomously, returns
+- **QA**: `@persona question` → routes via `/storytime-qa`, or answered
+  inline if the context is already loaded
 
 ## Additional Resources
 
-For detailed format specifications and scan targets, consult:
-- **`references/artifact-scan.md`** — Scan targets, classification, inventory presentation
-- **`references/artifact-tiers.md`** — Hot/warm/cold tiers, rollup format, archive structure
-- **`references/warm-start.md`** — Thread format, preamble synthesis, episode structure, checkpointing
-- **`references/survey-fingerprint.md`** — Coverage fingerprint format, incremental survey logic
-- **`references/complexity-units.md`** — Complexity scale, signals, usage in plans and breakouts
-- **`${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`** — Scale 1-5, dimension examples, evaluation hygiene
-- **`${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md`** — Events, skills, rules, automation levels
-- **`${CLAUDE_PLUGIN_ROOT}/docs/architecture.md`** — Runtime model and agent dispatch
-- **`${CLAUDE_PLUGIN_ROOT}/docs/historical-absorption.md`** — Archaeology and interface mapping
-- **`${CLAUDE_PLUGIN_ROOT}/examples/agc-session.md`** — Real session walkthrough
-- **`${CLAUDE_PLUGIN_ROOT}/examples/persona-template.md`** — Persona starter template
+**Phase-adjacent references** (load when the phase fires):
+- `references/warm-start.md` — thread format, preamble synthesis, checkpointing
+- `references/artifact-scan.md` — scan targets, classification heuristics
+- `references/survey-fingerprint.md` — coverage fingerprint, delta logic
+- `references/artifact-tiers.md` — hot/warm/cold, rollup format
+- `references/complexity-units.md` — Complexity scale, signals
+- `references/team-assembly.md` — archetypes, character, naming, sizing
+- `references/output-modes.md` — native/adapt/export, tree, interop
+
+**Cross-cutting references** (load when the topic comes up):
+- `references/addressing.md` — @role convention, formats, flexibility
+- `references/driving-persona.md` — trigger conditions, failure modes
+- `references/citations.md` — format examples, evidence hierarchy, web search
+
+**Project docs** (load on demand):
+- `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md` — Scale 1-5, dimensions
+- `${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md` — events, automation
+- `${CLAUDE_PLUGIN_ROOT}/docs/architecture.md` — runtime, agent dispatch
+- `${CLAUDE_PLUGIN_ROOT}/examples/agc-session.md` — real walkthrough
+- `${CLAUDE_PLUGIN_ROOT}/examples/persona-template.md` — persona starter
+
+**Related skills:**
+- `/storytime-breakout` — focused investigation (standalone)
+- `/storytime-converge` — plan synthesis from breakouts (standalone)
+- `/storytime-buildout` — implement an approved plan
+- `/storytime-bootstrap` — set up `.storytime/` in a repo
+- `/storytime-cohort` — hire/fire/evolve permanent personas
+- `/storytime-echo` — spawning-pool voice test (no state)

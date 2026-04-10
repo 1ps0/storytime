@@ -1,6 +1,6 @@
 ---
 name: storytime-qa
-description: "This skill should be used when the user addresses a Storytime persona or role using @ syntax — e.g., \"@kim what about...\", \"@operator is this safe?\", \"@skeptic do we need this?\", \"@team what did we decide about...\". Also triggers on \"ask the team\", \"check with the team\", \"what did we decide about\", or any query about past Storytime decisions. Works in any conversation where a storytime cohort exists — no active session required."
+description: "This skill should be used for **explicit formal queries** to the Storytime team about past decisions, prior session history, or cohort consultation — \"ask the team\", \"check with the team\", \"what did we decide about\", \"team, what's your read on\", \"@team what about\". Also triggers when a user asks a persona a question that requires loading their accumulated context and grounding the answer in session history — e.g., \"@operator, given our prior decisions about kill switches, is this safe?\". **Do NOT trigger this skill for casual `@role` lens directives** — `@critic look at this function`, `@skeptic worth it?`, `@owner your take?` should be answered inline by the current model applying the role's perspective, without launching the formal QA workflow. Use QA only when the query needs persona context loading, decision log lookup, or multi-persona team response."
 argument-hint: "@persona <question> or @role <question> or <question for full team>"
 allowed-tools: [Read, Glob, Grep, Agent, WebSearch, WebFetch]
 ---
@@ -8,9 +8,25 @@ allowed-tools: [Read, Glob, Grep, Agent, WebSearch, WebFetch]
 <!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime QA — Persona Query
 
-Route a direct question to a Storytime persona, role, or the full team.
-Works in any conversation — no active storytime session required. Just
-`@name` or `@role` and ask.
+Route a **formal query** to a Storytime persona, role, or the full team.
+This is the "load context, ground in history, respond" workflow — use
+when the answer needs the persona's accumulated context from prior
+sessions and decisions.
+
+**Not every `@role` invocation needs this skill.** `@role` is primarily
+a **lens directive** — the model can apply a persona's perspective to
+whatever follows without launching QA. Launch QA only when:
+
+- The user is asking about **past decisions** or **prior session state**
+- The user wants the **full team** to weigh in (`@team` explicitly)
+- The response needs the persona's accumulated context from the cohort
+- The user invokes the skill by name or with an unambiguous query form
+  ("ask the team", "check with the team", "what did we decide")
+
+For casual lens directives — `@critic does this duplication bother you?`,
+`@owner your take on this approach?`, `@skeptic worth building?` — the
+current model should respond inline by applying the role's perspective.
+No files loaded, no skill dispatch, no ceremony.
 
 ## Arguments
 
