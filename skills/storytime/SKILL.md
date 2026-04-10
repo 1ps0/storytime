@@ -353,6 +353,7 @@ Depend on bootstrap mode:
 - `references/addressing.md` — @role convention, formats, flexibility
 - `references/driving-persona.md` — trigger conditions, failure modes
 - `references/citations.md` — format examples, evidence hierarchy, web search
+- `references/error-recovery.md` — what to do when a phase fails mid-run
 
 **Project docs** (load on demand):
 - `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md` — Scale 1-5, dimensions
@@ -368,3 +369,5 @@ Depend on bootstrap mode:
 - `/storytime-bootstrap` — set up `.storytime/` in a repo
 - `/storytime-cohort` — hire/fire/evolve permanent personas
 - `/storytime-echo` — spawning-pool voice test (no state)
+- `/storytime-lint` — mechanical validation against the process rules
+- `/storytime-retro` — reconvene team to compare plan vs built (close the loop)

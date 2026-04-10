@@ -253,7 +253,9 @@ When all slices are done (or the user stops):
 - **Update persona files** — the team learned things during implementation
   that weren't in the plan
 - **Run full test suite** — final verification
-- **Present summary:**
+- **Run `/storytime-lint`** on the session — catch any trace docs missing
+  driver, decisions, or citations before closing out
+- **Present summary + loop-closing suggestion:**
 
 ```
 Buildout complete: rate-limiting
@@ -263,6 +265,7 @@ Files created: 3 (rate-limit.ts, rate-limits.ts, rate-limit.test.ts)
 Files modified: 2 (server.ts, metrics.ts)
 Tests: 12 added, all passing
 Decisions implemented: RATE-001 through RATE-004
+Lint: clean (21 passed, 0 warnings, 0 failed)
 
 Trace documents:
   buildout-middleware.md
@@ -271,8 +274,22 @@ Trace documents:
   buildout-monitoring.md
   buildout-tests.md
 
-Ready for: PR, retro, or next topic
+──────────────────────────────────────────────────────────
+Recommended next step: /storytime-retro rate-limiting
+
+  Reconvene the team to compare plan vs built. Closes the
+  feedback loop so personas learn from this implementation
+  before the next session.
+
+Other options: PR (ship it), next topic, pause
+──────────────────────────────────────────────────────────
 ```
+
+The retro suggestion is **not optional advice** — it's the documented
+loop closure. Without it, personas don't learn from implementation
+divergence, decisions don't get verified against reality, and the
+next session starts with a stale mental model. Skip it only if the
+user explicitly says "not this time."
 
 ## Rules
 
@@ -296,3 +313,6 @@ Ready for: PR, retro, or next topic
 8. **The plan is the contract.** Implementation should match the plan. If
    it diverges, the trace must explain why. "We discovered X during
    implementation" is valid. Silent divergence is not.
+9. **Close the loop with retro.** Every completed buildout suggests
+   `/storytime-retro` as the next action. Feedback loops that don't
+   close don't teach. See the completion summary in step 8.
