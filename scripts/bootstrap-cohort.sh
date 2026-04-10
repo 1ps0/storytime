@@ -25,8 +25,11 @@ if [ ! -f "$ROSTER" ]; then
   cat > "$ROSTER" << 'ROSTER_EOF'
 # Storytime Cohort Roster
 
-| Name | File | Archetype | Status | Since | Sessions | Last Active |
-|------|------|-----------|--------|-------|----------|-------------|
+Codenames are non-human by default (e.g. anchor, lattice, kestrel).
+Cohort size should be appropriate to the project — bias small.
+
+| Codename | File | Archetype | Status | Since | Sessions | Last Active |
+|----------|------|-----------|--------|-------|----------|-------------|
 ROSTER_EOF
   echo "  Created ${ROSTER}"
 else
@@ -55,10 +58,13 @@ if [ ! -f "$CONFIG" ]; then
 ---
 default_mode: guided
 automation: guided
-max_team_size: 12
+team_size: project-appropriate   # bias small; sized to the work
+max_team_size: 12                # hard ceiling, override required
 max_concurrent_breakouts: 10
 max_deliberation_rounds: 3
 default_core: [owner, operator, critic]
+naming: codename                 # non-human by default
+driving_persona: required        # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"
@@ -74,11 +80,11 @@ auto_update_personas: true
 ## Cohort Defaults
 # List permanent personas loaded for every session:
 # default_cohort:
-#   - name-archetype-specialty
+#   - codename-archetype-specialty
 CONFIG_EOF
   echo "  Created ${CONFIG}"
 else
   echo "  Config exists, skipping"
 fi
 
-echo "Done. Run '/storytime-cohort hire <name> <archetype> <background>' to add personas."
+echo "Done. Run '/storytime-cohort hire <codename> <archetype> <background>' to add personas."

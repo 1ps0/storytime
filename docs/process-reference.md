@@ -91,7 +91,7 @@ Standalone: CONVERGE via /storytime-converge, BUILDOUT via /storytime-buildout
 2. ICEBREAKER before BREAKOUT or CONVERGE
 3. CONVERGE before REVIEW
 4. Phases collapse when empty — never present ceremony for absent content
-5. Minimum 3 personas, maximum 12
+5. Team size is project-appropriate, not fixed. Bias small. Hard ceiling 12.
 6. Default core: OWNER, OPERATOR, CRITIC ×2 — two critics minimum, they contest each other.
 7. Permanent cohort participates by default
 8. User can fire, bench, or recruit at any time
@@ -137,6 +137,15 @@ Standalone: CONVERGE via /storytime-converge, BUILDOUT via /storytime-buildout
 47. Buildout slices are natural seams, not prescribed phases — merge or split as the code demands
 48. Every buildout slice includes tests — no slice is done without verification
 49. Buildout divergence from plan must be traced and explained, never silent
+50. Personas use **non-human codenames by default** — concept words like `anchor`,
+    `lattice`, `kestrel`. Human names only when the user picks them. Roles
+    remain the load-bearing address; codenames are ornaments.
+51. **One driving persona per leg** of the process. Supporters stay silent
+    unless their interjection is both useful AND non-distortive. Round-robin
+    commentary is the failure mode this rule prevents. See main SKILL
+    "Driving Persona" for trigger conditions.
+52. Team size is appropriate to the project, not fixed. Bias small. Tiny
+    problem = tiny team. The "too many cooks" problem is real and costly.
 
 ## File Naming Conventions
 
@@ -240,15 +249,18 @@ or trust prior.
 ## Configuration (`specs/.storytime/config.md`)
 
 ```yaml
-default_mode: inline          # inline | deliberation
-automation: guided            # manual | guided | auto
-max_team_size: 12
+default_mode: inline             # inline | deliberation
+automation: guided               # manual | guided | auto
+team_size: project-appropriate   # bias small; sized to the work
+max_team_size: 12                # hard ceiling, override required
 max_concurrent_breakouts: 10
 max_deliberation_rounds: 3
 default_core: [owner, operator, critic]
+naming: codename                 # non-human by default
+driving_persona: required        # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"
-persona_voice: name            # name | role | both
+persona_voice: role              # role | name | both
 auto_update_personas: true
 ```

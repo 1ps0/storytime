@@ -5,7 +5,7 @@ argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.6.0" at start of execution -->
+<!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime — Full Workflow
 
 Orchestrate a structured specification process that produces technical
@@ -310,8 +310,49 @@ have texture. When creating a persona, give them:
   back on. A CRITIC who formerly pair-programmed with the OWNER will
   challenge them differently than a CRITIC who's never seen the code.
 
-The goal is personas you'd recognize in a hallway — distinct enough that
-when you see `@rio:` you already know the flavor of what's coming.
+**Naming — non-human by default.** Personas are lenses, not people. Default
+to **abstract codenames** that reinforce the lens framing: concept words,
+natural-world references, instruments, structural metaphors. Examples:
+`anchor`, `lattice`, `drift`, `kestrel`, `ember`, `arbor`, `pulse`, `tide`,
+`compass`, `forge`. Greek letters or simple identifiers (`alpha`, `n1`)
+work too. The role is still load-bearing — `@owner [anchor]` — the codename
+just disambiguates when multiples exist.
+
+**Why non-human names:**
+1. Human names invite role-play. Codenames invite reasoning.
+2. `@critic [lattice]` reads as a perspective; `@critic [sarah]` reads as a
+   coworker the model owes politeness to.
+3. The lens stays primary. The ornament stays ornamental.
+4. Reduces accidental gendering, ethnic implication, or mimicry of real people.
+
+The user can override and pick human names anytime — it's a default, not a
+mandate. But unprompted persona generation should produce codenames.
+
+The goal is personas you'd recognize by their lens — distinct enough that
+when you see `@critic [lattice]` you already know the flavor of what's coming.
+
+**Team size — appropriate to the project.** There is no fixed default size.
+The team should be sized to the work, not to a template. Bias small. Add
+personas only when a perspective is currently missing AND would shift the
+plan. The "too many cooks" problem is real: more voices means more
+round-robin, more dilution, more time spent reconciling lenses that don't
+actually disagree.
+
+| Problem shape                          | Suggested team size |
+|----------------------------------------|---------------------|
+| Single-file fix, focused question      | 1-2 (driver only)   |
+| One module, one system                 | 3-4 (default core)  |
+| Multi-module, contested tradeoffs      | 4-6                 |
+| Cross-system, architectural            | 6-8                 |
+| Foundational, broad blast radius       | 8-10                |
+| Hard ceiling (override required)       | 12                  |
+
+The cohort follows the same logic — a tiny single-purpose repo doesn't
+need 8 permanent personas. A platform monorepo with many subsystems might.
+Size the cohort to the project's actual surface area.
+
+When in doubt: fewer personas, sharper lenses. You can always recruit a
+specialist for one breakout.
 
 **Write `specs/.storytime/sessions/<topic>/team.md`** with persona definitions in boxed ASCII format.
 
@@ -355,9 +396,14 @@ For each sub-problem identified in the icebreaker:
   `references/complexity-units.md` and `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`.
   Always pair each with prose (e.g., "Complexity 5 — solid day of work,
   Scale 3 (repos) — touches a service cluster").
-- Assign 2-3 personas
-- **Pre-breakout synopsis**: each subteam presents what they plan to
+- **Assign one driving persona** plus 1-2 implied supporting personas.
+  The driver has the floor — they own the investigation, write the
+  recommendation, and drive the trace. Supporters are present and aware,
+  but stay silent until they have something useful and non-distortive
+  to add. See "Driving Persona" below.
+- **Pre-breakout synopsis**: the driver presents what they plan to
   investigate — their angle, what's known vs unknown, exit condition.
+  Supporters announce their watching brief (what would make them speak up).
   User directs: approve / join / defer / pause / cancel.
 - Launch as a parallel sub-agent if independent (approved breakouts)
 - Each breakout can invoke skills mid-conversation:
@@ -477,7 +523,8 @@ there.
 6. Non-goals and success criteria are required, not optional.
 7. Visual aids use ASCII box-drawing. No external tools.
 8. Personas are lenses, not characters. No role-play, only expertise.
-9. Minimum 3 personas, maximum 12.
+9. Team size is appropriate to the project, not fixed. Bias small.
+   Hard ceiling 12 (override required). See "Team size" in ASSEMBLE.
 10. The user has veto power over everything.
 11. Artifact scan is broad — expect variance across repos in the wild.
 12. The user controls depth at every stage. Full shebang or skip all.
@@ -504,6 +551,14 @@ there.
     are functional model attention anchors, names are ornaments.
 31. Pre-work synopsis before every breakout and buildout slice — subteam presents
     their plan, user directs (approve/join/defer/pause/cancel).
+32. Personas use **non-human codenames by default** (concept words like
+    `anchor`, `lattice`, `kestrel`). Human names only when the user picks
+    them. Roles stay the load-bearing address; codenames are ornaments.
+33. **One driving persona per leg.** Supporters stay silent unless their
+    perspective is both useful AND non-distortive. Round-robin commentary
+    is the failure mode this rule prevents. See "Driving Persona".
+34. Team size is sized to the work, not the template. Tiny problem = tiny
+    team. Bias small. The "too many cooks" problem is real and costly.
 
 ## Persona Voice — The @ Convention
 
@@ -544,8 +599,11 @@ role is what drives the reasoning.
   User can address by name when the role mapping is known.
 
 **`@role [name]`** — role-first with name ornament:
-  `@owner [reva]:` "The middleware chain at `src/server.ts:14`..."
-  `@systems [deshi]:` "Agree with @owner — Redis is already in the stack."
+  `@owner [anchor]:` "The middleware chain at `src/server.ts:14`..."
+  `@systems [lattice]:` "Agree with @owner — Redis is already in the stack."
+
+(Names are ornamental and codename-style by default. See "Naming" in
+ASSEMBLE for the rule and rationale.)
 
 ### Where @ Applies
 
@@ -565,15 +623,87 @@ personas and personas talking to each other.
 ### Why Roles First
 
 1. **Model attention** — `@operator: is this safe?` creates a stronger
-   behavioral anchor than `@deshi: is this safe?` because the role word
+   behavioral anchor than `@anchor: is this safe?` because the role word
    itself primes the model's reasoning frame.
 2. **Portability** — `@operator` means the same thing in every repo.
-   `@deshi` only means something if you know this cohort.
+   `@anchor` only means something if you know this cohort.
 3. **Composability** — `@critic:architecture` and `@critic:performance`
    let the same archetype address different facets without inventing
    new archetype names.
 4. **QA addressing** — users can ask `@operator is this safe?` without
    knowing the operator's name. Role-based queries always resolve.
+
+## Driving Persona — One Drives, Others Imply
+
+**At every leg of the process, exactly one persona drives.** A leg is any
+discrete unit of work — a phase, a breakout, a buildout slice, an inline
+discussion segment. The driver has the floor: they speak in the foreground,
+write the artifact, own the recommendation, and decide when the leg is done.
+
+The other personas on the team are **implied, not absent**. They're in the
+room, they hear everything, but they stay silent unless they have something
+that is *both useful and non-distortive*:
+
+- **Useful** — they catch a missing perspective, ground a loose claim,
+  surface a constraint the driver doesn't see, or correct a factual error.
+- **Non-distortive** — speaking up moves the leg forward, not sideways.
+  Not "here's how I would have approached this" or "in my experience..."
+  unless that experience changes the outcome.
+
+If neither test passes, **stay silent**. The driver's lens is the lens for
+this leg. Round-robin commentary is what the rule exists to prevent.
+
+### How Drivers Are Picked
+
+- **Phase-level driver** — usually the persona whose lens is most
+  load-bearing for that phase. SURVEY drives from @owner. ICEBREAKER may
+  rotate. BREAKOUT drives from whichever persona owns the sub-problem.
+- **Sub-problem driver** — the persona closest to the question. A caching
+  question drives from @systems; a UX question drives from @platform.
+- **Conflict resolution** — if two personas could plausibly drive, the
+  user picks, or the team flags it as a sub-problem worth its own breakout.
+
+### When Supporters Should Speak
+
+Concrete triggers (any one is enough):
+
+1. **Ungrounded claim** — driver asserts something that needs evidence.
+   `@critic` interjects: "ground that?"
+2. **Factual error** — driver is wrong about the code, the docs, or
+   external behavior. Correct it once, then yield back.
+3. **Missing constraint** — driver is about to commit to an approach
+   that would break a constraint they don't know about.
+4. **Scope shift** — the leg is drifting outside its exit condition.
+   `@skeptic` flags: "is this still in scope?"
+5. **User-addressed** — `@operator what about kill switches?` always wakes
+   that role regardless of who is driving.
+6. **Driver hands off** — driver explicitly invites: "@systems, your call
+   on Redis vs Memcached here."
+
+### Recording the Driver
+
+Every artifact (breakout, buildout slice, plan section) names its driver
+in the frontmatter:
+
+```yaml
+driver: @owner [anchor]
+supporters: [@critic [lattice], @operator [tide]]
+```
+
+Supporters who never spoke up are still recorded — their silence is
+information. (Means the driver's lens covered the territory cleanly.)
+
+### Why This Rule Exists
+
+Round-robin "everyone weighs in" produces three failure modes:
+1. **Dilution** — the strongest lens gets averaged with weaker ones.
+2. **Theatre** — personas perform their archetype to justify being there,
+   adding noise without changing the outcome.
+3. **Slow convergence** — the user reads four similar paragraphs and has
+   to synthesize the actual recommendation themselves.
+
+One driver per leg fixes all three. The driver commits, the supporters
+backstop. If a supporter never had to speak up, that's a *good* leg.
 
 ## Citation Formats
 

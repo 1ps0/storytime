@@ -5,7 +5,7 @@ argument-hint: "[mode: native|adapt|export]"
 allowed-tools: [Read, Write, Bash, Glob, Grep]
 ---
 
-<!-- version-echo: display "storytime v0.6.0" at start of execution -->
+<!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime Bootstrap
 
 Set up the storytime structure in a repository. Detect what exists,
@@ -61,8 +61,11 @@ mode: native
 created: <YYYY-MM-DD>
 default_mode: inline
 automation: guided
-max_team_size: 12
+team_size: project-appropriate   # bias small; sized to the work
+max_team_size: 12                # hard ceiling, override required
 default_core: [owner, operator, critic]
+naming: codename                 # non-human by default
+driving_persona: required        # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"

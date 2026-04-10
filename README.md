@@ -1,7 +1,7 @@
 # Storytime
 
 A Claude Code plugin that builds technical specifications through
-structured conversations between domain-expert personas. v0.6.0.
+structured conversations between domain-expert personas. v0.7.2.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -135,7 +135,7 @@ you can park mid-session and resume later.
 
 ```
 storytime/
-├── .claude-plugin/plugin.json    Plugin manifest (v0.6.0)
+├── .claude-plugin/plugin.json    Plugin manifest (v0.7.2)
 ├── VERSION                       Version file
 ├── skills/                       16 skills (entry points)
 ├── agents/

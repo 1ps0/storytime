@@ -242,8 +242,11 @@ mode: native | adapt | export
 created: <YYYY-MM-DD>
 default_mode: inline | deliberation
 automation: manual | guided | auto
-max_team_size: 12
+team_size: project-appropriate     # bias small; sized to the work
+max_team_size: 12                  # hard ceiling, override required
 default_core: [owner, operator, critic]
+naming: codename                   # non-human by default
+driving_persona: required          # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"

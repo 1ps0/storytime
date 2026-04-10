@@ -5,7 +5,7 @@ argument-hint: "@persona <question> or @role <question> or <question for full te
 allowed-tools: [Read, Glob, Grep, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.6.0" at start of execution -->
+<!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime QA — Persona Query
 
 Route a direct question to a Storytime persona, role, or the full team.

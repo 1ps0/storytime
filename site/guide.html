@@ -10,7 +10,7 @@
 
 <nav>
   <div class="container">
-    <a class="logo" href="index.html"><span>storytime</span> v0.7.1</a>
+    <a class="logo" href="index.html"><span>storytime</span> v0.7.2</a>
     <a href="index.html">Home</a>
     <a href="guide.html" class="active">Guide</a>
     <a href="walkthrough.html">Walkthrough</a>
@@ -60,7 +60,8 @@ that ensure the plan considers all relevant dimensions.</p>
 
 <p>The <strong>default core</strong> is OWNER, OPERATOR, CRITIC &mdash; what you get if you
 don't specify. Defaults, not mandates &mdash; collapsible like everything else.
-Minimum 3 personas, maximum 12.
+<strong>Team size is sized to the project, not fixed.</strong> Tiny problem &rarr; tiny
+team. Bias small. Hard ceiling 12 (override required).
 <strong>Duplicate archetypes are allowed</strong> &mdash; two SYSTEMS personas can cover
 different facets (one on database perf, one on networking). They should
 complement, not echo. Productive tension between same-archetype personas
@@ -71,7 +72,20 @@ past decisions. <strong>Specialists</strong> are temporary, recruited for a spec
 
 <p>Personas should have <strong>texture</strong>: background quirks that inform their perspective,
 opinions and biases that make them useful lenses, a communication style you'd
-recognize. When you see <code>@rio:</code> you should already know the flavor of what's coming.</p>
+recognize. <strong>Codenames are non-human by default</strong> &mdash; concept words like
+<code>anchor</code>, <code>lattice</code>, <code>kestrel</code>, <code>ember</code>, <code>forge</code>. Personas are lenses, not
+people; codenames keep the lens primary. Human names only when you pick them.
+When you see <code>@critic [lattice]</code> you should already know the flavor of what's coming.</p>
+
+<h3>One driver per leg</h3>
+<p>At every leg of the process &mdash; phase, breakout, buildout slice &mdash; <strong>one
+persona drives</strong>. The driver writes the artifact and owns the recommendation.
+The other personas are in the room but stay silent unless their perspective is
+both <strong>useful</strong> AND <strong>non-distortive</strong>: they catch a missing constraint, ground
+a loose claim, correct a factual error. Otherwise, silence is the right answer.
+Round-robin commentary is the failure mode this rule prevents. Supporters who
+never spoke up are still recorded &mdash; their silence means the driver's lens
+covered the territory cleanly.</p>
 
 <h3>Addressing personas</h3>
 <pre><code>@noa what do you think about adding WebSocket support?
@@ -231,7 +245,7 @@ every change back to decisions.</p>
 
 <div class="container">
 <div class="footer">
-  <p>Storytime v0.7.1 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p>Storytime v0.7.2 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
   <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
 </div>
 </div>

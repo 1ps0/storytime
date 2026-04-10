@@ -5,7 +5,7 @@ argument-hint: "<topic> (e.g., agc, caching)"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent]
 ---
 
-<!-- version-echo: display "storytime v0.6.0" at start of execution -->
+<!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime Converge — Standalone Plan Synthesis
 
 Take existing breakout results and produce a unified plan. Use this when
@@ -65,13 +65,21 @@ Proceed with convergence? [y / adjust / add context]
 
 The user can adjust scope or add context before convergence runs.
 
-### 4. Reconvene the Full Team
+### 4. Reconvene — One Driver per Plan Section
 
-All personas from all breakouts participate. The convergence discussion:
+Convergence is not a round-robin. The team is in the room, but each
+section of the plan has **one driving persona** — the lens whose
+authority is highest for that section (architecture from @owner,
+operations from @operator, etc.). Supporters speak only when their
+perspective is useful and non-distortive. See "Driving Persona" in
+the main SKILL.
+
+The convergence work itself:
 
 - **Merge findings** — combine breakout results into a unified view
-- **Resolve conflicts** — if breakouts contradict, the team debates and
-  decides. The user can weigh in.
+- **Resolve conflicts** — if two breakouts contradict, the conflict gets
+  its own driver (the lens closest to the disputed claim) and a brief
+  resolution. The user can weigh in.
 - **Identify gaps** — are there sub-problems the breakouts missed?
 - **Sequence the work** — order implementation steps considering dependencies
 - **Assign Complexity + Scale** to each plan item
@@ -118,3 +126,5 @@ REVIEW phase in the full workflow.
 4. The plan must reference which breakout informed each item.
 5. Non-goals and success criteria are required. Always.
 6. Complexity and Scale on every plan item. Always with prose.
+7. **One driver per plan section.** Supporters interject only on a trigger
+   condition. Round-robin commentary is the failure mode being prevented.

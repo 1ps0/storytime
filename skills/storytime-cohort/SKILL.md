@@ -5,7 +5,7 @@ argument-hint: "<action> <persona> [details]"
 allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
 
-<!-- version-echo: display "storytime v0.6.0" at start of execution -->
+<!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime Cohort Management
 
 Manage the Storytime persona roster — hiring, firing, benching,
@@ -22,11 +22,18 @@ The management action: $ARGUMENTS
 - Display all active, inactive, and specialist personas
 - Show each persona's session count and last active date
 
-### hire / recruit <name> <archetype> <background>
-- Create a new persona file: `specs/.storytime/cohort/<name>-<archetype>-<specialty>.md`
-  - Example: `raj-domain-dsp.md`, `mira-platform-asr.md`
+### hire / recruit <codename> <archetype> <background>
+- Create a new persona file: `specs/.storytime/cohort/<codename>-<archetype>-<specialty>.md`
+  - Example: `lattice-domain-dsp.md`, `tide-platform-asr.md`
+- **Codenames are non-human by default.** Use abstract concept words —
+  natural-world (`tide`, `kestrel`, `ember`), structural (`lattice`,
+  `anchor`, `forge`), instruments (`compass`, `pulse`, `arbor`), or simple
+  identifiers (`alpha`, `n1`). Personas are lenses, not people.
+  See "Naming" in `${CLAUDE_PLUGIN_ROOT}/skills/storytime/SKILL.md`.
+- The user can override and pick a human name if they want — it's a
+  default, not a mandate. Unprompted hires generate codenames.
 - Add to the roster with status: active, include the filename
-- Include: name, archetype, background, role, personality
+- Include: codename, archetype, background, role, personality
 
 ### fire / release <name>
 - Move persona file to `specs/.storytime/cohort/_alumni/`
@@ -91,7 +98,7 @@ decisions_participated:
     date: <YYYY-MM-DD>
 ---
 
-# <Name> — <Title>
+# <Codename> — <Title>
 
 ## Background
 <2-3 sentences>
@@ -109,12 +116,21 @@ decisions_participated:
 <How they work with other team members>
 ```
 
+## Cohort Sizing
+
+The permanent cohort should be **sized to the project**, not to a
+template. A small focused repo may need only 2-3 personas; a multi-
+subsystem platform may justify 8-10. Bias small — recruit specialists
+on demand for individual breakouts rather than carrying unused lenses
+in the cohort. Hard ceiling 12 (override required). See "Team size" in
+the main SKILL.
+
 ## Roster Format
 
 ```markdown
 # Storytime Cohort Roster
 
-| Name | File                     | Archetype | Status | Since      | Sessions | Last Active |
-|------|--------------------------|-----------|--------|------------|----------|-------------|
-| Kim  | kim-owner-architect.md   | owner     | active | 2026-03-24 | 1        | 2026-03-24  |
+| Codename | File                       | Archetype | Status | Since      | Sessions | Last Active |
+|----------|----------------------------|-----------|--------|------------|----------|-------------|
+| anchor   | anchor-owner-architect.md  | owner     | active | 2026-03-24 | 1        | 2026-03-24  |
 ```

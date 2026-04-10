@@ -10,7 +10,7 @@
 
 <nav>
   <div class="container">
-        <a class="logo" href="index.html"><span>storytime</span> v0.7.1</a>
+        <a class="logo" href="index.html"><span>storytime</span> v0.7.2</a>
     <a href="index.html">Home</a>
     <a href="guide.html">Guide</a>
     <a href="walkthrough.html">Walkthrough</a>
@@ -108,7 +108,7 @@
 &#x2502;   &#x2514;&#x2500;&#x2500; cold/                   Deep history
 &#x2514;&#x2500;&#x2500; config.md                   Project settings</code></pre>
 
-<h2>Process Rules (43)</h2>
+<h2>Process Rules (46)</h2>
 
 <ol>
   <li>SURVEY before ASSEMBLE. Never build a team blind.</li>
@@ -119,7 +119,7 @@
   <li>Non-goals and success criteria are required, not optional.</li>
   <li>Visual aids use ASCII box-drawing.</li>
   <li>Personas are lenses, not characters. No role-play, only expertise.</li>
-  <li>Minimum 3 personas, maximum 12.</li>
+  <li>Team size is appropriate to the project, not fixed. Bias small. Hard ceiling 12.</li>
   <li>The user has veto power over everything.</li>
   <li>Artifact scan is broad &mdash; expect variance across repos.</li>
   <li>The user controls depth at every stage.</li>
@@ -154,16 +154,22 @@
   <li>Redo is undo + immediate retry.</li>
   <li>Post-breakout pause is mandatory (unless auto).</li>
   <li>Converge can run standalone.</li>
+  <li>Personas use <strong>non-human codenames by default</strong> (e.g. <code>anchor</code>, <code>lattice</code>, <code>kestrel</code>). Roles stay the load-bearing address; codenames are ornaments.</li>
+  <li><strong>One driving persona per leg.</strong> Supporters stay silent unless their interjection is both useful AND non-distortive. Round-robin commentary is the failure mode this prevents.</li>
+  <li>Team size is sized to the work, not the template. Bias small. Tiny problem &rarr; tiny team.</li>
 </ol>
 
 <h2>Configuration</h2>
 
 <pre><code># specs/.storytime/config.md
-default_mode: inline          # inline | deliberation
-automation: guided            # manual | guided | auto
-max_team_size: 12
+default_mode: inline             # inline | deliberation
+automation: guided               # manual | guided | auto
+team_size: project-appropriate   # bias small; sized to the work
+max_team_size: 12                # hard ceiling, override required
 max_concurrent_breakouts: 10
 default_core: [owner, operator, critic]
+naming: codename                 # non-human by default
+driving_persona: required        # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"
@@ -187,7 +193,7 @@ auto_update_personas: true</code></pre>
 
 <div class="container">
 <div class="footer">
-  <p>Storytime v0.7.1 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
+  <p>Storytime v0.7.2 &mdash; <a href="https://github.com/1ps0/storytime">github.com/1ps0/storytime</a></p>
   <p style="margin-top: 0.5rem">A Claude Code plugin by Alex Evers</p>
 </div>
 </div>

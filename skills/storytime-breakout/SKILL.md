@@ -1,11 +1,11 @@
 ---
 name: storytime-breakout
-description: "This skill should be used when the user asks to \"breakout on\", \"deep dive\", \"investigate\", \"focus on\", \"drill into\", or wants to run a focused investigation on a specific sub-problem with 2-3 personas without running the full storytime pipeline. Standalone breakout that produces a recommendation."
+description: "This skill should be used when the user asks to \"breakout on\", \"deep dive\", \"investigate\", \"focus on\", \"drill into\", or wants to run a focused investigation on a specific sub-problem with one driving persona (plus at most 1-2 silent supporters) without running the full storytime pipeline. Standalone breakout that produces a recommendation."
 argument-hint: "<sub-problem>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.6.0" at start of execution -->
+<!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime Breakout — Standalone
 
 Run a focused investigation on a specific sub-problem with a small persona
@@ -33,26 +33,33 @@ The sub-problem to investigate: $ARGUMENTS
 
 **If standalone** (no related thread):
 - Quick codebase scan (Explore agent, scoped to the sub-problem)
-- Assemble a minimal team: 2-3 personas, draw from the default core (owner, operator, critic) unless the problem suggests otherwise
+- Assemble a **minimal** team: one driver plus at most 1-2 supporters.
+  Draw the driver from whichever lens owns the sub-problem. Supporters
+  are present but silent unless they have something useful and
+  non-distortive to add. (See "Driving Persona" in main SKILL.)
 - The user can name specific personas or archetypes, or let the system pick
 - Output goes wherever makes sense: `specs/.storytime/sessions/<topic>/001/`
   for a new topic, or a location the user specifies
 
 ### 2. Synopsis + User Direction
 
-Before investigating, the subteam presents what they plan to do:
+Before investigating, the **driver** presents what they plan to do.
+Supporters announce their watching brief — what would make them speak up
+during the breakout.
 
 ```
 Breakout: is Redis or Memcached better for rate limit counters?
 
+  Driver: @systems [lattice]
+  Supporters: @operator [tide]
+
   @systems: I'll check our existing Redis setup and compare sorted set
             ops vs Memcached increment semantics for sliding windows.
-  @operator: I'll evaluate operational complexity — monitoring, failure
-             modes, connection pooling for each option.
-
-  What we know: Redis already in stack (src/config/redis.ts:5)
-  What we don't: whether sorted set ops are fast enough at our scale
-  Exit condition: clear recommendation with latency evidence
+            What we know: Redis already in stack (src/config/redis.ts:5)
+            What we don't: whether sorted set ops are fast enough at scale
+            Exit condition: clear recommendation with latency evidence
+  @operator: Watching brief — I'll speak up if the recommendation has no
+             kill switch or no monitoring story.
 
   [approve / join / defer / pause / cancel]
 ```
@@ -73,7 +80,7 @@ State the question clearly. Identify:
 
 ### 4. Investigate
 
-The breakout team works the problem. Available mid-breakout skills:
+The **driver** works the problem. Available mid-breakout skills:
 
 | Skill | Use |
 |-------|-----|
@@ -83,8 +90,11 @@ The breakout team works the problem. Available mid-breakout skills:
 | DISCOVERY | Explore agent for code mapping |
 | PROTOTYPE | Write draft code for illustration |
 
-Each persona contributes from their domain lens. The investigation is
-a focused conversation, not a monologue.
+The driver speaks in the foreground. **Supporters stay silent** unless one
+of the trigger conditions fires (ungrounded claim, factual error, missing
+constraint, scope drift, user-addressed, or explicit handoff). When a
+supporter does speak, they say their piece and yield back — no
+conversational ping-pong. See "Driving Persona" in the main SKILL.
 
 ### 5. Produce Recommendation
 
@@ -109,7 +119,9 @@ created: <YYYY-MM-DDTHH:MM>
 session: <session-id or null>
 topic: <parent-topic or null>
 subtopic: <subtopic>
-personas: [<names>]
+driver: <@role [codename]>
+supporters: [<@role [codename]>, ...]
+supporters_who_spoke: [<@role>, ...]
 ---
 ```
 
@@ -118,11 +130,16 @@ completed step.
 
 ## Rules
 
-1. Minimum 2 personas, maximum 3. Breakouts are small and focused.
-2. At least one persona must be able to verify claims against code.
+1. **One driver, at most 2 supporters.** Breakouts are small and focused.
+   Driver works the problem in the foreground; supporters are silent
+   backstops. See "Driving Persona" in main SKILL.
+2. The driver (or a supporter who speaks up) must be able to verify
+   claims against code.
 3. Every finding must cite evidence (code, docs, or research).
 4. The recommendation must include Complexity and Scale with prose.
 5. If the breakout reveals the problem is bigger than expected, say so
    and recommend escalating to a full storytime session.
 6. Breakouts are fast. If investigation exceeds the sub-problem scope,
    stop, document what you found, and flag the scope creep.
+7. Supporters who never spoke up are still recorded in the trace —
+   their silence is information (the driver's lens covered it cleanly).

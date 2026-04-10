@@ -5,7 +5,7 @@ argument-hint: "<topic> or <plan-item-number>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.6.0" at start of execution -->
+<!-- version-echo: display "storytime v0.7.2" at start of execution -->
 # Storytime Buildout — Plan to Code
 
 Take an approved plan and implement it. Personas who designed it now build
@@ -110,34 +110,45 @@ becomes interactive pair programming.
 
 ### 4. Execute a Slice (the coding session)
 
-Each slice is a **persona-driven coding session**. The assigned personas
-work the code together — this is pair (or mob) programming, not a
-monologue.
+Each slice is a **persona-driven coding session** with **one driver**.
+The driver writes the code; supporters watch and only speak when their
+perspective is useful and non-distortive. This is pair programming with
+a clear lead — not round-robin commentary. See "Driving Persona" in the
+main SKILL for the trigger conditions.
 
 **How personas collaborate in code:**
 
-The **lead** (usually @owner or the domain-closest persona) writes the
-primary implementation. The **reviewer** (usually @critic or @operator)
-challenges in real-time:
+The **driver** (usually @owner or the domain-closest persona) writes the
+primary implementation. **Supporters** (often @critic or @operator)
+hold a watching brief and challenge in real-time *only when* a trigger
+fires — ungrounded claim, factual error, missing constraint, scope drift,
+or driver handoff:
 
 ```
+Driver: @owner [anchor]
+Supporters (watching brief): @systems [lattice], @critic [forge]
+
 @owner: Creating the rate limiter middleware. The sliding window needs
         a Redis sorted set per client key...
         [writes src/middleware/rate-limit.ts]
 
-@systems: Hold on — the ZADD + ZRANGEBYSCORE needs to be atomic. Use a
-          Redis pipeline or Lua script, otherwise you'll get race
+@systems: [trigger: factual risk] ZADD + ZRANGEBYSCORE needs to be atomic
+          here. Use a Redis pipeline or Lua script — otherwise race
           conditions under concurrent requests.
           [redis.io/topics/transactions] — Redis transactions docs
 
 @owner: Good catch. Wrapping in a pipeline:
         [edits src/middleware/rate-limit.ts:23-35]
+        [@systems silent — issue resolved, yields back]
 
-@critic: The key format `ratelimit:${clientId}` should include the tier.
-         Otherwise if a user upgrades tier mid-window, the old counter
-         persists. Use `ratelimit:${tier}:${clientId}`.
-         Per RATE-003: key on clientId + tier from JWT.
+@critic: [trigger: missing constraint] Key format `ratelimit:${clientId}`
+         loses tier-change semantics. Per RATE-003, key on clientId+tier.
+         [@critic silent — flagged, yields back]
 ```
+
+Note the pattern: supporters speak once with a tagged trigger, then
+yield. No back-and-forth, no commentary, no "good point @owner". The
+driver keeps writing.
 
 **What gets written:**
 - The actual code files (created or modified)
@@ -159,7 +170,9 @@ topic: <topic>
 slice: <slice-name>
 plan_items: [1, 2]
 decisions: [RATE-001, RATE-002]
-personas: [@owner, @systems]
+driver: @owner [anchor]
+supporters: [@systems [lattice], @critic [forge]]
+supporters_who_spoke: [@systems, @critic]
 files_created: [src/middleware/rate-limit.ts]
 files_modified: [src/server.ts]
 tests_added: [test/rate-limit.test.ts]
@@ -268,10 +281,11 @@ Ready for: PR, retro, or next topic
 2. **Trace everything.** Every code change maps back to a plan item and
    decision. The trace document is the proof that implementation matches
    design.
-3. **Personas code in character.** @operator writes monitoring code and
-   questions everything without a kill switch. @critic challenges
-   abstractions mid-implementation. They don't just review after — they
-   shape the code as it's written.
+3. **One driver per slice.** The driver writes the code; supporters hold
+   a watching brief and only interject on a trigger (factual error,
+   missing constraint, scope drift, ungrounded claim, driver handoff).
+   Supporters who never spoke are recorded — silence is information.
+   See "Driving Persona" in main SKILL.
 4. **Test every slice.** No buildout slice is complete without tests.
 5. **Blockers are signal, not failure.** If implementation reveals the plan
    was wrong, that's valuable. Flag it, trace it, escalate if needed.
