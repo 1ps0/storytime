@@ -1,6 +1,6 @@
 {
   "name": "storytime",
-  "version": "0.7.2",
+  "version": "0.9.0",
   "description": "Persona-driven technical narrative framework. Builds specs through structured conversations between domain-expert personas with visual aids, traceable decisions, and persistent team memory.",
   "author": {
     "name": "Alex Evers"

@@ -5,7 +5,7 @@ argument-hint: "[specific files or directories to consolidate]"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
 
-<!-- version-echo: display "storytime v0.7.2" at start of execution -->
+<!-- version-echo: display "storytime v0.9.0" at start of execution -->
 # Storytime Consolidate — Document Organization
 
 Sort, triage, archive, and roll up documents into the storytime structure.

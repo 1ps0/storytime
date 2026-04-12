@@ -5,7 +5,7 @@ argument-hint: "<@role | @role:scope | \"description\"> [— optional question o
 allowed-tools: [Read, Glob, Grep]
 ---
 
-<!-- version-echo: display "storytime v0.7.2" at start of execution -->
+<!-- version-echo: display "storytime v0.9.0" at start of execution -->
 # Storytime Echo — Spawning Pool Voice
 
 Spawn a temporary voice from the spawning pool. One-shot. Ephemeral.

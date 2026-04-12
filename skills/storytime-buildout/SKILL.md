@@ -5,7 +5,7 @@ argument-hint: "<topic> or <plan-item-number>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.7.2" at start of execution -->
+<!-- version-echo: display "storytime v0.9.0" at start of execution -->
 # Storytime Buildout — Plan to Code
 
 Take an approved plan and implement it. Personas who designed it now build
