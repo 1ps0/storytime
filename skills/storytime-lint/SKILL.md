@@ -2,7 +2,7 @@
 name: storytime-lint
 description: "This skill should be used when the user asks to \"lint storytime\", \"validate session\", \"check the spec\", \"storytime hygiene\", \"verify citations\", or wants a structural check of storytime artifacts against the process rules. Fast mechanical checks — no prose, no philosophy. Outputs a pass/fail table."
 argument-hint: "[<topic> or <session-path>] — defaults to all sessions"
-allowed-tools: [Read, Glob, Grep, Bash]
+allowed-tools: [Read, Glob, Grep, Bash, Agent]
 ---
 
 <!-- version-echo: display "storytime v0.9.0" at start of execution -->
@@ -12,6 +12,23 @@ Fast mechanical validation of storytime artifacts against the process
 rules. No prose, no commentary — just pass/fail per check, per artifact.
 If you want interpretation, run `/storytime-retro`. This is the
 hygiene pass.
+
+## Two Tiers
+
+Lint has two tiers with a hard split:
+
+1. **Mechanical tier** (grep/file checks) — runs `scripts/check-conventions.sh`
+   for version consistency, schema_version presence, type field, driver
+   field, thread hygiene, icebreaker existence. Zero model reasoning.
+   Deterministic. Milliseconds.
+
+2. **Reasoning tier** (estimator task force) — spawns the
+   `agents/estimator.md` sub-agent for checks that need prose parsing
+   (P4, P5, P7, T4, B6, NG1, SC1, DR1). Each invocation is scoped to
+   one check on one artifact, returns one line of PASS/WARN/FAIL.
+
+Checks that violated lint's "grep only" contract in v0.7.2 (P4, P5, T4)
+are now in the reasoning tier where reasoning is explicitly allowed.
 
 ## Arguments
 
@@ -27,67 +44,79 @@ What to lint: $ARGUMENTS (topic, session path, or empty for all)
 
 ### Per-survey (`survey.md`)
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| S1 | Has frontmatter with `type: survey`                         |
-| S2 | Has a coverage fingerprint (commit, paths, ratios)          |
-| S3 | Fingerprint commit resolves via `git cat-file -e <sha>`     |
+| #  | Tier       | Check                                                      |
+|----|------------|------------------------------------------------------------|
+| S1 | mechanical | Has frontmatter with `type: survey`                        |
+| S2 | mechanical | Has a coverage fingerprint (commit, paths, ratios)         |
+| S3 | mechanical | Fingerprint commit resolves via `git cat-file -e <sha>`    |
 
 ### Per-team (`team.md`)
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| T1 | Has frontmatter with `type: team`                           |
-| T2 | Every persona card references a known archetype (owner, operator, critic, domain, systems, platform, skeptic, educator) |
-| T3 | If two personas share an archetype, each has a distinct `focus` |
-| T4 | Codename is non-human (warn only — soft check)              |
+| #  | Tier       | Check                                                      |
+|----|------------|------------------------------------------------------------|
+| T1 | mechanical | Has frontmatter with `type: team`                          |
+| T2 | mechanical | Every persona references a known archetype                 |
+| T3 | mechanical | Same-archetype personas have distinct `focus`              |
+| T4 | reasoning  | Codenames are non-human (warn on common first names)       |
 
 ### Per-breakout (`breakout-*.md`)
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| B1 | Has frontmatter with `type: breakout`                       |
-| B2 | Frontmatter names a `driver`                                |
-| B3 | Body contains at least one citation (file:line, [url], commit, RFC) |
-| B4 | Body contains `Complexity` AND `Scale` with prose           |
-| B5 | Body contains `Recommendation:` section                     |
+| #   | Tier       | Check                                                     |
+|-----|------------|-----------------------------------------------------------|
+| B1  | mechanical | Has frontmatter with `type: breakout`                     |
+| B2  | mechanical | Frontmatter names a `driver`                              |
+| B3  | mechanical | Body contains ≥1 citation (file:line, [url], commit, RFC) |
+| B4  | mechanical | Body contains `Complexity` AND `Scale`                    |
+| B5  | mechanical | Body contains `Recommendation:` section                   |
+| B6  | reasoning  | Recommendation is substantive, not a punt                 |
+| DR1 | reasoning  | Driver actually drove (voice matches attribution)         |
 
 ### Per-plan (`plan.md`)
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| P1 | Has frontmatter with `type: plan`                           |
-| P2 | Has a `Non-goals` section with entries                      |
-| P3 | Has a `Success criteria` section with entries               |
-| P4 | Every plan item states Complexity + Scale in prose          |
-| P5 | No plan item has Complexity ≥ 13 (must decompose)           |
-| P6 | At least one ASCII box-drawn visual                         |
-| P7 | Body contains at least one citation                         |
+| #   | Tier       | Check                                                     |
+|-----|------------|-----------------------------------------------------------|
+| P1  | mechanical | Has frontmatter with `type: plan`                         |
+| P2  | mechanical | Has a `Non-goals` section with entries                    |
+| P3  | mechanical | Has a `Success criteria` section with entries             |
+| P4  | reasoning  | Every plan item states Complexity + Scale in prose        |
+| P5  | reasoning  | No plan item has Complexity ≥ 13 as a leaf                |
+| P6  | mechanical | At least one ASCII box-drawn visual                       |
+| P7  | reasoning  | Citations are substantive (point to specific evidence)    |
+| NG1 | reasoning  | Non-goals are specific (not "we won't boil the ocean")    |
+| SC1 | reasoning  | Success criteria are measurable (number, threshold, test) |
 
 ### Per-buildout (`buildout-*.md`)
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| BO1 | Has frontmatter with `type: buildout`                      |
-| BO2 | Frontmatter names a `driver`                               |
-| BO3 | Frontmatter has `plan_items` and `decisions`               |
-| BO4 | Body contains an `Implementation Trace` section            |
-| BO5 | Every file_created/file_modified listed actually exists    |
+| #   | Tier       | Check                                                     |
+|-----|------------|-----------------------------------------------------------|
+| BO1 | mechanical | Has frontmatter with `type: buildout`                     |
+| BO2 | mechanical | Frontmatter names a `driver`                              |
+| BO3 | mechanical | Frontmatter has `plan_items` and `decisions`              |
+| BO4 | mechanical | Body contains an `Implementation Trace` section           |
+| BO5 | mechanical | Every file_created/file_modified listed actually exists   |
 
 ### Per-thread (`_thread.md`)
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| Th1 | Has frontmatter with `last_completed_phase` and `last_commit` |
-| Th2 | `last_commit` resolves via `git cat-file -e <sha>`          |
+| #   | Tier       | Check                                                     |
+|-----|------------|-----------------------------------------------------------|
+| Th1 | mechanical | Has frontmatter `type: thread`                            |
+| Th2 | mechanical | Has `last_completed_phase` and `last_commit`              |
+| Th3 | mechanical | `last_commit` resolves via `git cat-file -e <sha>`        |
+
+### Per-icebreaker (`icebreaker.md`)
+
+| #   | Tier       | Check                                                     |
+|-----|------------|-----------------------------------------------------------|
+| I1  | mechanical | Exists if `team.md` exists and breakouts are present      |
+| I2  | mechanical | Has frontmatter `type: icebreaker`                        |
 
 ### Per-citation (across all files)
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| C1 | File citations (`path:line`) — the file exists              |
-| C2 | File citations — the line number is in bounds              |
-| C3 | Commit citations — commit exists in the repo               |
+| #  | Tier       | Check                                                      |
+|----|------------|------------------------------------------------------------|
+| C1 | mechanical | File citations (`path:line`) — the file exists             |
+| C2 | mechanical | File citations — the line number is in bounds             |
+| C3 | mechanical | Commit citations — commit exists in the repo              |
 
 Stale citations (file moved, line shifted) are **warnings**, not
 failures — the process allows rot but we want visibility.
@@ -107,23 +136,35 @@ still be valid — but it needs re-verification.
 
 ### Repo-level checks
 
-| # | Check                                                       |
-|---|-------------------------------------------------------------|
-| R1 | VERSION, plugin.json, all SKILL.md version-echo lines match |
-| R2 | site/*.html version strings match VERSION                   |
-| R3 | README.md version strings match VERSION                     |
+| #  | Tier       | Check                                                      |
+|----|------------|------------------------------------------------------------|
+| R1 | mechanical | VERSION, plugin.json, all SKILL.md version-echo lines match |
+| R2 | mechanical | site/*.html version strings match VERSION                  |
+| R3 | mechanical | README.md version strings match VERSION                    |
 
 Run `R1-R3` only when `--repo` flag is given or scope is empty
 (full-repo lint). These catch version drift from manual bumps.
+**All repo-level checks are delegated to
+`scripts/check-conventions.sh`** — run it first, parse its output.
 
 ## Process
 
-1. Enumerate targets (sessions, episodes, artifacts) based on `$ARGUMENTS`.
-2. For each artifact, run the checks in its category in order.
-3. Collect results into a per-artifact row.
-4. Output a single table grouped by session → episode → artifact.
-5. Print a summary footer: `N passed, M warnings, K failed`.
-6. Exit with status 0 if no failures, 1 if any failures (warnings ok).
+1. **Run mechanical tier first:** invoke `./scripts/check-conventions.sh`
+   (with `$ARGUMENTS` if provided). Capture its output and exit code.
+   If any mechanical check fails, surface those first — they're blockers.
+2. **Enumerate artifacts in scope** (sessions, episodes, or the given
+   path).
+3. **Run per-artifact mechanical checks** (S1-S3, T1-T3, B1-B5, P1-P3, P6,
+   BO1-BO5, Th1-Th2, C1-C3, D1-D3) using Grep/Read/Bash.
+4. **Run reasoning-tier checks via Estimator.** For each artifact that
+   has reasoning checks (P4, P5, P7, T4, B6, NG1, SC1, DR1), spawn the
+   estimator agent with one check at a time:
+   - `agents/estimator.md` — scoped to the single check
+   - Pass: check-id, artifact path, context paths
+   - Receive: one-line PASS/WARN/FAIL + justification
+5. **Merge results** into a single pass/fail table.
+6. **Print summary footer:** `N passed, M warnings, K failed`.
+7. **Exit 0** if no failures, **1** if any failures (warnings ok).
 
 ## Output Format
 
@@ -149,13 +190,20 @@ Summary: 21 passed, 1 warning, 1 failed
 
 ## Rules
 
-1. **No interpretation.** A check either passes or fails. If it needs
-   explanation, it's not a lint check — it's a retro.
+1. **Two tiers, hard split.** Mechanical checks are grep/file only —
+   no interpretation. Reasoning checks delegate to the estimator agent
+   with one check per invocation.
 2. **Warnings are visibility, not failures.** Stale citations warn.
    Missing required fields fail.
-3. **Fast.** Grep and file existence checks only. No Agent calls. No
-   WebSearch. No model reasoning about the content.
-4. **Deterministic.** Same input → same output, every run.
-5. **Exit code signals status.** 0 = clean or warnings only, 1 = failures.
-6. **Checks are listed above.** Don't invent new ones without adding them
-   to the table first.
+3. **Mechanical tier is fast.** Grep and file existence only. Zero
+   Agent calls in this tier.
+4. **Reasoning tier is scoped.** Estimator receives one check at a
+   time, returns one line. No free-form analysis.
+5. **Deterministic for mechanical.** Same input → same output.
+   Reasoning tier may drift at the margins; that's why it returns
+   justification — so drift is visible.
+6. **Exit code signals status.** 0 = clean or warnings only, 1 = failures.
+7. **Checks are listed above.** Don't invent new ones without adding
+   them to the table first.
+8. **Mechanical tier is the primary gate.** Reasoning tier is advisory
+   polish. A session that passes the mechanical tier is releasable.
