@@ -1,6 +1,9 @@
 #!/bin/sh
 # bump-version.sh — update storytime version across all files
-# Usage: ./scripts/bump-version.sh 0.3.0
+# Usage: ./scripts/bump-version.sh 0.8.0
+#
+# Updates: VERSION, plugin.json, README.md, all SKILL.md version-echo
+# comments, site/*.html. Verifies consistency after bump.
 
 set -e
 
@@ -11,7 +14,7 @@ if [ -z "$1" ]; then
 fi
 
 NEW_VERSION="$1"
-OLD_VERSION=$(cat VERSION)
+OLD_VERSION=$(cat VERSION | tr -d '[:space:]')
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
 if [ "$NEW_VERSION" = "$OLD_VERSION" ]; then
@@ -22,7 +25,7 @@ fi
 echo "Bumping storytime: $OLD_VERSION → $NEW_VERSION"
 
 # 1. VERSION file
-echo -n "$NEW_VERSION" > "$REPO_ROOT/VERSION"
+printf '%s\n' "$NEW_VERSION" > "$REPO_ROOT/VERSION"
 echo "  updated VERSION"
 
 # 2. plugin.json
@@ -30,13 +33,38 @@ sed -i '' "s/\"version\": \"$OLD_VERSION\"/\"version\": \"$NEW_VERSION\"/" \
   "$REPO_ROOT/.claude-plugin/plugin.json"
 echo "  updated .claude-plugin/plugin.json"
 
-# 3. All SKILL.md version-echo blocks
-count=0
+# 3. README.md
+sed -i '' "s/v$OLD_VERSION/v$NEW_VERSION/g" "$REPO_ROOT/README.md"
+echo "  updated README.md"
+
+# 4. All SKILL.md version-echo blocks
+skill_count=0
 for f in "$REPO_ROOT"/skills/*/SKILL.md; do
   sed -i '' "s/storytime v$OLD_VERSION/storytime v$NEW_VERSION/g" "$f"
-  count=$((count + 1))
+  skill_count=$((skill_count + 1))
 done
-echo "  updated $count SKILL.md files"
+echo "  updated $skill_count SKILL.md files"
+
+# 5. Site HTML
+site_count=0
+for f in "$REPO_ROOT"/site/*.html; do
+  [ -f "$f" ] || continue
+  sed -i '' "s/v$OLD_VERSION/v$NEW_VERSION/g" "$f"
+  site_count=$((site_count + 1))
+done
+echo "  updated $site_count site/*.html files"
+
+# 6. Verify — check for any lingering old version
+STALE=$(grep -rn "v$OLD_VERSION" "$REPO_ROOT/VERSION" \
+  "$REPO_ROOT/.claude-plugin/plugin.json" "$REPO_ROOT/README.md" \
+  "$REPO_ROOT"/skills/*/SKILL.md "$REPO_ROOT"/site/*.html 2>/dev/null || true)
+
+if [ -n "$STALE" ]; then
+  echo ""
+  echo "WARNING: old version v$OLD_VERSION still found in:"
+  echo "$STALE"
+  exit 1
+fi
 
 echo ""
 echo "Done. storytime is now v$NEW_VERSION"

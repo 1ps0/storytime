@@ -52,3 +52,9 @@ The topic to retrospect: $ARGUMENTS
 Write `specs/.storytime/sessions/<topic>/retrospective.md` with the team's analysis.
 Include universal frontmatter (`type: retrospective`, `created`, `session`).
 Update persona files and decision log.
+
+**Fill out the evaluation scorecard** — see
+`${CLAUDE_PLUGIN_ROOT}/skills/storytime/references/evaluation-scorecard.md`.
+Present the card at the end of the retro for the user to review/fill in.
+The scorecard is the structured self-check that builds the confidence
+corpus across runs.

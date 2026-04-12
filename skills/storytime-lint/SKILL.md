@@ -92,6 +92,30 @@ What to lint: $ARGUMENTS (topic, session path, or empty for all)
 Stale citations (file moved, line shifted) are **warnings**, not
 failures — the process allows rot but we want visibility.
 
+### Decision staleness (across decision log)
+
+| # | Check                                                       |
+|---|-------------------------------------------------------------|
+| D1 | Each decision cites at least one code reference             |
+| D2 | Cited files exist in the current tree                       |
+| D3 | If decision has a `commit` pin, check if cited files changed since that commit (⚠ if yes) |
+
+Decision staleness is **commit-delta based**: compare the decision's
+pin commit against HEAD for the cited paths. If the file changed since
+the decision was written, it's a staleness warning. The decision may
+still be valid — but it needs re-verification.
+
+### Repo-level checks
+
+| # | Check                                                       |
+|---|-------------------------------------------------------------|
+| R1 | VERSION, plugin.json, all SKILL.md version-echo lines match |
+| R2 | site/*.html version strings match VERSION                   |
+| R3 | README.md version strings match VERSION                     |
+
+Run `R1-R3` only when `--repo` flag is given or scope is empty
+(full-repo lint). These catch version drift from manual bumps.
+
 ## Process
 
 1. Enumerate targets (sessions, episodes, artifacts) based on `$ARGUMENTS`.

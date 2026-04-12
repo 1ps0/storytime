@@ -56,6 +56,19 @@ changed files with the last survey fingerprint.
 Synthesize a **narrative preamble** — 3-5 sentences that reconstruct the
 story arc, always fresh, never cached. It tells what problem the team was
 solving, who drove which decisions, what changed since, what's still open.
+
+**Citation staleness check** — while computing the codebase delta, also
+check citations from the last episode's artifacts. For each `file:line`
+citation, verify the file still exists and the content near that line
+hasn't shifted. Report stale citations in the preamble card:
+
+```
+Stale citations: 2 (src/auth.ts:32 → deleted, src/config.ts:5 → line shifted to :8)
+```
+
+This uses the same commit-delta the warm start already computes — no
+extra passes. Stale citations are warnings (visibility), not blockers.
+
 Present as a "Previously on..." card with options: Continue · Retro ·
 New sub-topic · Reset.
 
@@ -110,7 +123,8 @@ extend to gaps, full resurvey, or trust prior survey.
 **Write `sessions/<topic>/survey.md`** with codebase context, artifact
 inventory, and a **coverage fingerprint** (REQUIRED: commit sha, branch,
 paths scanned, paths skipped, paths unvisited, file counts, coverage
-ratio, artifact counts by classification).
+ratio, artifact counts by classification). Include `schema_version: 1`
+in frontmatter — all storytime-generated artifacts carry this field.
 
 **Collapse:** no artifacts → skip inventory. Config-only → load silently
 and move on.
@@ -230,7 +244,7 @@ changes. **Finalize `_thread.md`**: append the completed episode,
 add new decisions, set `last_completed_phase: DONE`, clear open
 questions, record current `HEAD` as `last_commit`.
 
-### Thread Checkpointing (automatic)
+### Thread Checkpointing + Context Compaction (automatic)
 
 At every phase boundary, write or update `_thread.md`
 (`last_completed_phase`, `last_commit`, `open_questions`). Created at
@@ -238,6 +252,25 @@ the first phase of episode 1, always current thereafter. If the session
 is interrupted, the next `/storytime` detects the incomplete thread and
 offers to resume. No explicit "park" command — the checkpoint is
 already there.
+
+**Phase-boundary compaction** — when a phase completes, drop the full
+text of its artifacts from working context. Retain only:
+
+| Tier | What stays in context                           | Full text  |
+|------|-------------------------------------------------|------------|
+| Hot  | Current phase artifact (full text)               | in memory  |
+| Warm | Prior phase summaries (5-line digest + frontmatter fingerprint) | on disk |
+| Cold | Phase 0 survey → fingerprint only                | on disk    |
+
+The orchestrator writes a 5-line digest of each phase artifact at
+completion. This is not an artifact — it's the working-memory snapshot.
+If the model needs the full text, it reads the file from disk.
+
+**When a session balloons mid-phase** — if a single phase (especially
+ICEBREAKER or CONVERGE) grows too large for context, auto-propose:
+"This discussion is growing beyond a single context. Suggest splitting
+into a breakout on [detected sub-problem]." Breakouts are sub-agents
+whose context stays isolated — the natural compaction boundary.
 
 ## Process Rules
 
@@ -348,12 +381,16 @@ Depend on bootstrap mode:
 - `references/complexity-units.md` — Complexity scale, signals
 - `references/team-assembly.md` — archetypes, character, naming, sizing
 - `references/output-modes.md` — native/adapt/export, tree, interop
+- `references/import-adapters.md` — mapping non-storytime artifacts during scan
 
 **Cross-cutting references** (load when the topic comes up):
 - `references/addressing.md` — @role convention, formats, flexibility
 - `references/driving-persona.md` — trigger conditions, failure modes
 - `references/citations.md` — format examples, evidence hierarchy, web search
 - `references/error-recovery.md` — what to do when a phase fails mid-run
+- `references/automation.md` — three levels, prompt gating rules
+- `references/artifact-types.md` — type registry, required fields, schema_version
+- `references/evaluation-scorecard.md` — post-session structured self-check
 
 **Project docs** (load on demand):
 - `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md` — Scale 1-5, dimensions

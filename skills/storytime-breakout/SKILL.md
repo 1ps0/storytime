@@ -64,6 +64,11 @@ Breakout: is Redis or Memcached better for rate limit counters?
   [approve / join / defer / pause / cancel]
 ```
 
+**The driver must be named in the synopsis.** If the synopsis doesn't
+name a driver, it's not ready — the breakout cannot start. This is the
+earliest structural gate for rule 33 (one driver per leg).
+```
+
 - **Approve** — subteam investigates autonomously, reports back
 - **Join** — user participates, can steer the investigation
 - **Defer** — skip for now, come back later
@@ -110,18 +115,20 @@ The breakout converges on a recommendation:
 
 ### 6. Output
 
-**Write `breakout-<subtopic>.md`** with universal frontmatter:
+**Write `breakout-<subtopic>.md`** — `driver` is the FIRST required field
+after type/created. Write it first, before the body:
 
 ```yaml
 ---
 type: breakout
 created: <YYYY-MM-DDTHH:MM>
+driver: <@role [codename]>          ← FIRST (required, non-negotiable)
+supporters: [<@role [codename]>, ...]
+supporters_who_spoke: [<@role>, ...]
 session: <session-id or null>
 topic: <parent-topic or null>
 subtopic: <subtopic>
-driver: <@role [codename]>
-supporters: [<@role [codename]>, ...]
-supporters_who_spoke: [<@role>, ...]
+schema_version: 1
 ---
 ```
 
