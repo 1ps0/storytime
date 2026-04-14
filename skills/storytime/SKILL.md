@@ -1,16 +1,18 @@
 ---
 name: storytime
-description: "This skill should be used when the user asks to \"storytime\", \"run storytime\", \"build a spec\", \"assemble a team\", \"persona discussion\", \"design a feature\", \"spec this out\", or wants to plan a feature through structured team conversation with domain-expert personas. Runs the full Storytime workflow: survey codebase, assemble persona team, run icebreaker, execute breakouts, and produce a plan with ASCII visual aids."
+description: "This skill should be used when the user asks to \"storytime\", \"run storytime\", \"build a spec\", \"assemble a team\", \"persona discussion\", \"design a feature\", \"spec this out\", or wants to plan a feature through structured team conversation with domain-expert personas. Runs the full Storytime workflow: survey codebase, assemble persona team, run icebreaker, execute breakouts, and produce a plan with ASCII visual aids. v1.0+ operates as a continuity system where the spec workflow is one surface on a deeper consolidation loop."
 argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
 <!-- version-echo: display "storytime v0.9.0" at start of execution -->
-# Storytime — Full Workflow
+# Storytime — Continuity System + Spec Workflow
 
-Orchestrate a structured specification process through persona-driven
-conversations. This file is the orchestrator; topic-specific detail lives
-in `references/` and loads on demand.
+Storytime is a continuity system for LLM–harness collaboration. The spec
+workflow (survey → assemble → icebreaker → breakout → converge → plan)
+is one surface. Underneath is the consolidation loop: context →
+consolidation events → document structure → continuity across
+compactions, sessions, and time.
 
 ## Arguments
 
@@ -19,392 +21,242 @@ The user's problem statement: $ARGUMENTS
 ## Process
 
 Follow this state machine in order, but **collapse phases that have no
-real work**. If no artifacts exist, skip the inventory. If the team is
-obvious, don't belabor ASSEMBLE. If the problem is simple, go straight
-from ICEBREAKER to CONVERGE. The phase sequence defines the *maximum*
-workflow — actual sessions use only the gears they need.
+real work**. Phase sequence defines the maximum workflow; actual sessions
+use only the gears they need.
 
 ### Entry: Route
 
-- **No arguments** (bare `/storytime`) → scan all `_thread.md` files in
-  the storytime session directory, present a topic picker:
+- **No arguments** (bare `/storytime`) → scan `_thread.md` files, present
+  a topic picker. Auto-resume if only one thread exists and is incomplete.
+- **Arguments provided** → derive `<topic>` (kebab-case) from the problem.
+  Check `sessions/<topic>/_thread.md`:
+  - Thread found → **Warm entry** (load remembrance if staged)
+  - No thread → **Cold Start**
 
-  ```
-  Recent storytime threads:
+### Warm entry (thread exists)
 
-  1. rate-limiting  (episode 2, last: 2026-04-01, DONE)
-  2. auth-refactor  (episode 1, last: 2026-03-28, ICEBREAKER — incomplete)
-
-  Resume one? Or describe a new problem.
-  ```
-  Incomplete sessions are highlighted. If only one thread exists and
-  it's incomplete, auto-resume. User picks a number, types a topic
-  name, or describes a new problem.
-
-- **Arguments provided** → derive `<topic>` from the problem statement
-  (kebab-case). Check for `sessions/<topic>/_thread.md`:
-  - **Thread found** → Warm Start
-  - **No thread** → Cold Start
-
-### Warm Start (thread exists)
-
-Read `_thread.md`, last episode's key artifacts (plan.md, icebreaker.md,
-persona files filtered to participants), and compute the codebase delta
-(`git rev-list <last_commit>..HEAD`, `git diff --stat`). Cross-reference
-changed files with the last survey fingerprint.
-
-Synthesize a **narrative preamble** — 3-5 sentences that reconstruct the
-story arc, always fresh, never cached. It tells what problem the team was
-solving, who drove which decisions, what changed since, what's still open.
-
-**Citation staleness check** — while computing the codebase delta, also
-check citations from the last episode's artifacts. For each `file:line`
-citation, verify the file still exists and the content near that line
-hasn't shifted. Report stale citations in the preamble card:
-
-```
-Stale citations: 2 (src/auth.ts:32 → deleted, src/config.ts:5 → line shifted to :8)
-```
-
-This uses the same commit-delta the warm start already computes — no
-extra passes. Stale citations are warnings (visibility), not blockers.
-
-Present as a "Previously on..." card with options: Continue · Retro ·
-New sub-topic · Reset.
-
-Personas skip introductions on warm start — they speak from accumulated
-context, not from their bio. Write `<episode>/preamble.md` as the audit
-trail of what context the session started with.
-
-**Collapse:** "skip the recap" → skip the card. Zero drift → omit drift
-line. Empty open questions → omit. Direction implied → auto-Continue.
-
-→ Full procedure, card format, routing, checkpointing: `references/warm-start.md`
+1. Check `specs/.storytime/remembrance.md` — if present and
+   `compact_staged: true`, load it and synthesize as current context.
+   See `references/remembrance-format.md`.
+2. Read the thread: episodes, decisions, last_consolidation, drift.
+3. Compute git delta since `last_commit`; cross-reference with last
+   survey fingerprint; check citation staleness.
+4. Present "Previously on..." card with options: Continue · Retro ·
+   New sub-topic · Reset. Personas skip intros — they speak from
+   accumulated context.
 
 ### Cold Start (no thread)
 
-Derive `<topic>`. Detect the landscape before creating anything:
-- `specs/.storytime/` exists? → already uses storytime structure
-- Own doc structure (`team/`, `docs/`, `specs/`)? → work within it
-- Fresh repo? → propose storytime structure
-
-Pick a mode: **storytime-native**, **adapt-in-place**, or **export-only**.
-Default: native for fresh repos, adapt for repos with existing structure.
-Ask if ambiguous. Never create `.storytime/` without the user's knowledge.
-
-→ Mode details, decision tree, path mapping: `references/output-modes.md`
-→ Or delegate initial setup to `/storytime-bootstrap`
+Detect landscape: `specs/.storytime/` exists → native; own doc structure →
+adapt-in-place; fresh repo → propose native. Ask if ambiguous. Never
+create `.storytime/` without user knowledge.
+→ Modes and decision tree: `references/output-modes.md`; or delegate
+  to `/storytime-bootstrap`.
 
 ### Phase 0: SURVEY
 
-Launch an Explore agent scoped to the problem.
+Explore agent scoped to problem. Check for prior runs (prior art, never
+overwrite). Scan artifacts, classify `[team] [spec] [config]`, present
+inventory. Default: consolidate into storytime structure.
 
-**Prior run detection** — check for existing session output for this
-topic; prior runs are prior art, never silently overwrite.
+Write `sessions/<topic>/survey.md` — codebase context, inventory,
+**coverage fingerprint** (REQUIRED: commit, paths, ratios,
+classifications). Schema: `schema_version: 1`.
 
-**Codebase scan** — identify existing code, patterns, dependencies,
-constraints. Produce a mental model of the problem space.
-
-**Artifact scan** — scan the repo for prior-work artifacts (specs, docs,
-ADRs, agent definitions, team files, .kiro). Classify each
-[team] [spec] [config] or noise. Present an inventory checklist to the
-user. Options: toggle on/off, "tell me about <item>", "bring the team in
-on <item>", "skip all", direct instruction.
-
-Config-like artifacts (CLAUDE.md, cursor rules) load silently. Team-like
-route to ASSEMBLE. Spec-like route to ICEBREAKER. Default bias:
-consolidate (`git mv` into storytime structure, preserving history).
-User can override per-item or bulk.
-
-If a prior survey.md exists with a fingerprint, compute the delta
-(commit drift, coverage gaps) and present options: resurvey stale paths,
-extend to gaps, full resurvey, or trust prior survey.
-
-**Write `sessions/<topic>/survey.md`** with codebase context, artifact
-inventory, and a **coverage fingerprint** (REQUIRED: commit sha, branch,
-paths scanned, paths skipped, paths unvisited, file counts, coverage
-ratio, artifact counts by classification). Include `schema_version: 1`
-in frontmatter — all storytime-generated artifacts carry this field.
-
-**Collapse:** no artifacts → skip inventory. Config-only → load silently
-and move on.
-
-→ Scan targets, classification heuristics: `references/artifact-scan.md`
-→ Fingerprint format, delta logic: `references/survey-fingerprint.md`
+→ Scan targets: `references/artifact-scan.md`; fingerprint:
+  `references/survey-fingerprint.md`; non-storytime mapping:
+  `references/import-adapters.md`.
 
 ### Phase 1: ASSEMBLE
 
-**Rehire candidates** — present team-like artifacts as rehire candidates
-with their accumulated context. User decides per candidate: rehire,
-modify, or skip.
+Load cohort from `cohort/_roster.md`. Review team-like artifacts as
+rehire candidates. Recruit specialists for uncovered domains.
 
-**Load the permanent cohort** — if `cohort/_roster.md` exists, read it
-and load active persona files. These participate by default.
+**Default core:** OWNER, OPERATOR, CRITIC ×2. Additional lenses: DOMAIN,
+SYSTEMS, PLATFORM, SKEPTIC, EDUCATOR.
 
-**Recruit specialists** to fill gaps — analyze which domains the problem
-touches, propose a specialist for each uncovered domain (codename,
-archetype, background, scope, exit condition).
+**Team size project-appropriate.** Bias small. Tiny problem → 1-2.
+Default core → 3-4. Architectural → 6-8. Ceiling 12 (override).
+Duplicate archetypes allowed with distinct focus.
 
-**Default core:** OWNER, OPERATOR, CRITIC ×2 (two critics contest each
-other). Additional lenses: DOMAIN, SYSTEMS, PLATFORM, SKEPTIC, EDUCATOR.
+**Codenames non-human** (`anchor`, `lattice`, `kestrel`, `ember`). Role
+is load-bearing; codename is ornament. Human names only if user picks.
 
-**Team size is project-appropriate, not fixed.** Bias small. Tiny
-problem → 1-2 personas (driver only). Default core → 3-4. Architectural
-→ 6-8. Hard ceiling 12 (override required). Duplicate archetypes are
-allowed when they have distinct focus and produce productive tension.
-
-**Codenames are non-human by default** — concept words like `anchor`,
-`lattice`, `kestrel`, `ember`, `forge`. The role is the load-bearing
-address; the codename is ornament. Human names only when the user picks
-them.
-
-**Write `sessions/<topic>/team.md`** with boxed ASCII persona cards.
-
-**Collapse:** cohort covers the domains + no rehire candidates → confirm
-briefly and move on.
-
-→ Archetypes, persona character, naming rules, sizing table, duplicate
-  archetypes, specialist contracts: `references/team-assembly.md`
+Write `sessions/<topic>/team.md`.
+→ Full detail: `references/team-assembly.md`.
 
 ### Phase 2: ICEBREAKER
 
-Team introduces themselves. If spec-like artifacts were selected in
-SURVEY, review each: current? valuable? stale? superseded? Decide
-disposition (keep hot / archive warm / rollup / send cold / skip). If
-archived or rolled up, update `archive/_index.md`.
+Introductions. Review prior spec-like artifacts (keep hot / archive
+warm / rollup / cold / skip). Establish status quo with code citations.
+Identify sub-problems. Agree on constraints.
 
-**Establish the status quo** with code citations. **Identify
-sub-problems** for breakouts. **Agree on constraints** before any
-solution is proposed.
-
-**Write `sessions/<topic>/icebreaker.md`** with the full discussion.
-
-**Collapse:** no spec artifacts → skip prior work review, go straight
-to status quo and sub-problems.
-
-→ Hot/warm/cold tier rules, rollup format: `references/artifact-tiers.md`
+Write `sessions/<topic>/icebreaker.md`.
+→ Artifact tiers: `references/artifact-tiers.md`.
 
 ### Phase 3: BREAKOUT (parallel when possible)
 
-For each sub-problem:
-- Estimate **Complexity** (how hard) and **Scale** (how big) with prose
-  (e.g., "Complexity 5 — solid day, Scale 3 (repos) — service cluster").
-- Assign **one driving persona** plus 1-2 silent supporters. The driver
-  has the floor; supporters stay silent unless a trigger fires (see
-  `references/driving-persona.md`).
-- **Pre-breakout synopsis**: driver states plan, supporters state
-  watching brief, user directs (approve / join / defer / pause / cancel).
-- Launch as a parallel sub-agent if independent.
-- Use mid-breakout skills: VERIFY (Grep/Read), GROUND (repo docs),
-  RESEARCH (web), DISCOVERY (Explore), PROTOTYPE (draft code).
-- Grounding is **multi-source** — strongest evidence wins.
-- Produce a recommendation with citations.
+For each sub-problem: assign **one driving persona** + 1-2 supporters
+(silent unless trigger fires). Pre-breakout synopsis (driver states
+plan; supporters state watching brief; user directs approve / join /
+defer / pause / cancel). Launch as parallel sub-agent if independent.
+Mid-breakout skills: VERIFY, GROUND, RESEARCH, DISCOVERY, PROTOTYPE.
+Grounding multi-source — strongest evidence wins.
 
-**Write `sessions/<topic>/breakout-<subtopic>.md`** per breakout with:
-driver, supporters, findings, citations, recommendation, Complexity,
-Scale, open questions.
+Write `sessions/<topic>/breakout-<subtopic>.md` per breakout (driver,
+supporters, findings, citations, Complexity, Scale, recommendation).
 
-**Post-breakout pause is mandatory** (unless auto). Present one summary
-card per breakout → user: proceed / dig into N / revise N / add breakout.
-Do not auto-proceed to CONVERGE.
+**Post-breakout pause mandatory** (unless auto). Present summary cards
+with all options considered, not just recommendations. User directs:
+proceed / dig / revise / add.
 
-**Collapse:** singular problem → skip BREAKOUT, go straight to CONVERGE.
-
-→ Complexity scale: `references/complexity-units.md`
-→ Scale 1-5 with dimensions: `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md`
-→ Standalone invocation: `/storytime-breakout <sub-problem>`
+→ Complexity scale: `references/complexity-units.md`; Scale dimensions:
+  `/Users/alexevers/workspace/projects/storytime/docs/scale-impact.md`;
+  driver details: `references/driving-persona.md`.
 
 ### Phase 4: CONVERGE + PLAN
 
-Reconvene the team. Merge breakout findings. Resolve conflicts. **Each
-plan section has one driver** — the lens closest to the section. Can
-also run standalone via `/storytime-converge`.
+Reconvene. Merge findings. Resolve conflicts. Each plan section has
+one driver.
 
-**Write `sessions/<topic>/plan.md`** with:
-- ASCII slide deck (problem viz, architecture diagram)
-- Numbered implementation steps (sequential, with breakout cross-refs)
-- Code changes summary (files touched, lines added)
-- Risk matrix
-- **Non-goals** (REQUIRED: why skip + when to revisit)
-- **Success criteria** (REQUIRED: measurable)
-- Roadmap (now / soon / later) with **Complexity + Scale per item** in
-  prose. Complexity ≥ 13 must decompose. Scale dimensions stated.
+Write `sessions/<topic>/plan.md`: ASCII slide deck, numbered
+implementation steps with breakout cross-refs, code changes summary,
+risk matrix, **non-goals** (why skip + when revisit) REQUIRED,
+**success criteria** (measurable) REQUIRED, roadmap with Complexity +
+Scale per item in prose. Complexity ≥ 13 must decompose.
 
 ### Phase 5: REVIEW
 
-Present the plan to the user. Enter inline mode — user can challenge
-decisions (personas respond with rationale), request changes (team
-revises), or approve.
+Present inline. User challenges, revises, or approves.
 
 ### Phase 6: DONE
 
-Update persona files with new context. Log session in `history/`.
-Evaluate specialist contracts (complete/promote/release). Commit archive
-changes. **Finalize `_thread.md`**: append the completed episode,
-add new decisions, set `last_completed_phase: DONE`, clear open
-questions, record current `HEAD` as `last_commit`.
+Update persona `acquired_context`. Log in `history/`. Evaluate
+specialist contracts. Finalize thread (append episode, record
+`last_commit`, clear open questions).
 
-### Thread Checkpointing + Context Compaction (automatic)
+## Consolidation
 
-At every phase boundary, write or update `_thread.md`
-(`last_completed_phase`, `last_commit`, `open_questions`). Created at
-the first phase of episode 1, always current thereafter. If the session
-is interrupted, the next `/storytime` detects the incomplete thread and
-offers to resume. No explicit "park" command — the checkpoint is
-already there.
+Storytime's core loop. Every consolidation event writes a unified
+artifact (see `references/consolidation-format.md`). Six scales:
 
-**Phase-boundary compaction** — when a phase completes, drop the full
-text of its artifacts from working context. Retain only:
+| Scale   | Trigger                                              | Output                                                |
+|---------|------------------------------------------------------|-------------------------------------------------------|
+| phase   | Phase boundary                                       | Phase artifact + digest appended to thread            |
+| commit  | LLM-drafted + user-confirmed commit                  | Thread update + decision pin + optional dream         |
+| nap     | Model self-detects 1 signal, localized               | Quick remembrance refresh (may not surface)           |
+| shift   | 2+ signals or framing-loss alone                     | Remembrance refresh + proposed frame change           |
+| session | Session DONE or walk-away                            | `acquired_context` delta + archive rollup             |
+| compact | Token-budget or unresolved shift or explicit request | Remembrance finalized; user confirms `/compact`       |
 
-| Tier | What stays in context                           | Full text  |
-|------|-------------------------------------------------|------------|
-| Hot  | Current phase artifact (full text)               | in memory  |
-| Warm | Prior phase summaries (5-line digest + frontmatter fingerprint) | on disk |
-| Cold | Phase 0 survey → fingerprint only                | on disk    |
+**Pauses are for the model, not the human.** Signals:
+`repetition | confusion | rut | framing-loss | context-delta |
+token-budget`. Tier is combination-logic (not intensity):
+- **nap** = 1 signal
+- **shift** = 2+, persistent, or framing-loss alone
+- **compact** = token-budget (authoritative) or unresolved shift
 
-The orchestrator writes a 5-line digest of each phase artifact at
-completion. This is not an artifact — it's the working-memory snapshot.
-If the model needs the full text, it reads the file from disk.
+**All remembrance writes are atomic** (tmp + fsync + mv). Orphan
+`.tmp` older than 5 min → lint warning.
 
-**When a session balloons mid-phase** — if a single phase (especially
-ICEBREAKER or CONVERGE) grows too large for context, auto-propose:
-"This discussion is growing beyond a single context. Suggest splitting
-into a breakout on [detected sub-problem]." Breakouts are sub-agents
-whose context stays isolated — the natural compaction boundary.
+Remembrance is **workday-shaped** (covers session state across topics),
+written at nap/shift/compact, loaded post-`/compact` as first action.
+See `references/remembrance-format.md`.
+
+**Commits are the LLM's clock.** LLM drafts every commit; user confirms
+every one. No auto-commit. Confirmation learns patterns (V1-014, see
+`references/commit-drafting.md`). Explicit stage: `/storytime-remember`.
 
 ## Process Rules
 
 1. SURVEY before ASSEMBLE. Never build a team blind.
-2. ICEBREAKER before BREAKOUT. Shared understanding before depth.
+2. ICEBREAKER before BREAKOUT. Shared understanding first.
 3. CONVERGE before showing the user. Internal consensus first.
-4. Every technical claim must be grounded — cite code, docs, or external sources.
-5. Default core: OWNER, OPERATOR, CRITIC ×2. Two critics minimum — they contest each other.
-6. Non-goals and success criteria are required, not optional.
-7. Visual aids use ASCII box-drawing. No external tools.
-8. Personas are lenses, not characters. No role-play, only expertise.
-9. Team size is appropriate to the project, not fixed. Bias small. Hard ceiling 12.
-10. The user has veto power over everything.
-11. Artifact scan is broad — expect variance across repos in the wild.
-12. The user controls depth at every stage. Full shebang or skip all.
-13. Rollups replace stale docs — originals go cold, rollup stays warm.
-14. Archive artifacts must be git-committable and repo-local.
-15. Phases collapse when empty — never present ceremony for absent content.
-16. Every phase writes its output — a run is a complete snapshot, track everything.
-17. Prior runs are prior art — detect and present, never silently overwrite.
-18. Every survey writes a coverage fingerprint — commit, paths, gaps, ratios.
-19. Effort uses Complexity (how hard) and Scale (how big), never time estimates. Complexity ≥ 13 must decompose.
-20. Evaluation hygiene: observe metrics and conclusions separately.
-21. Warm start is detected, not requested. If `_thread.md` exists, warm-start.
-22. The preamble narrative is always dynamic — synthesized fresh, never cached.
-23. Personas skip introductions on warm start. They speak from accumulated context.
-24. Thread state is the checkpoint — updated at every phase boundary.
-25. Episodes are chapters of the same story. Reset is the explicit "new story" action.
-26. Survey delta replaces full survey on warm start. Only resurvey what changed.
-27. Post-breakout pause is mandatory (unless auto). Present summaries, wait for user.
-28. Converge can run standalone via `/storytime-converge`.
-29. Grounding is multi-source: code, docs, web, git — strongest evidence wins.
-30. Personas use `@role` — roles are functional model attention anchors, names are ornaments.
-31. Pre-work synopsis before every breakout and buildout slice — user directs.
-32. Personas use **non-human codenames by default** (`anchor`, `lattice`, `kestrel`).
-33. **One driving persona per leg.** Supporters stay silent unless useful AND non-distortive.
-34. Team size is sized to the work, not the template. Tiny problem → tiny team.
+4. Every claim grounded — code, docs, web, or git.
+5. Default core: OWNER, OPERATOR, CRITIC ×2 (two critics contest).
+6. Non-goals + success criteria required on every plan.
+7. Visuals use ASCII box-drawing. No external tools.
+8. Personas are lenses, not characters. No role-play.
+9. Team size project-appropriate. Bias small. Ceiling 12.
+10. User has veto power everywhere.
+11. Phases collapse when empty.
+12. Every phase writes output — run is a complete snapshot.
+13. Prior runs are prior art — never silently overwrite.
+14. Survey writes a coverage fingerprint.
+15. Effort = Complexity + Scale (never time). ≥13 decomposes.
+16. Evaluation hygiene: observe metrics and conclusions separately.
+17. Warm entry detected, not requested. If thread exists, warm.
+18. Remembrance is pre-staged (at pause/compact), never reactive.
+19. Post-breakout pause mandatory unless auto. Present options considered, not just recommendations.
+20. Grounding multi-source: code > git > repo > library > standards > web.
+21. `@role` is a lens directive, not a skill trigger. See `references/addressing.md`.
+22. Codenames non-human by default.
+23. **One driving persona per leg.** Supporters silent unless useful AND non-distortive.
+24. LLM drafts every commit. User confirms every one. No auto-commit.
+25. Pauses are model-driven, not threshold-driven (threshold is opt-in fallback).
+26. All consolidation writes atomic (tmp+fsync+mv). V1-018.
+27. Cross-topic decisions use callouts, not merging. See `references/callouts.md`.
+28. Thread IS decision log — per-topic, append-only, commit-pinned.
+29. Dreams ancillary and disablable. Never on critical path.
 
-## Driving Persona (core rule summary)
+## Driving Persona (summary)
 
-At every leg — phase, breakout, buildout slice, discussion segment —
-**exactly one persona drives**. The driver writes the artifact and owns
-the recommendation. Other personas are **implied, not absent** — in the
-room, silent unless their interjection is both **useful** (catches a miss,
-grounds a claim, corrects an error) and **non-distortive** (moves the leg
-forward, not sideways). Supporters who never spoke are still recorded —
-silence means the driver's lens covered the territory cleanly.
+One driver per leg. Driver writes artifact, owns recommendation.
+Supporters silent unless **useful** (catches miss, grounds claim,
+corrects error) AND **non-distortive** (moves leg forward). Silence
+from a supporter is information — the driver's lens covered it.
+→ `references/driving-persona.md`
 
-→ Trigger conditions, driver selection, failure modes, interaction
-  pattern: `references/driving-persona.md`
+## @role Addressing (summary)
 
-## @role Addressing (core convention summary)
-
-The `@` prefix is a **model attention anchor**. Roles are functional and
-load-bearing; codenames are ornaments.
-
-- `@role` — default functional anchor (`@owner:`, `@systems:`)
-- `@role:focus` — qualified (`@critic:architecture`)
-- `@role:explain` — teaching mode (reactive unpacking, any persona)
-- `@role [codename]` — role-first with ornament (`@owner [anchor]`)
-- `@codename` — shorthand resolved via roster
-
-`@role` is **not a skill trigger** — it's a lens directive. It can
-appear inline in conversation, in written artifacts, in QA, anywhere.
-The model should apply the role's lens to the following content without
-requiring a formal skill invocation. Full QA routing via
-`/storytime-qa` still works for explicit query mode.
-
-→ Full formats, where @ applies, flexibility rules, why roles first:
-  `references/addressing.md`
+`@` is a model attention anchor. `@role` (default), `@role:focus`,
+`@role:explain` (teaching), `@role [codename]`. `@role` is a **lens
+directive**, not a skill trigger — inline use answered inline by the
+current model. Formal QA (persona context + decision log lookup)
+via `/storytime-qa`.
+→ `references/addressing.md`
 
 ## Citations (summary)
 
-Claims must be grounded. **Evidence hierarchy** (strongest to weakest):
-**Code > Git > Repo files > Library docs > Standards > Web**. Personas
-reach for the strongest available evidence. Ungrounded claims get
-challenged ("ground that?"). Web search proactively for external
-systems, libraries, protocols.
-
-→ Format per source, multi-source grounding, web search workflow:
-  `references/citations.md`
+Evidence hierarchy: **Code > Git > Repo > Library > Standards > Web**.
+Personas reach for strongest available. Ungrounded claims get
+challenged ("ground that?"). Web-search proactively for external
+systems.
+→ `references/citations.md`
 
 ## Output Paths (summary)
-
-Depend on bootstrap mode:
 
 - **Storytime-native** — `specs/.storytime/` with full tree
 - **Adapt-in-place** — writes into existing repo conventions
 - **Export-only** — unified plan for another system, no persistent state
 
-→ Full tree, convention mapping, component interop, mode detection:
-  `references/output-modes.md`
+→ `references/output-modes.md`
 
 ## Conversation Modes
 
-- **Inline** (default): User is present, can interject any time
-- **Deliberation**: "go figure this out" → team works autonomously, returns
-- **QA**: `@persona question` → routes via `/storytime-qa`, or answered
-  inline if the context is already loaded
+- **Inline** (default): user present, can interject
+- **Deliberation**: "go figure this out" → autonomous return
+- **QA**: `@persona question` → inline unless formal (see `/storytime-qa`)
 
 ## Additional Resources
 
-**Phase-adjacent references** (load when the phase fires):
-- `references/warm-start.md` — thread format, preamble synthesis, checkpointing
-- `references/artifact-scan.md` — scan targets, classification heuristics
-- `references/survey-fingerprint.md` — coverage fingerprint, delta logic
-- `references/artifact-tiers.md` — hot/warm/cold, rollup format
-- `references/complexity-units.md` — Complexity scale, signals
-- `references/team-assembly.md` — archetypes, character, naming, sizing
-- `references/output-modes.md` — native/adapt/export, tree, interop
-- `references/import-adapters.md` — mapping non-storytime artifacts during scan
+**Phase-adjacent** (load when phase fires):
+- `warm-start.md` · `artifact-scan.md` · `survey-fingerprint.md` ·
+  `artifact-tiers.md` · `complexity-units.md` · `team-assembly.md` ·
+  `output-modes.md` · `import-adapters.md` · `consolidation-format.md` ·
+  `remembrance-format.md`
 
-**Cross-cutting references** (load when the topic comes up):
-- `references/addressing.md` — @role convention, formats, flexibility
-- `references/driving-persona.md` — trigger conditions, failure modes
-- `references/citations.md` — format examples, evidence hierarchy, web search
-- `references/error-recovery.md` — what to do when a phase fails mid-run
-- `references/automation.md` — three levels, prompt gating rules
-- `references/artifact-types.md` — type registry, required fields, schema_version
-- `references/evaluation-scorecard.md` — post-session structured self-check
+**Cross-cutting** (load when topic comes up):
+- `addressing.md` · `driving-persona.md` · `citations.md` ·
+  `error-recovery.md` · `automation.md` · `artifact-types.md` ·
+  `evaluation-scorecard.md` · `callouts.md` · `tutorial-signals.md` ·
+  `commit-drafting.md`
 
-**Project docs** (load on demand):
-- `${CLAUDE_PLUGIN_ROOT}/docs/scale-impact.md` — Scale 1-5, dimensions
-- `${CLAUDE_PLUGIN_ROOT}/docs/process-reference.md` — events, automation
-- `${CLAUDE_PLUGIN_ROOT}/docs/architecture.md` — runtime, agent dispatch
-- `${CLAUDE_PLUGIN_ROOT}/examples/agc-session.md` — real walkthrough
-- `${CLAUDE_PLUGIN_ROOT}/examples/persona-template.md` — persona starter
+**Project docs:** `docs/scale-impact.md` · `docs/process-reference.md` ·
+`docs/architecture.md` · `examples/agc-session.md` ·
+`examples/persona-template.md`
 
 **Related skills:**
-- `/storytime-breakout` — focused investigation (standalone)
-- `/storytime-converge` — plan synthesis from breakouts (standalone)
-- `/storytime-buildout` — implement an approved plan
-- `/storytime-bootstrap` — set up `.storytime/` in a repo
-- `/storytime-cohort` — hire/fire/evolve permanent personas
-- `/storytime-echo` — spawning-pool voice test (no state)
-- `/storytime-lint` — mechanical validation against the process rules
-- `/storytime-retro` — reconvene team to compare plan vs built (close the loop)
+- `/storytime-breakout` · `/storytime-converge` · `/storytime-buildout` ·
+  `/storytime-bootstrap` · `/storytime-cohort` · `/storytime-echo` ·
+  `/storytime-lint` · `/storytime-retro` · `/storytime-remember`
