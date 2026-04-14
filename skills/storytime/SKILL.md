@@ -5,7 +5,7 @@ argument-hint: "<problem-statement>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.9.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.0" at start of execution -->
 # Storytime — Continuity System + Spec Workflow
 
 Storytime is a continuity system for LLM–harness collaboration. The spec

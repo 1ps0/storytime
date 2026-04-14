@@ -5,7 +5,7 @@ argument-hint: "<scope> (e.g., 'last step', 'last episode', 'entirely', 'the bre
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
 
-<!-- version-echo: display "storytime v0.9.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.0" at start of execution -->
 # Storytime Undo
 
 Reverse storytime output at any granularity. From "scratch that last

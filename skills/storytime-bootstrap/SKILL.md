@@ -5,7 +5,7 @@ argument-hint: "[mode: native|adapt|export]"
 allowed-tools: [Read, Write, Bash, Glob, Grep]
 ---
 
-<!-- version-echo: display "storytime v0.9.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.0" at start of execution -->
 # Storytime Bootstrap
 
 Set up the storytime structure in a repository. Detect what exists,

@@ -5,7 +5,7 @@ argument-hint: "<sub-problem>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v0.9.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.0" at start of execution -->
 # Storytime Breakout — Standalone
 
 Run a focused investigation on a specific sub-problem with a small persona

@@ -5,7 +5,7 @@ argument-hint: "<topic> (e.g., agc, caching)"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent]
 ---
 
-<!-- version-echo: display "storytime v0.9.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.0" at start of execution -->
 # Storytime Converge — Standalone Plan Synthesis
 
 Take existing breakout results and produce a unified plan. Use this when
