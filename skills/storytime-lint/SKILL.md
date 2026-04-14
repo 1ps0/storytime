@@ -147,6 +147,95 @@ Run `R1-R3` only when `--repo` flag is given or scope is empty
 **All repo-level checks are delegated to
 `scripts/check-conventions.sh`** — run it first, parse its output.
 
+### Per-consolidation event (v1.0)
+
+Delegated to `references/consolidation-format.md` check table.
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| CF1 | mechanical | `type: consolidation` present                            |
+| CF2 | mechanical | `schema_version: 1` present                              |
+| CF3 | mechanical | `scale` in {phase, commit, nap, shift, session, compact} |
+| CF4 | mechanical | `at` parseable as ISO 8601                               |
+| CF5 | mechanical | `pause_posture` in allowed set                           |
+| CF6 | mechanical | `signals` present when scale ∈ {nap, shift, compact}     |
+| CF7 | mechanical | `signals` drawn from allowed vocabulary                  |
+| CF8 | mechanical | `commit` resolves via git when scale = commit            |
+| CF9 | mechanical | `driver` matches @role or @role [codename] pattern       |
+| CF10| mechanical | No orphan `.tmp` files older than 5 minutes              |
+| CF-R1 | reasoning | Digest is substantive (phase scale)                      |
+| CF-R2 | reasoning | Signals match the event description                     |
+
+### Per-callout (v1.0 cross-topic references)
+
+Delegated to `scripts/validate-callouts.sh`.
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| CA1 | mechanical | Callout line matches sigil regex (`Callout->` or `Callout<-`) |
+| CA2 | mechanical | `<topic>` resolves to a session directory                |
+| CA3 | mechanical | `<decision-id>` resolves to a `### <id> —` header        |
+| CA4 | mechanical | `<kind>` in closed vocabulary (depends-on, affects, supersedes, superseded-by, related) |
+| CA5 | mechanical | No exact-duplicate (from, to, kind) within one decision  |
+| CA-W1 | advisory  | Reverse cache is stale (forward without reverse)        |
+| CA-W2 | advisory  | Callout target has `status: superseded`                 |
+| CA-W3 | advisory  | Dangling reverse cache (reverse without forward)        |
+
+### Per-remembrance (v1.0 wakeup document)
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| RM1 | mechanical | `type: remembrance`, `schema_version` present            |
+| RM2 | mechanical | All three body sections present (Wakeup, Prompt, State)  |
+| RM3 | mechanical | `last_commit` resolves via git                           |
+| RM4 | mechanical | `active_threads[].path` all exist as files               |
+| RM5 | mechanical | No orphan `remembrance.md.tmp` older than 5 minutes      |
+| RM-R1 | reasoning | Wakeup narrative substantive (not placeholder)           |
+| RM-R2 | reasoning | Consolidation prompt names specific files                |
+| RM-R3 | reasoning | State pinned captures actual in-flight work              |
+
+### Per-tutorial-state (v1.0 friction tracking)
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| TS1 | mechanical | Valid frontmatter if present                             |
+| TS2 | mechanical | Per-skill sections reference known skill names           |
+| TS3 | mechanical | `graduated: true` paired with `graduated_at`             |
+| TS-R1 | reasoning | If graduated, log shows sufficient signal evidence       |
+| TS-R2 | reasoning | "would have proposed" entries cluster/disperse tuning hint |
+
+### Per-commit-patterns (v1.0 adaptive learning)
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| CD1 | mechanical | Valid frontmatter if present                             |
+| CD2 | mechanical | Pattern entries have required fields                     |
+| CD3 | mechanical | `status` in {none, quieter-proposed, quieter-active, soft-reset} |
+| CD4 | mechanical | `rolling_window` has ≤ 7 entries                         |
+| CD-R1 | reasoning | Claimed `clean` count matches rolling window             |
+| CD-R2 | reasoning | Pattern key is well-formed                               |
+
+### Per-dream (v1.0 ancillary byproduct)
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| DM1 | mechanical | `type: dream`, `commit` present in frontmatter           |
+| DM2 | mechanical | `commit` resolves via git                                |
+| DM3 | mechanical | Body length ≤ 30 lines (dreams stay small)               |
+
+### Migration-readiness (M-class, v0.9 → v1.0)
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| M1  | advisory   | No `specs/.storytime/history/decisions.md` present       |
+| M2  | advisory   | All artifacts have `schema_version`                      |
+| M3  | advisory   | Cohort `_roster.md` uses non-human codenames             |
+| M4  | advisory   | `_thread.md` files have v1.0 fields                      |
+| M5  | advisory   | `.storytime/.version` = `1.0` or higher                  |
+
+Full-repo lint surfaces M1-M5 as advisory warnings. The pre-flight gate
+in v1.0 skills (V1-029) is the authoritative block.
+
 ## Process
 
 1. **Run mechanical tier first:** invoke `./scripts/check-conventions.sh`

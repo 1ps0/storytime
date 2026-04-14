@@ -73,7 +73,7 @@ fi
 
 # Marker 2: cohort has human names
 if [ -f "$STORYTIME_ROOT/cohort/_roster.md" ] && \
-   grep -qE '^\| (reva|deshi|oona|pike|taro) ' \
+   grep -qiE '^\| (reva|deshi|oona|pike|taro) ' \
      "$STORYTIME_ROOT/cohort/_roster.md" 2>/dev/null; then
   echo "  ✓ Found v0.9 marker: human-named cohort members"
   V09_MARKERS=$((V09_MARKERS + 1))
@@ -113,7 +113,7 @@ print_plan() {
   echo "           (last_consolidation, dreams, remembrance_staged, remembrance_path)"
   echo "  Step C: unify phase artifact frontmatter per consolidation-format"
   if [ -f "$STORYTIME_ROOT/cohort/_roster.md" ] && \
-     grep -qE '^\| (reva|deshi|oona|pike|taro) ' \
+     grep -qiE '^\| (reva|deshi|oona|pike|taro) ' \
        "$STORYTIME_ROOT/cohort/_roster.md" 2>/dev/null; then
     echo "  Step D: rename cohort (reva→anchor, deshi→tide, oona→arbor,"
     echo "                       pike→drift, taro→compass)"
@@ -189,6 +189,50 @@ if [ -f "$STORYTIME_ROOT/history/decisions.md" ]; then
     mv "$STORYTIME_ROOT/history/decisions.md" \
        "$STORYTIME_ROOT/archive/cold/decisions-v09.md"
   echo "  Moved to archive/cold/decisions-v09.md"
+  echo ""
+fi
+
+# Step D: cohort rename (reva→anchor, deshi→tide, oona→arbor, pike→drift, taro→compass)
+COHORT_DIR="$STORYTIME_ROOT/cohort"
+if [ -f "$COHORT_DIR/_roster.md" ] && \
+   grep -qiE '^\| (reva|deshi|oona|pike|taro) ' "$COHORT_DIR/_roster.md" 2>/dev/null; then
+  echo "Step D: cohort rename (reva→anchor, deshi→tide, oona→arbor, pike→drift, taro→compass)..."
+  RENAMED=0
+  for pair in "reva:anchor" "deshi:tide" "oona:arbor" "pike:drift" "taro:compass"; do
+    OLD=$(echo "$pair" | cut -d: -f1)
+    NEW=$(echo "$pair" | cut -d: -f2)
+    # Find matching cohort file
+    for f in "$COHORT_DIR"/${OLD}-*.md; do
+      [ -f "$f" ] || continue
+      NEW_F=$(echo "$f" | sed "s|/${OLD}-|/${NEW}-|")
+      git mv "$f" "$NEW_F" 2>/dev/null || mv "$f" "$NEW_F"
+      echo "  $f → $NEW_F"
+      # Update name/codename field inside the renamed file
+      if grep -q "^name: ${OLD}" "$NEW_F" 2>/dev/null; then
+        sed -i '' "s/^name: ${OLD}/name: ${NEW}/" "$NEW_F"
+      fi
+      RENAMED=$((RENAMED + 1))
+    done
+  done
+  # Update _roster.md
+  for pair in "reva:anchor" "deshi:tide" "oona:arbor" "pike:drift" "taro:compass"; do
+    OLD=$(echo "$pair" | cut -d: -f1)
+    NEW=$(echo "$pair" | cut -d: -f2)
+    sed -i '' "s/| ${OLD} /| ${NEW} /g" "$COHORT_DIR/_roster.md" 2>/dev/null || true
+    sed -i '' "s|${OLD}-|${NEW}-|g" "$COHORT_DIR/_roster.md" 2>/dev/null || true
+  done
+  # Update @role [codename] references in all thread/breakout/etc files
+  for pair in "reva:anchor" "deshi:tide" "oona:arbor" "pike:drift" "taro:compass"; do
+    OLD=$(echo "$pair" | cut -d: -f1)
+    NEW=$(echo "$pair" | cut -d: -f2)
+    # @name → @codename (bare mention)
+    find "$STORYTIME_ROOT" -name '*.md' -type f -exec \
+      sed -i '' "s/@${OLD}/@${NEW}/g" {} + 2>/dev/null || true
+    # [name] → [codename] (ornament in @role [codename])
+    find "$STORYTIME_ROOT" -name '*.md' -type f -exec \
+      sed -i '' "s/\\[${OLD}\\]/[${NEW}]/g" {} + 2>/dev/null || true
+  done
+  echo "  Renamed $RENAMED cohort file(s). Updated roster and all back-refs."
   echo ""
 fi
 
