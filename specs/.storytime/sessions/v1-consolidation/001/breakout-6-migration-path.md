@@ -115,7 +115,7 @@ fi
 echo "Storytime v0.9.x -> v1.0 migration ($MODE)"
 V09=0
 [ -f "$STORYTIME_ROOT/history/decisions.md" ] && V09=$((V09+1))
-grep -q '@reva\|@deshi\|@oona\|@pike\|@taro' \
+grep -q '@anchor\|@tide\|@arbor\|@drift\|@compass' \
   "$STORYTIME_ROOT/cohort/_roster.md" 2>/dev/null && V09=$((V09+1))
 # (missing schema_version check: scan sessions/**/*.md)
 [ "$V09" -eq 0 ] && { echo "Already on v1.0."; exit 0; }
@@ -159,7 +159,7 @@ No `specs/.storytime/` → script exits 0 on pre-flight line 1 with *"Nothing to
 **Medium-high.** Mechanics are shell + sed + git-mv, identical style to existing scripts. Open risks:
 - **Step A** is hardest: routing decisions.md entries to correct topics. If v0.9 didn't label by topic, needs a heuristic (grep for topic-id patterns like `V1-`, `AGC-`) or user-confirm loop.
 - **Step C** depends on `references/consolidation-format.md`, which doesn't yet exist. **Sequencing gate** for the overall v1.0 plan.
-- **Step D** has a long tail of cross-references (`@reva` in buildouts, persona cross-cites). Sed covers simple cases; lint should flag residual `@<human-name>` strings after migration.
+- **Step D** has a long tail of cross-references (`@anchor` in buildouts, persona cross-cites). Sed covers simple cases; lint should flag residual `@<human-name>` strings after migration.
 
 ## Effort Estimate
 
