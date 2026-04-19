@@ -88,12 +88,14 @@ never spoke up are still recorded &mdash; their silence means the driver's lens
 covered the territory cleanly.</p>
 
 <h3>Addressing personas</h3>
-<pre><code>@noa what do you think about adding WebSocket support?
-@operator is this safe to deploy without a kill switch?
-@critic can we reuse the existing retry logic here?
+<pre><code>@operator is this safe to deploy without a kill switch?
+@critic [forge] can we reuse the existing retry logic here?
+@critic:architecture is the boundary here correct?
 @team what did we decide about the cache TTL?</code></pre>
-<p>Works in any conversation where a cohort exists. No active session required.
-Set <code>persona_voice</code> in config: <code>name</code> (default), <code>role</code>, or <code>both</code>.</p>
+<p><code>@role</code> is a <strong>lens directive</strong>, not just a skill trigger. Use it inline
+in any conversation &mdash; the model applies the role&rsquo;s perspective without
+launching a formal skill. For context-loaded answers that need persona
+history + decision log lookup, use <code>/storytime-qa</code> explicitly.</p>
 
 <!-- ─── GETTING STARTED ─── -->
 
@@ -120,13 +122,30 @@ Set <code>persona_voice</code> in config: <code>name</code> (default), <code>rol
 <strong>BUILDOUT</strong> &mdash; implement the plan. Persona-driven pair programming with trace docs.
 Invoke with <code>/storytime-buildout</code> after plan approval.</p>
 
-<!-- ─── EPISODES + WARM START ─── -->
+<!-- ─── CONSOLIDATION + EPISODES ─── -->
 
-<h2>Episodes and Warm Start</h2>
+<h2>Consolidation and Continuity</h2>
 
-<p>Sessions are <strong>episodes</strong> of an ongoing story. When you revisit a topic,
-storytime synthesizes a narrative "previously on..." from living documents,
-persona histories, and git delta.</p>
+<p>Storytime is a <strong>continuity system</strong>. The spec workflow is one surface
+on a deeper consolidation loop: context &rarr; consolidation events &rarr;
+document structure &rarr; continuity across compactions, sessions, and time.</p>
+
+<p>Consolidation fires at six scales: <strong>phase</strong> (phase boundary),
+<strong>commit</strong> (LLM-drafted + user-confirmed), <strong>nap</strong> (model detects 1
+degradation signal), <strong>shift</strong> (2+ signals or framing loss), <strong>session</strong>
+(DONE or walk-away), <strong>compact</strong> (approaching context budget).</p>
+
+<p><strong>Remembrance</strong> (<code>/storytime-remember</code>) is the handoff mechanism.
+A workday-shaped wakeup document + consolidation prompt, staged before
+<code>/compact</code> and loaded as the first action post-compact. It tells the
+re-engaging model exactly what to load and where the work was.</p>
+
+<h2>Episodes and Threads</h2>
+
+<p>Sessions are <strong>episodes</strong> of an ongoing story. The thread
+(<code>_thread.md</code>) is the continuity ledger &mdash; decisions, consolidation
+log, open questions. When you revisit a topic, remembrance or warm-start
+carries the context forward.</p>
 
 <pre><code><span style="color:var(--text-muted)"># See recent threads, auto-resume incomplete ones</span>
 /storytime
@@ -134,9 +153,9 @@ persona histories, and git delta.</p>
 <span style="color:var(--text-muted)"># Or go directly to a topic</span>
 /storytime rate-limiting</code></pre>
 
-<p>Threads auto-checkpoint after every phase. If your session is interrupted,
-the next <code>/storytime</code> detects the incomplete thread and offers to resume.
-No explicit save needed.</p>
+<p>Threads auto-checkpoint at every phase boundary and consolidation event.
+If your session is interrupted or <code>/compact</code> fires, the next invocation
+picks up from the checkpoint. No explicit save needed.</p>
 
 <!-- ─── GROUNDING ─── -->
 
@@ -178,27 +197,30 @@ Both always stated with prose. Never time estimates.</p>
 
 <!-- ─── ALL SKILLS ─── -->
 
-<h2>All Skills</h2>
+<h2>All 19 Skills</h2>
 
 <h4>/storytime &lt;problem&gt;</h4>
 <p>Full workflow. Use for features, architecture decisions, investigations.</p>
 
 <h4>/storytime-breakout &lt;sub-problem&gt;</h4>
-<p>Focused 2-3 persona investigation without the full pipeline.</p>
+<p>Focused investigation: one driver + 1-2 silent supporters.</p>
 
 <h4>/storytime-converge &lt;topic&gt;</h4>
 <p>Merge breakout results into a unified plan.</p>
 
 <h4>/storytime-buildout &lt;topic&gt;</h4>
-<p>Implement the plan. Persona-driven pair programming — slices the plan into
-work units, assigns personas, produces code with trace documents mapping
-every change back to decisions.</p>
-
-<h4>/storytime-qa @persona &lt;question&gt;</h4>
-<p>Query personas about past decisions or current code state.</p>
+<p>Implement the plan. Persona-driven pair programming with trace docs.
+Suggests <code>/storytime-retro</code> at completion to close the feedback loop.</p>
 
 <h4>/storytime-retro &lt;topic&gt;</h4>
-<p>Reconvene team: plan vs what was built.</p>
+<p>Reconvene team: plan vs what was built. Includes evaluation scorecard.</p>
+
+<h4>/storytime-qa @persona &lt;question&gt;</h4>
+<p>Formal queries to personas with context + decision-log loading. For casual
+<code>@role</code> lens directives, the model responds inline without this skill.</p>
+
+<h4>/storytime-echo &lt;@role&gt;</h4>
+<p>One-shot spawning-pool voice. Ephemeral &mdash; no files, no state.</p>
 
 <h4>/storytime-pr-qa &lt;pr&gt;</h4>
 <p>Team handles PR review comments with proposed responses.</p>
@@ -206,11 +228,19 @@ every change back to decisions.</p>
 <h4>/storytime-cohort &lt;action&gt;</h4>
 <p>Manage personas: <code>list</code>, <code>hire</code>, <code>fire</code>, <code>bench</code>, <code>evolve</code>, <code>promote</code>.</p>
 
+<h4>/storytime-remember [tier]</h4>
+<p>Stage remembrance for <code>/compact</code>. Tiers: nap (quick), shift (frame change),
+compact (full handoff). Model-invoked or explicit.</p>
+
+<h4>/storytime-lint [topic]</h4>
+<p>Mechanical + reasoning-tier validation against process rules. Two tiers:
+scripts for grep, estimator agent for prose parsing.</p>
+
 <h4>/storytime-survey</h4>
 <p>Standalone codebase survey with artifact inventory and fingerprint.</p>
 
 <h4>/storytime-status</h4>
-<p>Dashboard: cohort, threads, decisions, stale citations.</p>
+<p>Dashboard: cohort, threads, decisions, tutorial progress, citations.</p>
 
 <h4>/storytime-bootstrap</h4>
 <p>Initialize <code>.storytime/</code>. Storytime-native, adapt-in-place, or export-only.</p>
@@ -225,7 +255,7 @@ every change back to decisions.</p>
 <p>Convert output to ADRs, GitHub issues, Linear tickets, Kiro specs.</p>
 
 <h4>/storytime-undo</h4>
-<p>Revert at any granularity: phase, episode, thread, specific file, or redo.</p>
+<p>Revert at any granularity: phase, episode, thread, specific file.</p>
 
 <!-- ─── TIPS ─── -->
 
@@ -236,7 +266,8 @@ every change back to decisions.</p>
   <li><strong>Challenge the team</strong> during REVIEW. That's what it's for.</li>
   <li><strong>Use breakouts</strong> for focused questions. Don't run the full pipeline for one investigation.</li>
   <li><strong>Just walk away.</strong> The thread auto-checkpoints. Come back with <code>/storytime</code> and resume.</li>
-  <li><strong>Trust the warm start.</strong> The narrative preamble is always fresh.</li>
+  <li><strong>Use <code>/storytime-remember</code></strong> before expected <code>/compact</code>. Remembrance carries state forward.</li>
+  <li><strong>Use <code>@role</code> inline.</strong> It's a lens directive, not a formal skill trigger.</li>
 </ul>
 
 <p>Full rules, formats, and config: <a href="reference.html">Reference &rarr;</a></p>

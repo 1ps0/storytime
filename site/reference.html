@@ -20,41 +20,51 @@
 
 <div class="container">
 
-<h2 style="margin-top: 2rem;">All 14 Skills</h2>
+<h2 style="margin-top: 2rem;">All 19 Skills</h2>
 
 <h3>Core Workflow</h3>
 <table class="skill-table">
   <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
   <tr><td>/storytime</td><td>"storytime", "build a spec", "design a feature"</td><td>Full workflow: survey &rarr; team &rarr; icebreaker &rarr; breakouts &rarr; plan</td></tr>
   <tr><td>/storytime-survey</td><td>"survey the codebase", "scan for artifacts"</td><td>Standalone survey with artifact inventory and coverage fingerprint</td></tr>
-  <tr><td>/storytime-breakout</td><td>"breakout on", "deep dive", "investigate"</td><td>Focused 2-3 persona investigation without full pipeline</td></tr>
+  <tr><td>/storytime-breakout</td><td>"breakout on", "deep dive", "investigate"</td><td>Focused investigation: one driver + silent supporters</td></tr>
   <tr><td>/storytime-converge</td><td>"converge", "merge the breakouts", "make the plan"</td><td>Synthesize breakout results into a unified plan</td></tr>
   <tr><td>/storytime-buildout</td><td>"build it", "implement", "buildout", "let's code"</td><td>Implement the plan &mdash; persona pair programming with trace docs</td></tr>
-  <tr><td>/storytime-retro</td><td>"retro on", "how did it go", "plan vs built"</td><td>Reconvene team: compare plan against implementation</td></tr>
+  <tr><td>/storytime-retro</td><td>"retro on", "how did it go", "plan vs built"</td><td>Reconvene team: compare plan against implementation + scorecard</td></tr>
 </table>
 
 <h3>Team and QA</h3>
 <table class="skill-table">
   <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
   <tr><td>/storytime-cohort</td><td>"hire", "fire", "bench", "promote", "evolve"</td><td>Manage the permanent persona team</td></tr>
-  <tr><td>/storytime-qa</td><td>"@persona ...", "@role ...", "@team ...", "what did we decide"</td><td>Query personas about past decisions or current state. Works in any conversation.</td></tr>
+  <tr><td>/storytime-qa</td><td>"ask the team", "what did we decide", "@team"</td><td>Formal queries with context + decision-log loading. <em>Not</em> for casual <code>@role</code> lens directives.</td></tr>
+  <tr><td>/storytime-echo</td><td>"echo", "spawn a voice", "what would X say"</td><td>One-shot spawning-pool voice test. Ephemeral, no state.</td></tr>
   <tr><td>/storytime-pr-qa</td><td>"handle PR comments", "respond to PR"</td><td>Team formulates responses to PR review comments</td></tr>
 </table>
 
-<h3>Document Operations</h3>
+<h3>Continuity</h3>
 <table class="skill-table">
   <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
+  <tr><td>/storytime-remember</td><td>"remember", "stage remembrance", "prepare for /compact"</td><td>Stage workday-shaped remembrance.md (wakeup + prompt) for /compact</td></tr>
+  <tr><td>/storytime-lint</td><td>"lint storytime", "validate session", "check the spec"</td><td>Mechanical + reasoning-tier validation. Two tiers: scripts for grep, estimator agent for prose.</td></tr>
   <tr><td>/storytime-bootstrap</td><td>"bootstrap storytime", "set up storytime"</td><td>Initialize .storytime/ structure in a repo</td></tr>
   <tr><td>/storytime-consolidate</td><td>"consolidate", "organize docs", "archive"</td><td>Organize, archive, roll up, backfill timestamps</td></tr>
   <tr><td>/storytime-absorb</td><td>"absorb this", "have the team review"</td><td>Team reads and interprets existing docs or code</td></tr>
   <tr><td>/storytime-export</td><td>"export", "convert to ADRs", "create issues"</td><td>Transform output to ADRs, issues, Kiro specs</td></tr>
+  <tr><td>/storytime-status</td><td>"storytime status", "where are we"</td><td>Dashboard: cohort, threads, decisions, tutorial progress</td></tr>
+  <tr><td>/storytime-undo</td><td>"undo", "cancel", "roll back", "scratch that"</td><td>Revert at any granularity: phase, episode, thread, file</td></tr>
 </table>
 
-<h3>Session Control</h3>
+<h2>Consolidation Scales</h2>
+
 <table class="skill-table">
-  <tr><th>Skill</th><th>Trigger</th><th>Description</th></tr>
-  <tr><td>/storytime-status</td><td>"storytime status", "where are we"</td><td>Dashboard: cohort, threads, decisions, citations</td></tr>
-  <tr><td>/storytime-undo</td><td>"undo", "cancel", "roll back", "scratch that"</td><td>Revert at any granularity: phase, episode, thread, file</td></tr>
+  <tr><th>Scale</th><th>Trigger</th><th>Output</th></tr>
+  <tr><td>phase</td><td>Phase boundary in a skill</td><td>Phase artifact + digest to thread</td></tr>
+  <tr><td>commit</td><td>LLM-drafted + user-confirmed commit</td><td>Thread update + decision pin + optional dream</td></tr>
+  <tr><td>nap</td><td>Model detects 1 degradation signal</td><td>Quick remembrance refresh</td></tr>
+  <tr><td>shift</td><td>2+ signals or framing-loss alone</td><td>Remembrance + frame change (driver swap, mode shift)</td></tr>
+  <tr><td>session</td><td>Session DONE or walk-away</td><td>Persona context delta + archive rollup</td></tr>
+  <tr><td>compact</td><td>Context approaching budget or explicit</td><td>Remembrance finalized; user confirms /compact</td></tr>
 </table>
 
 <h2>Breakout Skills (Available Mid-Conversation)</h2>
@@ -86,84 +96,67 @@
 <h2>Output Structure</h2>
 
 <pre><code>specs/.storytime/
+&#x251c;&#x2500;&#x2500; .version                    "1.0" (positive v1.0 marker)
+&#x251c;&#x2500;&#x2500; remembrance.md              Workday-shaped wakeup (staged pre-/compact)
 &#x251c;&#x2500;&#x2500; sessions/&lt;topic&gt;/
-&#x2502;   &#x251c;&#x2500;&#x2500; _thread.md              Episode bookmark (auto-checkpointed)
+&#x2502;   &#x251c;&#x2500;&#x2500; _thread.md              Continuity ledger + decision log
 &#x2502;   &#x251c;&#x2500;&#x2500; 001/                    Episode 1
 &#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; survey.md           Codebase context + fingerprint
 &#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; team.md             Persona definitions
 &#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; icebreaker.md       Status quo discussion
 &#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; breakout-*.md       Sub-problem deep dives
-&#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; plan.md             Slide deck + decisions + roadmap
+&#x2502;   &#x2502;   &#x251c;&#x2500;&#x2500; plan.md             Slide deck + decisions + roadmap
+&#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; buildout-*.md       Implementation traces
 &#x2502;   &#x2514;&#x2500;&#x2500; 002/                    Episode 2 (warm start)
-&#x2502;       &#x251c;&#x2500;&#x2500; preamble.md         "Previously on..." narrative
-&#x2502;       &#x2514;&#x2500;&#x2500; plan.md             Updated plan
-&#x251c;&#x2500;&#x2500; cohort/                     Permanent personas
+&#x251c;&#x2500;&#x2500; cohort/                     Permanent personas (non-human codenames)
 &#x251c;&#x2500;&#x2500; specialists/                Temporary personas
-&#x251c;&#x2500;&#x2500; history/
-&#x2502;   &#x251c;&#x2500;&#x2500; decisions.md            Append-only decision log
-&#x2502;   &#x2514;&#x2500;&#x2500; sessions/               Session summaries
-&#x251c;&#x2500;&#x2500; archive/
-&#x2502;   &#x251c;&#x2500;&#x2500; current/                Warm tier
-&#x2502;   &#x251c;&#x2500;&#x2500; rollups/                Compressed history
-&#x2502;   &#x2514;&#x2500;&#x2500; cold/                   Deep history
+&#x251c;&#x2500;&#x2500; dreams/                     Optional ancillary per-commit byproducts
+&#x251c;&#x2500;&#x2500; history/sessions/           Session summaries
+&#x251c;&#x2500;&#x2500; archive/                    hot/warm/cold tiers
+&#x251c;&#x2500;&#x2500; commit-patterns.md          Adaptive commit-learning state
+&#x251c;&#x2500;&#x2500; tutorial-state.md           Per-skill tutorial graduation progress
 &#x2514;&#x2500;&#x2500; config.md                   Project settings</code></pre>
 
-<h2>Process Rules (46)</h2>
+<h2>Process Rules (29)</h2>
 
 <ol>
   <li>SURVEY before ASSEMBLE. Never build a team blind.</li>
-  <li>ICEBREAKER before BREAKOUT. Shared understanding before depth.</li>
+  <li>ICEBREAKER before BREAKOUT. Shared understanding first.</li>
   <li>CONVERGE before showing the user. Internal consensus first.</li>
-  <li>Every technical claim must be grounded &mdash; cite code, docs, or external sources.</li>
-  <li>At least one OPERATOR archetype. Always.</li>
-  <li>Non-goals and success criteria are required, not optional.</li>
-  <li>Visual aids use ASCII box-drawing.</li>
-  <li>Personas are lenses, not characters. No role-play, only expertise.</li>
-  <li>Team size is appropriate to the project, not fixed. Bias small. Hard ceiling 12.</li>
-  <li>The user has veto power over everything.</li>
-  <li>Artifact scan is broad &mdash; expect variance across repos.</li>
-  <li>The user controls depth at every stage.</li>
-  <li>Rollups replace stale docs.</li>
-  <li>Archive artifacts must be git-committable and repo-local.</li>
+  <li>Every claim grounded &mdash; code, docs, web, or git.</li>
+  <li>Default core: OWNER, OPERATOR, CRITIC &times;2 (two critics contest).</li>
+  <li>Non-goals + success criteria required on every plan.</li>
+  <li>Visuals use ASCII box-drawing. No external tools.</li>
+  <li>Personas are lenses, not characters. No role-play.</li>
+  <li>Team size project-appropriate. Bias small. Ceiling 12.</li>
+  <li>User has veto power everywhere.</li>
   <li>Phases collapse when empty.</li>
-  <li>Every phase writes its output &mdash; a run is a complete snapshot.</li>
-  <li>Prior runs are prior art &mdash; detect and present, never silently overwrite.</li>
-  <li>Every survey writes a coverage fingerprint.</li>
-  <li>Effort uses Complexity (how hard) and Scale (how big), never time estimates.</li>
+  <li>Every phase writes output &mdash; run is a complete snapshot.</li>
+  <li>Prior runs are prior art &mdash; never silently overwrite.</li>
+  <li>Survey writes a coverage fingerprint.</li>
+  <li>Effort = Complexity + Scale (never time). &ge;13 decomposes.</li>
   <li>Evaluation hygiene: observe metrics and conclusions separately.</li>
-  <li>Warm start is detected, not requested.</li>
-  <li>Preamble narrative is always dynamic.</li>
-  <li>Personas skip introductions on warm start.</li>
-  <li>Thread auto-checkpoints at every phase boundary.</li>
-  <li>Episodes are chapters, not restarts.</li>
-  <li>Survey delta replaces full survey on warm start.</li>
-  <li>Post-breakout pause is mandatory (unless auto).</li>
-  <li>Converge can run standalone.</li>
-  <li>Grounding is multi-source: code, docs, web, git.</li>
-  <li>Scale Impact (1-5) alongside Complexity for magnitude.</li>
-  <li>Evaluation hygiene: don't conflate metrics and conclusions.</li>
-  <li>Warm start is detected, not requested.</li>
-  <li>Preamble narrative is always dynamic.</li>
-  <li>Personas skip introductions on warm start.</li>
-  <li>Thread auto-checkpoints at every phase boundary.</li>
-  <li>Episodes are chapters, not restarts.</li>
-  <li>Survey delta replaces full survey on warm start.</li>
-  <li>Standalone breakouts are valid.</li>
-  <li>Always confirm before destructive undo.</li>
-  <li>Prefer archive over delete.</li>
-  <li>Redo is undo + immediate retry.</li>
-  <li>Post-breakout pause is mandatory (unless auto).</li>
-  <li>Converge can run standalone.</li>
-  <li>Personas use <strong>non-human codenames by default</strong> (e.g. <code>anchor</code>, <code>lattice</code>, <code>kestrel</code>). Roles stay the load-bearing address; codenames are ornaments.</li>
-  <li><strong>One driving persona per leg.</strong> Supporters stay silent unless their interjection is both useful AND non-distortive. Round-robin commentary is the failure mode this prevents.</li>
-  <li>Team size is sized to the work, not the template. Bias small. Tiny problem &rarr; tiny team.</li>
+  <li>Warm entry detected, not requested. If thread exists, warm.</li>
+  <li>Remembrance is pre-staged (at pause/compact), never reactive.</li>
+  <li>Post-breakout pause mandatory unless auto. Present options considered, not just recommendations.</li>
+  <li>Grounding multi-source: code &gt; git &gt; repo &gt; library &gt; standards &gt; web.</li>
+  <li><code>@role</code> is a lens directive, not a skill trigger.</li>
+  <li>Codenames non-human by default.</li>
+  <li><strong>One driving persona per leg.</strong> Supporters silent unless useful AND non-distortive.</li>
+  <li>LLM drafts every commit. User confirms every one. No auto-commit.</li>
+  <li>Pauses are model-driven, not threshold-driven (threshold is opt-in fallback).</li>
+  <li>All consolidation writes atomic (tmp+fsync+mv).</li>
+  <li>Cross-topic decisions use callouts (<code>Callout-&gt;</code> / <code>Callout&lt;-</code>), not merging.</li>
+  <li>Thread IS decision log &mdash; per-topic, append-only, commit-pinned.</li>
+  <li>Dreams ancillary and disablable. Never on critical path.</li>
 </ol>
 
 <h2>Configuration</h2>
 
 <pre><code># specs/.storytime/config.md
+mode: native                     # native | adapt | export
 default_mode: inline             # inline | deliberation
-automation: guided               # manual | guided | auto
+automation: tutorial             # tutorial | manual | guided | auto
 team_size: project-appropriate   # bias small; sized to the work
 max_team_size: 12                # hard ceiling, override required
 max_concurrent_breakouts: 10
@@ -173,9 +166,30 @@ driving_persona: required        # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"
-auto_update_personas: true</code></pre>
+auto_update_personas: true
 
-<h2>Validation Scripts</h2>
+# v1.0 consolidation
+pause_mode: model-introspection  # model-introspection | threshold
+dreams_enabled: false            # off by default, opt-in
+post_commit_hook: disabled       # opt-in
+remembrance_load_on_compact: true
+commit_learning: enabled         # V1-014 adaptive quieter prompts
+tutorial_graduation: adaptive    # V1-013 per-skill friction detection</code></pre>
+
+<h2>Automation Tiers</h2>
+
+<table class="skill-table">
+  <tr><th>Tier</th><th>Phase transitions</th><th>Breakouts</th><th>Post-breakout</th><th>Commits</th><th>Pauses surfaced</th></tr>
+  <tr><td>tutorial</td><td>prompt + explain</td><td>prompt + explain</td><td>pause + explain</td><td>full prompt + explain</td><td>all (nap, shift, compact)</td></tr>
+  <tr><td>manual</td><td>prompt + wait</td><td>prompt + wait</td><td>pause + wait</td><td>full prompt</td><td>shift, compact</td></tr>
+  <tr><td>guided</td><td>auto</td><td>auto</td><td>pause + wait</td><td>full (quieter if learned)</td><td>shift, compact</td></tr>
+  <tr><td>auto</td><td>auto</td><td>auto</td><td>auto-proceed</td><td>full (never skipped)</td><td>shift, compact</td></tr>
+</table>
+
+<p>Commits are <strong>never auto-approved</strong> across any tier (V1-001). Tutorial
+is the fresh-install default; graduation is adaptive and per-skill.</p>
+
+<h2>Scripts</h2>
 
 <pre><code><span style="color:var(--text-muted)"># Check for stale code citations</span>
 ./scripts/validate-citations.sh specs/.storytime/sessions/rate-limiting/
@@ -183,11 +197,20 @@ auto_update_personas: true</code></pre>
 <span style="color:var(--text-muted)"># Verify breakout output completeness</span>
 ./scripts/validate-breakouts.sh specs/.storytime/sessions/rate-limiting/001/
 
-<span style="color:var(--text-muted)"># Export decision log as JSON</span>
-./scripts/export-decisions.sh specs/.storytime/history/decisions.md
+<span style="color:var(--text-muted)"># Validate cross-topic callouts</span>
+./scripts/validate-callouts.sh
+
+<span style="color:var(--text-muted)"># On-demand decisions view across all threads</span>
+./scripts/decisions-view.sh --status=active
+
+<span style="color:var(--text-muted)"># Convention enforcement (version, schema, drivers, etc.)</span>
+./scripts/check-conventions.sh
+
+<span style="color:var(--text-muted)"># Migrate v0.9.x repo to v1.0 shapes</span>
+./scripts/migrate-to-v1.sh --apply --commit
 
 <span style="color:var(--text-muted)"># Bump version across all files</span>
-./scripts/bump-version.sh 0.4.0</code></pre>
+./scripts/bump-version.sh 1.1.0</code></pre>
 
 </div>
 

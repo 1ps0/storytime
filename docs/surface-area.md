@@ -120,31 +120,35 @@ that export mode was chosen.
 
 ## 5. Process Rules (behavioral constraints)
 
-31 rules as of 2026-03-29. Documented in `docs/process-reference.md`.
+29 rules as of v1.0.0. Documented in `docs/process-reference.md`.
 
 Grouped by concern:
 
-**Phase ordering (1-4):**
+**Phase ordering (1-3):**
 SURVEY → ASSEMBLE → ICEBREAKER → BREAKOUT → CONVERGE → REVIEW.
 Phases collapse when empty.
 
-**Team constraints (5-9):**
-Min 3, max 7 personas. At least one OPERATOR. Personas are lenses,
-not characters. User has veto power.
+**Team constraints (4-10):**
+Project-appropriate team size. Bias small. Ceiling 12. Default core:
+OWNER, OPERATOR, CRITIC x2. Non-human codenames. One driving persona
+per leg. User has veto power.
 
-**Output requirements (10-16):**
+**Output requirements (11-16):**
 Every claim cites code. Non-goals and success criteria required.
 ASCII visual aids. Every phase writes output. Track everything.
 
-**Artifact management (17-26):**
-Prior runs are prior art. Surveys have fingerprints. Rollups replace
-stale docs. Archive is git-committable and repo-local. Everything
-under `.storytime/`. Bias toward consolidation.
+**Consolidation + continuity (17-21):**
+Warm entry detected, not requested. Remembrance is pre-staged.
+Post-breakout pause mandatory. `@role` is a lens directive.
+Grounding multi-source.
 
-**Measurement discipline (27-31):**
-Universal frontmatter on every document. Semantic timestamps, not
-duplicated git timestamps. Inferred timestamps marked with confidence.
-Complexity + Scale, never time estimates. Evaluation hygiene.
+**Commit + pause discipline (22-26):**
+LLM drafts every commit; user confirms. Pauses are model-driven.
+All consolidation writes atomic. Codenames non-human by default.
+
+**Structure (27-29):**
+Cross-topic decisions use callouts. Thread IS decision log.
+Dreams ancillary and disablable.
 
 ---
 
@@ -241,7 +245,7 @@ decisions_made: [<IDs>]
 mode: native | adapt | export
 created: <YYYY-MM-DD>
 default_mode: inline | deliberation
-automation: manual | guided | auto
+automation: tutorial | manual | guided | auto
 team_size: project-appropriate     # bias small; sized to the work
 max_team_size: 12                  # hard ceiling, override required
 default_core: [owner, operator, critic]
@@ -250,6 +254,12 @@ driving_persona: required          # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"
+pause_mode: model-introspection | threshold
+dreams_enabled: true | false
+post_commit_hook: enabled | disabled
+remembrance_load_on_compact: true | false
+commit_learning: enabled | disabled
+tutorial_graduation: adaptive | manual
 ```
 
 ### Timestamp confidence (optional, for backfilled values)
@@ -330,5 +340,11 @@ last_active_confidence: git-derived | approximate | estimated
 | Script | Purpose | Reads | Writes |
 |--------|---------|-------|--------|
 | `scripts/bootstrap-cohort.sh` | Initialize `.storytime/` in a project | — | Directory tree, roster, config |
-| `scripts/validate-citations.sh` | Check stale code references in specs | Spec files, codebase | Report (stdout) |
-| `scripts/export-decisions.sh` | Decision log → CSV/text | `history/decisions.md` | Formatted output (stdout) |
+| `scripts/bump-version.sh` | Propagate version across all files | VERSION | All SKILL.md, plugin.json, README, site |
+| `scripts/check-conventions.sh` | Mechanical invariant enforcement | All storytime artifacts | Report (stdout) |
+| `scripts/validate-citations.sh` | Check stale code references | Spec files, codebase | Report (stdout) |
+| `scripts/validate-breakouts.sh` | Verify breakout output completeness | Breakout files | Report (stdout) |
+| `scripts/validate-callouts.sh` | Cross-topic callout validation + reverse-cache rebuild | `_thread.md` files | Report + optional reverse writes |
+| `scripts/decisions-view.sh` | On-demand decisions across all threads | `_thread.md` files | Text/CSV (stdout) |
+| `scripts/export-decisions.sh` | Decision log → CSV (legacy compat) | `_thread.md` files | Formatted output (stdout) |
+| `scripts/migrate-to-v1.sh` | v0.9.x → v1.0 migration | All storytime artifacts | Renamed/updated artifacts |

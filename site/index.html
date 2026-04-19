@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Storytime — Persona-Driven Specs for Claude Code</title>
+<title>Storytime — Continuity System for Claude Code</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,8 +21,9 @@
 <div class="container">
 <div class="hero">
   <h1>Storytime</h1>
-  <p class="tagline">A Claude Code plugin that builds technical specifications through
-  structured conversations between domain-expert personas.</p>
+  <p class="tagline">A continuity system for LLM&ndash;harness collaboration.
+  Builds technical specifications through structured persona conversations &mdash;
+  and carries session state across compactions, sessions, and time.</p>
   <div class="install-box">
     <span class="prompt">$</span> <span class="cmd">claude install-plugin ~/workspace/storytime</span>
   </div>
@@ -35,7 +36,8 @@
 <p>Describe a problem. Storytime surveys your codebase, assembles a team of
 domain-expert personas, and runs a structured conversation that produces a
 plan &mdash; grounded in your actual code, with citations, decisions, and
-visual aids.</p>
+visual aids. Underneath the spec workflow is a <strong>consolidation loop</strong>
+that preserves continuity across compactions and sessions.</p>
 
 <div style="display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; margin: 1.5rem 0;">
   <div class="phase"><span class="phase-num">0</span> <span class="phase-label">Survey</span></div>
@@ -59,8 +61,8 @@ visual aids.</p>
 <pre><code><span style="color: var(--green)">/storytime</span> "our public API has no rate limiting and we're getting abuse"
 
 Storytime surveys your code, finds the Express middleware chain has no
-throttling layer. Assembles @noa (API architect), @sven (infrastructure),
-@mika (security), @rio (SRE). They discuss, investigate, and produce:
+throttling layer. Assembles @owner [anchor], @systems [lattice],
+@critic [forge], @operator [tide]. They investigate, and produce:
 
   specs/.storytime/sessions/rate-limiting/001/
   &#x251c;&#x2500;&#x2500; survey.md          Codebase context + fingerprint
@@ -73,49 +75,67 @@ throttling layer. Assembles @noa (API architect), @sven (infrastructure),
 <h2>Key Concepts</h2>
 
 <dl class="concepts">
+  <dt>Consolidation</dt>
+  <dd>The core loop. Context &rarr; consolidation events &rarr; document structure &rarr;
+  continuity. Six scales: phase, commit, nap, shift, session, compact. The spec
+  workflow is one surface on this loop. <code>/storytime-remember</code> stages
+  remembrance before <code>/compact</code>.</dd>
   <dt>Personas</dt>
-  <dd>Domain-expert lenses, not characters. Default core: OWNER, OPERATOR, CRITIC.
-  A SKEPTIC asks "do we need this?" An EDUCATOR unpacks what the team takes for granted.
-  Any persona can <code>@role:explain</code> to teach in context. Every claim cites evidence.</dd>
-  <dt>Episodes</dt>
-  <dd>Sessions are chapters in an ongoing story. Same topic, continuing narrative.
-  Warm start synthesizes a "previously on..." so you pick up without re-reading the book.</dd>
-  <dt>Decisions</dt>
-  <dd>Append-only, numbered per topic (RATE-001, RATE-002). They cite the code and
-  personas that drove them. Never deleted, only superseded.</dd>
-  <dt>Threads</dt>
-  <dd>The bookmark (<code>_thread.md</code>). Tracks episodes, team state, open questions,
-  and last git commit. Park mid-session and resume later with full context.</dd>
+  <dd>Domain-expert lenses with non-human codenames (<code>anchor</code>, <code>lattice</code>,
+  <code>kestrel</code>). Default core: OWNER, OPERATOR, CRITIC &times;2. One driver per
+  leg &mdash; supporters stay silent unless useful AND non-distortive.
+  <code>@role</code> is a lens directive, not just a skill trigger.</dd>
+  <dt>Remembrance</dt>
+  <dd>A workday-shaped wakeup document + consolidation prompt, staged before
+  <code>/compact</code> and loaded as the first action post-compact. Carries session
+  state across context boundaries. Written at pauses and pre-compact.</dd>
+  <dt>Decisions &amp; Callouts</dt>
+  <dd>Append-only, numbered per topic (RATE-001), pinned to commits, stored in
+  per-topic threads (not a separate file). Cross-topic references use
+  <code>Callout-&gt;</code> / <code>Callout&lt;-</code> sigil lines &mdash;
+  forward authoritative, reverse is lint-cached.</dd>
+  <dt>Episodes &amp; Threads</dt>
+  <dd>Sessions are chapters. <code>_thread.md</code> is the continuity ledger &mdash;
+  decisions, consolidation log, open questions. Park mid-session and resume
+  with full context.</dd>
+  <dt>Dreams</dt>
+  <dd>Optional, ancillary, disablable. Per-commit side artifacts capturing hunches,
+  noticed-but-not-said observations, and daydream design material. Not on the
+  critical path &mdash; just accumulated hunch value over time.</dd>
 </dl>
 
-<h2>All 14 Skills</h2>
+<h2>All 19 Skills</h2>
 
 <h3>Core Workflow</h3>
 <table class="skill-table">
   <tr><th>Skill</th><th>Description</th></tr>
   <tr><td>/storytime</td><td>Full workflow: survey, team, icebreaker, breakouts, plan</td></tr>
   <tr><td>/storytime-survey</td><td>Standalone codebase survey with artifact inventory</td></tr>
-  <tr><td>/storytime-breakout</td><td>Focused 2-3 persona investigation</td></tr>
+  <tr><td>/storytime-breakout</td><td>Focused investigation with one driver + silent supporters</td></tr>
   <tr><td>/storytime-converge</td><td>Merge breakout results into a unified plan</td></tr>
-  <tr><td>/storytime-retro</td><td>Retrospective: plan vs what was built</td></tr>
+  <tr><td>/storytime-buildout</td><td>Implement the plan with persona-driven pair programming</td></tr>
+  <tr><td>/storytime-retro</td><td>Retrospective: plan vs what was built + evaluation scorecard</td></tr>
 </table>
 
 <h3>Team &amp; QA</h3>
 <table class="skill-table">
   <tr><th>Skill</th><th>Description</th></tr>
   <tr><td>/storytime-cohort</td><td>Hire, fire, bench, promote, evolve personas</td></tr>
-  <tr><td>/storytime-qa</td><td>Query personas about past decisions</td></tr>
+  <tr><td>/storytime-qa</td><td>Formal queries to personas about past decisions (context-loaded)</td></tr>
+  <tr><td>/storytime-echo</td><td>One-shot spawning-pool voice test (ephemeral, no state)</td></tr>
   <tr><td>/storytime-pr-qa</td><td>Team handles PR review comments</td></tr>
 </table>
 
-<h3>Documents &amp; Control</h3>
+<h3>Continuity &amp; Control</h3>
 <table class="skill-table">
   <tr><th>Skill</th><th>Description</th></tr>
+  <tr><td>/storytime-remember</td><td>Stage remembrance for /compact (wakeup document + prompt)</td></tr>
+  <tr><td>/storytime-lint</td><td>Mechanical + reasoning-tier validation against process rules</td></tr>
   <tr><td>/storytime-bootstrap</td><td>Initialize .storytime/ in a repo</td></tr>
   <tr><td>/storytime-consolidate</td><td>Organize, archive, roll up documents</td></tr>
   <tr><td>/storytime-absorb</td><td>Team reads and interprets existing docs</td></tr>
   <tr><td>/storytime-export</td><td>Convert to ADRs, issues, Kiro specs</td></tr>
-  <tr><td>/storytime-status</td><td>Dashboard: cohort, threads, decisions</td></tr>
+  <tr><td>/storytime-status</td><td>Dashboard: cohort, threads, decisions, tutorial progress</td></tr>
   <tr><td>/storytime-undo</td><td>Revert: phase, episode, thread, or file</td></tr>
 </table>
 

@@ -85,80 +85,50 @@ Standalone: CONVERGE via /storytime-converge, BUILDOUT via /storytime-buildout
 | GROUND            | Read          | Confirmed/corrected     | Need to check a doc claim   |
 | SUB-DELIBERATION  | general       | Analysis + recommendation| Complex sub-problem        |
 
-## Process Rules
+## Process Rules (29, v1.0.0)
 
-1. SURVEY before ASSEMBLE
-2. ICEBREAKER before BREAKOUT or CONVERGE
-3. CONVERGE before REVIEW
-4. Phases collapse when empty — never present ceremony for absent content
-5. Team size is project-appropriate, not fixed. Bias small. Hard ceiling 12.
-6. Default core: OWNER, OPERATOR, CRITIC ×2 — two critics minimum, they contest each other.
-7. Permanent cohort participates by default
-8. User can fire, bench, or recruit at any time
-9. Every technical claim must be grounded (code, docs, web, or git citation)
-10. Breakout findings override prior assumptions
-11. Prototypes are disposable (illustration, not production)
-12. Every plan has non-goals (required)
-13. Every plan has success criteria (measurable)
-14. Every plan has visual aids (ASCII, inline)
-15. Every document after chapter 1 opens with "Previously"
-16. Persona files updated after every session
-17. Decision log is append-only
-18. Specialist contracts have explicit exit conditions
-19. Every phase writes its output — a run is a complete snapshot
-20. Prior runs are prior art — detect and present, never silently overwrite
-21. Every survey writes a coverage fingerprint (commit, paths, gaps, ratios)
-22. Effort uses Complexity , never time estimates
-23. Rollups replace stale docs — originals go cold, rollup stays warm
-24. Archive artifacts must be git-committable and repo-local
-25. All storytime output lives under specs/.storytime/ — single root
-26. Bias toward consolidating external artifacts into .storytime via git mv
-27. Universal frontmatter on every document: type, created, session
-28. Semantic events get explicit timestamps; file edits rely on git
-29. Inferred timestamps marked with confidence (git-derived, approximate, estimated)
-30. Scale Impact (1-5) alongside Complexity for magnitude — dimension stated in prose
-31. Evaluation hygiene: observe metrics and conclusions separately, don't conflate
-32. Warm start is detected, not requested — if `_thread.md` exists, warm-start
-33. Preamble narrative is always dynamic — synthesized fresh, never cached
-34. Personas skip introductions on warm start — speak from accumulated context
-35. Thread auto-checkpoints at every phase boundary — created at first phase, no explicit save
-36. Episodes are chapters, not restarts — Reset is the explicit "new story" action
-37. Survey delta replaces full survey on warm start — only resurvey what changed
-38. Standalone breakouts are valid — not every investigation needs the full pipeline
-39. Always confirm before destructive undo — show impact inventory first
-40. Prefer archive over delete — cold storage is recoverable, deletion relies on git
-41. Redo is undo + immediate retry — don't make the user invoke two commands
-42. Post-breakout pause is mandatory (unless auto) — present summaries, wait for user
-43. Converge can run standalone — breakout results as input, plan as output
-44. Personas use `@role` by default in all output — roles are functional anchors,
-    names are ornaments. Qualified with focus: `@critic:architecture`. Configurable.
-45. Buildout requires an approved plan — no plan, no buildout
-46. Every buildout slice produces a trace document mapping decisions to code changes
-47. Buildout slices are natural seams, not prescribed phases — merge or split as the code demands
-48. Every buildout slice includes tests — no slice is done without verification
-49. Buildout divergence from plan must be traced and explained, never silent
-50. Personas use **non-human codenames by default** — concept words like `anchor`,
-    `lattice`, `kestrel`. Human names only when the user picks them. Roles
-    remain the load-bearing address; codenames are ornaments.
-51. **One driving persona per leg** of the process. Supporters stay silent
-    unless their interjection is both useful AND non-distortive. Round-robin
-    commentary is the failure mode this rule prevents. See main SKILL
-    "Driving Persona" for trigger conditions.
-52. Team size is appropriate to the project, not fixed. Bias small. Tiny
-    problem = tiny team. The "too many cooks" problem is real and costly.
+1. SURVEY before ASSEMBLE. Never build a team blind.
+2. ICEBREAKER before BREAKOUT. Shared understanding first.
+3. CONVERGE before showing the user. Internal consensus first.
+4. Every claim grounded — code, docs, web, or git.
+5. Default core: OWNER, OPERATOR, CRITIC ×2 (two critics contest).
+6. Non-goals + success criteria required on every plan.
+7. Visuals use ASCII box-drawing. No external tools.
+8. Personas are lenses, not characters. No role-play.
+9. Team size project-appropriate. Bias small. Ceiling 12.
+10. User has veto power everywhere.
+11. Phases collapse when empty.
+12. Every phase writes output — run is a complete snapshot.
+13. Prior runs are prior art — never silently overwrite.
+14. Survey writes a coverage fingerprint.
+15. Effort = Complexity + Scale (never time). ≥13 decomposes.
+16. Evaluation hygiene: observe metrics and conclusions separately.
+17. Warm entry detected, not requested. If thread exists, warm.
+18. Remembrance is pre-staged (at pause/compact), never reactive.
+19. Post-breakout pause mandatory unless auto. Present options considered.
+20. Grounding multi-source: code > git > repo > library > standards > web.
+21. `@role` is a lens directive, not a skill trigger.
+22. Codenames non-human by default.
+23. **One driving persona per leg.** Supporters silent unless useful AND non-distortive.
+24. LLM drafts every commit. User confirms every one. No auto-commit.
+25. Pauses are model-driven, not threshold-driven (threshold is opt-in fallback).
+26. All consolidation writes atomic (tmp+fsync+mv).
+27. Cross-topic decisions use callouts (`Callout->` / `Callout<-`), not merging.
+28. Thread IS decision log — per-topic, append-only, commit-pinned.
+29. Dreams ancillary and disablable. Never on critical path.
 
 ## File Naming Conventions
 
 ### Persona Files
 ```
-<name>-<archetype>-<specialty>.md
+<codename>-<archetype>-<specialty>.md
 
 Examples:
-  kim-owner-architect.md
-  dana-systems-voip.md
-  leo-operator-sre.md
-  raj-domain-dsp.md
-  mira-platform-asr.md
+  anchor-owner-architect.md
+  lattice-systems-voip.md
+  tide-operator-sre.md
+  arbor-domain-dsp.md
+  compass-platform-asr.md
 ```
 
 ### Session Output Files
@@ -238,29 +208,40 @@ On subsequent runs, compute the delta (commit drift + coverage gaps)
 and let the user decide: resurvey stale, extend to gaps, full resurvey,
 or trust prior.
 
-## Automation Levels
+## Automation Tiers (v1.0)
 
-| Level  | Phase transitions | Breakouts | Post-breakout | Team assembly | Review |
-|--------|-------------------|-----------|---------------|---------------|--------|
-| manual | user approves each| user approves | pause + summary | user approves | inline |
-| guided | automatic         | automatic | pause + summary | user approves | inline |
-| auto   | automatic         | automatic | auto-proceed    | automatic     | present-only |
+| Tier     | Phase transitions | Breakouts | Post-breakout | Commits | Pauses surfaced |
+|----------|-------------------|-----------|---------------|---------|-----------------|
+| tutorial | prompt + explain  | prompt + explain | pause + explain | full + explain | all |
+| manual   | prompt + wait     | prompt + wait | pause + wait | full prompt | shift, compact |
+| guided   | auto              | auto | pause + wait | full (quieter if learned) | shift, compact |
+| auto     | auto              | auto | auto-proceed | full (never skipped) | shift, compact |
+
+Commits are **never auto-approved** across any tier (V1-001).
+Tutorial is the fresh-install default; graduation is adaptive and per-skill.
 
 ## Configuration (`specs/.storytime/config.md`)
 
 ```yaml
+mode: native                     # native | adapt | export
 default_mode: inline             # inline | deliberation
-automation: guided               # manual | guided | auto
+automation: tutorial             # tutorial | manual | guided | auto
 team_size: project-appropriate   # bias small; sized to the work
 max_team_size: 12                # hard ceiling, override required
 max_concurrent_breakouts: 10
-max_deliberation_rounds: 3
 default_core: [owner, operator, critic]
 naming: codename                 # non-human by default
 driving_persona: required        # one driver per leg
 require_nongoals: true
 visual_style: ascii
 citation_format: "file:line — snippet"
-persona_voice: role              # role | name | both
 auto_update_personas: true
+
+# v1.0 consolidation
+pause_mode: model-introspection  # model-introspection | threshold
+dreams_enabled: false            # off by default, opt-in
+post_commit_hook: disabled       # opt-in
+remembrance_load_on_compact: true
+commit_learning: enabled         # V1-014 adaptive quieter prompts
+tutorial_graduation: adaptive    # V1-013 per-skill friction detection
 ```
