@@ -189,3 +189,5 @@ know it."
   intents in storytime documents (cross-reference)
 - `intent-visualization.md` — visualization sketches for adherence and
   active-attention window
+- `intent-gradient.md` — coarse/fine structure, typed intent DAG model,
+  decomposition vs composition asymmetry

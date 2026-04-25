@@ -262,3 +262,5 @@ ambitious one.
 
 - `intent-extraction-user.md` — user-intent extraction analysis
 - `intent-extraction-roles.md` — role-intent extraction + flow analysis
+- `intent-gradient.md` — coarse/fine structure, typed intent DAG model,
+  decomposition vs composition asymmetry

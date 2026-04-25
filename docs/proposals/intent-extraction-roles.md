@@ -211,3 +211,5 @@ decisions actually get realized, the intent-tracking layer gives us the
 - `intent-extraction-user.md` — user-intent extraction analysis
 - `intent-visualization.md` — visualization sketches for adherence and
   active-attention window
+- `intent-gradient.md` — coarse/fine structure, typed intent DAG model,
+  decomposition vs composition asymmetry
