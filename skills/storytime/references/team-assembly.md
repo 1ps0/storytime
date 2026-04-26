@@ -144,6 +144,24 @@ recruit a specialist for one breakout.
   live in `specs/.storytime/specialists/`. Each has a scope and an exit
   condition (complete → promote to cohort, release, or archive).
 
+## @user — the user as a first-class persona (v1.0.1+)
+
+Per V1-031, the user themselves is a persona — `@user [codename]`. They
+have a persistent file at `cohort/_user.md` with a tracked lens
+distribution. They appear as `driver:` on prompt-yield documents
+(V1-036) and may be co-driver on user-led decisions.
+
+Differences from cohort personas:
+
+- Never fired or benched (only tracking can be disabled)
+- Lens shifts session by session (not fixed by archetype)
+- Codename non-human by default but user-chosen
+- Acquired context comes from extracted intents (`.storytime/intents.md`)
+
+See `references/user-as-role.md` for the full convention and
+`references/prompt-yield.md` for the document type where @user is the
+originating driver.
+
 When recruiting specialists during ASSEMBLE:
 1. Analyze which domains the problem touches.
 2. For each domain not covered by the cohort or rehired personas,

@@ -5,7 +5,7 @@ argument-hint: "[optional tier: nap | shift | compact]"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
 
-<!-- version-echo: display "storytime v1.0.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.1" at start of execution -->
 # Storytime Remember — Stage Remembrance
 
 Writes `specs/.storytime/remembrance.md` atomically as a wakeup document

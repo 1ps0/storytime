@@ -5,7 +5,7 @@ argument-hint: "<source> as <target-format>"
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch]
 ---
 
-<!-- version-echo: display "storytime v1.0.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.1" at start of execution -->
 # Storytime Export — Format Transformation
 
 Transform storytime artifacts into formats that other systems can consume.

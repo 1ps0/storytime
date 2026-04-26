@@ -2,7 +2,7 @@
 
 A continuity system for LLM-harness collaboration. Builds technical
 specifications through structured persona conversations — and carries
-session state across compactions, sessions, and time. v1.0.0.
+session state across compactions, sessions, and time. v1.0.1.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -143,7 +143,7 @@ Not on the critical path.
 
 ```
 storytime/
-├── .claude-plugin/plugin.json    Plugin manifest (v1.0.0)
+├── .claude-plugin/plugin.json    Plugin manifest (v1.0.1)
 ├── VERSION                       Version file
 ├── skills/                       19 skills (entry points)
 ├── agents/

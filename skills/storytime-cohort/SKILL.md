@@ -5,7 +5,7 @@ argument-hint: "<action> <persona> [details]"
 allowed-tools: [Read, Write, Edit, Glob, Grep]
 ---
 
-<!-- version-echo: display "storytime v1.0.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.1" at start of execution -->
 # Storytime Cohort Management
 
 Manage the Storytime persona roster — hiring, firing, benching,

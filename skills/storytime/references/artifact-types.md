@@ -15,6 +15,7 @@ This registry defines what "valid" means per type.
 |---------|--------|----------------------------------------------------------------------|
 | 1       | v0.7.2 | Initial — survey, team, breakout, plan, buildout, preamble, config, persona, errors, thread |
 | 2       | v1.0   | +consolidation, +remembrance, +dream, +proposal. Thread gains `type: thread`, `last_consolidation`, `dreams`, `remembrance_staged`, `remembrance_path`. Decisions merge into threads (V1-003). |
+| 2.1     | v1.0.1 | +prompt-yield, +intents-log. Persona gains `archetype: user` for `@user`. Decisions gain optional `parent:`, `edge_type:`, `tensions:`, `realized_at:`, `lifecycle_state:` fields (intent graph, V1-031..V1-036). |
 
 When reading an artifact without `schema_version`, treat as version 0
 (pre-v0.7.2). Apply best-effort parsing; warn but don't fail.
@@ -52,6 +53,26 @@ When reading an artifact without `schema_version`, treat as version 0
 | commit-patterns | type, schema_version, updated                                         | (pattern entries in body)           |
 | tutorial-state  | type, schema_version, updated                                         | (per-skill sections in body)        |
 | migration-report| type, schema_version, created                                         | (applied/deferred/files sections)   |
+
+### v1.0.1 new types
+
+| Type           | Required fields                                                       | Optional fields                     |
+|----------------|-----------------------------------------------------------------------|-------------------------------------|
+| prompt-yield   | type, schema_version, created, originating_user, status               | crystallized_into, parent           |
+| intents-log    | type, schema_version, created                                         | (entries in body)                   |
+| roster         | type, schema_version, created                                         | updated                             |
+
+### Decision frontmatter v2.1 (v1.0.1+, optional fields)
+
+Existing v1.0 decisions remain valid as-is. New decisions may include:
+
+| Field            | Type   | Notes                                                       |
+|------------------|--------|-------------------------------------------------------------|
+| parent           | id     | Coarser decision this refines (intent graph)                |
+| edge_type        | enum   | refines | specializes | implements | co-implies | tensions | supersedes |
+| tensions         | [id]   | Decisions this contradicts (symmetric; lint reconciles)     |
+| realized_at      | sha    | Commit that delivered this decision (sealed → realized)     |
+| lifecycle_state  | enum   | proposed | focused | sealed | realized | retired         |
 
 ### Config/persona
 

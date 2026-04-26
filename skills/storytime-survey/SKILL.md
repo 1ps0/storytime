@@ -5,7 +5,7 @@ argument-hint: "<focus-area or problem-context>"
 allowed-tools: [Read, Glob, Grep, Bash, Agent]
 ---
 
-<!-- version-echo: display "storytime v1.0.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.1" at start of execution -->
 # Storytime Survey — Standalone
 
 Run a codebase survey and artifact scan without triggering a full

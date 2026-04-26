@@ -5,7 +5,7 @@ argument-hint: "[<topic> or <session-path>] — defaults to all sessions"
 allowed-tools: [Read, Glob, Grep, Bash, Agent]
 ---
 
-<!-- version-echo: display "storytime v1.0.0" at start of execution -->
+<!-- version-echo: display "storytime v1.0.1" at start of execution -->
 # Storytime Lint — Structural Checks
 
 Fast mechanical validation of storytime artifacts against the process
@@ -235,6 +235,39 @@ Delegated to `scripts/validate-callouts.sh`.
 
 Full-repo lint surfaces M1-M5 as advisory warnings. The pre-flight gate
 in v1.0 skills (V1-029) is the authoritative block.
+
+### Intent graph (IG-class, v1.0.1+)
+
+Per V1-035. Mechanical only; reasoning checks deferred.
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| IG1 | mechanical | Every sealed decision with `parent:` has a resolvable target |
+| IG2 | mechanical | Every `supersedes:` has a resolvable target              |
+| IG3 | mechanical | `tensions:` are symmetric (X tensions Y ↔ Y tensions X)  |
+
+### Prompt-yield (PY-class, v1.0.1+)
+
+Per V1-036. Mechanical only.
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| PY1 | mechanical | Frontmatter `type: prompt-yield` present                 |
+| PY2 | mechanical | `originating_user` is a `@user [codename]` reference     |
+| PY3 | mechanical | `status` in {seeded, hydrating, maturing, crystallized}  |
+| PY4 | mechanical | If status=crystallized, `crystallized_into` resolves     |
+
+### Intent tracking (IT-class, v1.0.1+)
+
+Per V1-031, V1-033. Mechanical only.
+
+| #   | Tier       | Check                                                    |
+|-----|------------|----------------------------------------------------------|
+| IT1 | mechanical | `.storytime/intents.md` header lines match timestamp+session pattern |
+| IT2 | mechanical | Each intent entry has required fields (intent, lens, type, source) |
+| IT3 | mechanical | `lens:` references known roles only                      |
+| IT4 | mechanical | `type:` is in the closed vocabulary                      |
+| IT5 | mechanical | `supersedes:` resolves to a prior entry                  |
 
 ## Process
 
