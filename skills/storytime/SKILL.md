@@ -198,6 +198,7 @@ every one. No auto-commit. Confirmation learns patterns (V1-014, see
 27. Cross-topic decisions use callouts, not merging. See `references/callouts.md`.
 28. Thread IS decision log — per-topic, append-only, commit-pinned.
 29. Dreams ancillary and disablable. Never on critical path.
+30. **Prefer built-in tools over Bash or inline Python.** When a dedicated tool fits (Read for files, Grep for content search, Glob for path patterns, Edit/Write for modifications, the harness's TaskCreate/TaskUpdate, etc.), use it. Reserve Bash for actual shell/process orchestration (deploys, SCP, ssh, subprocess pipelines). Reserve inline Python for one-off computation no built-in addresses. The dedicated tools have better permissioning, clearer review surfaces, and structure that bash one-liners lack. This applies to every LLM that works in a storytime-using project — Claude Code, Agent SDK, custom harnesses.
 
 ## Driving Persona (summary)
 
