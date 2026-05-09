@@ -1,0 +1,10 @@
+# Local clones for research / cross-port work — do not commit
+/opencode/
+
+# OS junk
+.DS_Store
+**/.DS_Store
+
+# Editor scratch
+*.swp
+*~
