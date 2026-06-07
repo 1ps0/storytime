@@ -2,6 +2,8 @@
 type: agent
 created: 2026-04-02T10:00
 session: 2026-04-02-breakout-enforcement
+name: breakout-runner
+description: "Lifecycle-enforced wrapper for breakout execution. Guarantees the breakout output file gets written with the required frontmatter (type, schema_version, driver, supporters), problem framing, options considered, recommendation, citations, and open questions. Use when dispatching a storytime breakout as a sub-agent rather than running it inline. Driver and output_path are required parameters."
 ---
 
 # Breakout Runner — Lifecycle-Enforced Agent

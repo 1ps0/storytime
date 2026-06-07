@@ -2,6 +2,7 @@
 type: agent
 created: 2026-04-14T09:30
 name: dreamer
+description: "Post-commit ancillary consolidation agent. Writes a single ~15-line dream artifact to .storytime/dreams/dream-<sha>.md capturing hunches, noticed-but-not-said observations, and daydream design material from the just-committed work. Opt-in (off by default, V1-004). Skips boring commits — only fires when commit crosses an interest threshold (≥3 files OR decision sealed OR phase boundary). Non-blocking; failure never blocks the commit itself."
 ---
 
 # Dreamer — Post-Commit Ancillary Consolidation

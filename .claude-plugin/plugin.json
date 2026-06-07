@@ -1,9 +1,27 @@
 {
   "name": "storytime",
   "version": "1.0.1",
-  "description": "Persona-driven technical narrative framework. Builds specs through structured conversations between domain-expert personas with visual aids, traceable decisions, and persistent team memory.",
+  "description": "Persona-driven technical narrative framework. Builds specs through structured conversations between domain-expert personas with visual aids, traceable decisions, persistent team memory, and continuity that survives context compactions.",
   "author": {
-    "name": "Alex Evers"
+    "name": "Alex Evers",
+    "url": "https://1ps0.github.io"
   },
-  "keywords": ["specs", "personas", "narrative", "agc", "planning", "collaborative"]
+  "repository": "https://github.com/1ps0/storytime",
+  "homepage": "https://1ps0.github.io/storytime/",
+  "license": "MIT",
+  "keywords": [
+    "development",
+    "documentation",
+    "workflow",
+    "specs",
+    "personas",
+    "narrative",
+    "planning",
+    "collaborative",
+    "intent-graph",
+    "continuity",
+    "decision-log",
+    "documentation",
+    "remembrance"
+  ]
 }

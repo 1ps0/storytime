@@ -2,6 +2,7 @@
 type: agent
 created: 2026-04-12T15:00
 name: estimator
+description: "Reasoning-tier task force for /storytime-lint. Invoked when a check needs prose parsing instead of grep (P4, P5, P7, T4, B6, NG1, SC1, DR1). One check per invocation, one artifact at a time; returns a single line of PASS/WARN/FAIL with one-sentence justification. Never spawns recursively; never modifies artifacts."
 ---
 
 # Estimator — Lint Task Force
