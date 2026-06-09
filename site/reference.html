@@ -109,10 +109,14 @@
 &#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; buildout-*.md       Implementation traces
 &#x2502;   &#x2514;&#x2500;&#x2500; 002/                    Episode 2 (warm start)
 &#x251c;&#x2500;&#x2500; cohort/                     Permanent personas (non-human codenames)
-&#x251c;&#x2500;&#x2500; specialists/                Temporary personas
+&#x2502;   &#x251c;&#x2500;&#x2500; _roster.md              Address-resolution table
+&#x2502;   &#x251c;&#x2500;&#x2500; _user.md                You — @user as a first-class persona (v1.0.1)
+&#x2502;   &#x2514;&#x2500;&#x2500; &lt;codename&gt;-&lt;archetype&gt;-&lt;focus&gt;.md
+&#x251c;&#x2500;&#x2500; specialists/                Temporary personas (scoped contracts)
 &#x251c;&#x2500;&#x2500; dreams/                     Optional ancillary per-commit byproducts
 &#x251c;&#x2500;&#x2500; history/sessions/           Session summaries
 &#x251c;&#x2500;&#x2500; archive/                    hot/warm/cold tiers
+&#x251c;&#x2500;&#x2500; intents.md                  Extracted user-intent log (v1.0.1)
 &#x251c;&#x2500;&#x2500; commit-patterns.md          Adaptive commit-learning state
 &#x251c;&#x2500;&#x2500; tutorial-state.md           Per-skill tutorial graduation progress
 &#x2514;&#x2500;&#x2500; config.md                   Project settings</code></pre>
@@ -189,6 +193,63 @@ tutorial_graduation: adaptive    # V1-013 per-skill friction detection</code></p
 <p>Commits are <strong>never auto-approved</strong> across any tier (V1-001). Tutorial
 is the fresh-install default; graduation is adaptive and per-skill.</p>
 
+<h2>Intent Graph (v1.0.1+)</h2>
+
+<p>Decisions form a <strong>typed DAG</strong>. Each <code>TOPIC-NNN</code> is a node; edges carry
+type via the <code>edge_type</code> field on the child.</p>
+
+<h3>Edge vocabulary</h3>
+<table class="skill-table">
+  <tr><th>edge_type</th><th>Meaning</th></tr>
+  <tr><td><code>refines</code></td><td>Child adds constraints to parent</td></tr>
+  <tr><td><code>specializes</code></td><td>Child is a more specific case of parent</td></tr>
+  <tr><td><code>implements</code></td><td>Child realizes parent at lower level</td></tr>
+  <tr><td><code>co-implies</code></td><td>Two siblings jointly imply a third</td></tr>
+  <tr><td><code>tensions</code></td><td>Siblings partially contradict (symmetric)</td></tr>
+  <tr><td><code>supersedes</code></td><td>Replaces an earlier subtree</td></tr>
+</table>
+
+<h3>Decision frontmatter v2.1 fields (optional)</h3>
+
+<pre><code>### RATE-003 — Middleware position
+  At: 2026-04-15
+  Commit: abc1234
+  Drivers: @owner [anchor]
+  Parent: RATE-001               <span style="color:var(--text-muted)"># intent-graph edge target</span>
+  Edge_type: refines             <span style="color:var(--text-muted)"># refines | specializes | implements | co-implies | tensions | supersedes</span>
+  Tensions: []                   <span style="color:var(--text-muted)"># symmetric; lint reconciles</span>
+  Realized_at: def5678           <span style="color:var(--text-muted)"># commit that delivered (sealed → realized)</span>
+  Lifecycle_state: realized      <span style="color:var(--text-muted)"># proposed | focused | sealed | realized | retired</span></code></pre>
+
+<h3>Cross-topic callouts</h3>
+
+<p>Forward authoritative, reverse lint-cached:</p>
+
+<pre><code>### RATE-003 — Middleware position
+  At: 2026-04-15
+  Drivers: @owner [anchor]
+  Callout-&gt; auth-refactor#AUTH-007 (depends-on)
+  Callout&lt;- monitoring#MON-002 (affected-by)</code></pre>
+
+<h3>Read-side queries</h3>
+
+<pre><code>./scripts/intent-graph-query.sh list_nodes        <span style="color:var(--text-muted)"># all decisions, all topics</span>
+./scripts/intent-graph-query.sh get_node RATE-003
+./scripts/intent-graph-query.sh get_children RATE-001
+./scripts/intent-graph-query.sh get_parents RATE-003
+./scripts/intent-graph-query.sh get_path RATE-003   <span style="color:var(--text-muted)"># walk to root</span>
+./scripts/intent-graph-query.sh get_orphans         <span style="color:var(--text-muted)"># sealed without parent</span>
+./scripts/intent-graph-query.sh get_unrealized      <span style="color:var(--text-muted)"># sealed without realized_at</span>
+./scripts/intent-graph-query.sh get_tensions        <span style="color:var(--text-muted)"># contradicting siblings</span>
+./scripts/intent-graph-query.sh get_supersedes      <span style="color:var(--text-muted)"># supersession edges</span>
+
+./scripts/intent-adherence.sh                       <span style="color:var(--text-muted)"># sealed-vs-realized grid (repo-wide)</span>
+./scripts/intent-adherence.sh rate-limiting         <span style="color:var(--text-muted)"># filtered to one topic</span>
+./scripts/intent-adherence.sh --csv &gt; adherence.csv <span style="color:var(--text-muted)"># for downstream tooling</span></code></pre>
+
+<p>Read-side only in v1.0.1. Write-side mutations remain hand-edits to
+frontmatter. Composition (distillation, naming) deferred to v1.2+.</p>
+
 <h2>Scripts</h2>
 
 <pre><code><span style="color:var(--text-muted)"># Check for stale code citations</span>
@@ -203,13 +264,20 @@ is the fresh-install default; graduation is adaptive and per-skill.</p>
 <span style="color:var(--text-muted)"># On-demand decisions view across all threads</span>
 ./scripts/decisions-view.sh --status=active
 
+<span style="color:var(--text-muted)"># Read-side intent graph queries (v1.0.1)</span>
+./scripts/intent-graph-query.sh get_orphans
+./scripts/intent-graph-query.sh get_unrealized
+
+<span style="color:var(--text-muted)"># Adherence visualization — sealed vs realized (v1.0.1)</span>
+./scripts/intent-adherence.sh
+
 <span style="color:var(--text-muted)"># Convention enforcement (version, schema, drivers, etc.)</span>
 ./scripts/check-conventions.sh
 
 <span style="color:var(--text-muted)"># Migrate v0.9.x repo to v1.0 shapes</span>
 ./scripts/migrate-to-v1.sh --apply --commit
 
-<span style="color:var(--text-muted)"># Bump version across all files</span>
+<span style="color:var(--text-muted)"># Bump version across all files (storytime + plugin.json + README + site)</span>
 ./scripts/bump-version.sh 1.1.0</code></pre>
 
 </div>

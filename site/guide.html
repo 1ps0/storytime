@@ -97,6 +97,15 @@ in any conversation &mdash; the model applies the role&rsquo;s perspective witho
 launching a formal skill. For context-loaded answers that need persona
 history + decision log lookup, use <code>/storytime-qa</code> explicitly.</p>
 
+<h3>The user as a persona</h3>
+<p>You are a persona too. <code>@user [codename]</code> is a first-class lens with its own
+<code>cohort/_user.md</code> file, accumulated context, and lens distribution tracked over
+sessions. You can drive decisions, be a supporter, originate prompt-yield
+documents (complex asks the cohort hydrates into structured artifacts), and
+have your own intent history at <code>.storytime/intents.md</code>. Storytime doesn't
+treat your input as instructions to a tool &mdash; it treats your input as one
+voice in the room.</p>
+
 <!-- ─── GETTING STARTED ─── -->
 
 <h2>Getting Started</h2>
@@ -139,6 +148,41 @@ degradation signal), <strong>shift</strong> (2+ signals or framing loss), <stron
 A workday-shaped wakeup document + consolidation prompt, staged before
 <code>/compact</code> and loaded as the first action post-compact. It tells the
 re-engaging model exactly what to load and where the work was.</p>
+
+<h2>Decisions and the Intent Graph</h2>
+
+<p>Decisions are not narrative bullets &mdash; they're <strong>nodes in a typed DAG</strong>.
+Each decision (e.g., <code>RATE-001</code>) lives in its topic's <code>_thread.md</code>, pins to
+the commit that sealed it, and can carry edges to other decisions via
+<code>parent:</code>, <code>tensions:</code>, and cross-topic <code>Callout-&gt;</code> / <code>Callout&lt;-</code> sigils.</p>
+
+<p>Cross-topic references use callouts so a decision in <em>auth-refactor</em> can
+reference one in <em>rate-limiting</em> without copying content. Forward callouts
+(<code>Callout-&gt;</code>) are authoritative; reverse callouts (<code>Callout&lt;-</code>) are
+lint-cached. Closed 5-kind vocabulary: <code>depends-on</code>, <code>affects</code>,
+<code>supersedes</code>, <code>superseded-by</code>, <code>related</code>.</p>
+
+<p>The graph is queryable via shell scripts &mdash; no graph DB, just grep over
+existing artifacts:</p>
+
+<pre><code><span style="color:var(--text-muted)"># All sealed decisions across topics</span>
+./scripts/intent-graph-query.sh list_nodes
+
+<span style="color:var(--text-muted)"># Decisions sealed but not yet realized in code</span>
+./scripts/intent-graph-query.sh get_unrealized
+
+<span style="color:var(--text-muted)"># Walk the parent chain from any decision</span>
+./scripts/intent-graph-query.sh get_path RATE-003
+
+<span style="color:var(--text-muted)"># Decisions referenced as parent but missing from any thread</span>
+./scripts/intent-graph-query.sh get_orphans
+
+<span style="color:var(--text-muted)"># Sealed-vs-realized grid per topic</span>
+./scripts/intent-adherence.sh rate-limiting</code></pre>
+
+<p>The graph is read-side in v1.0.1. Write-side mutations are still hand-edits
+to frontmatter. Composition (distillation, naming &mdash; surfacing unnamed
+parent intents from clusters of children) lands in v1.2+.</p>
 
 <h2>Episodes and Threads</h2>
 
