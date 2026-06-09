@@ -67,9 +67,13 @@ specs/.storytime/
 │   │   └── buildout-*.md            Implementation traces
 │   └── 002/                         Episode 2 (warm start)
 ├── cohort/                          Permanent personas (non-human codenames)
+│   ├── _roster.md                   Address-resolution table
+│   ├── _user.md                     You — @user as a first-class persona (v1.0.1)
+│   └── <codename>-<archetype>-<focus>.md
 ├── dreams/                          Optional ancillary per-commit byproducts
 ├── history/sessions/                Session summaries
 ├── archive/                         Hot/warm/cold tiers
+├── intents.md                       Extracted user-intent log (v1.0.1)
 ├── commit-patterns.md               Adaptive commit-learning state
 ├── tutorial-state.md                Per-skill graduation progress
 └── config.md                        Project settings
@@ -139,6 +143,31 @@ resume with full context.
 hunches and noticed-but-not-said observations. Off by default.
 Not on the critical path.
 
+**The user is a persona too.** (v1.0.1) `@user [codename]` is a first-class
+lens with its own `cohort/_user.md` file, accumulated context, and lens
+distribution tracked over sessions. You can drive decisions, be a supporter,
+originate **prompt-yield documents** (complex asks the cohort hydrates into
+structured artifacts), and have your own intent history at
+`.storytime/intents.md`. Storytime doesn't treat your input as instructions
+to a tool — it treats your input as one voice in the room.
+
+**The intent graph.** (v1.0.1) Decisions form a typed DAG. Each `TOPIC-NNN`
+is a node; edges carry type via `parent:` + `edge_type:` frontmatter
+(`refines`, `specializes`, `implements`, `co-implies`, `tensions`,
+`supersedes`). Cross-topic edges use `Callout->` / `Callout<-` sigils. The
+graph is queryable via grep-based scripts — no graph DB:
+
+```bash
+./scripts/intent-graph-query.sh list_nodes        # all decisions, all topics
+./scripts/intent-graph-query.sh get_unrealized    # sealed but not in code
+./scripts/intent-graph-query.sh get_path RATE-003 # walk parent chain
+./scripts/intent-graph-query.sh get_orphans       # parent missing
+./scripts/intent-adherence.sh rate-limiting       # sealed-vs-realized grid
+```
+
+Read-side in v1.0.1; write-side is hand-edits to frontmatter; composition
+(distillation, naming) deferred to v1.2+.
+
 ## Project Structure
 
 ```
@@ -158,6 +187,8 @@ storytime/
 │   ├── validate-breakouts.sh     Verify breakout output completeness
 │   ├── validate-callouts.sh      Cross-topic callout validation
 │   ├── decisions-view.sh         On-demand decisions across threads
+│   ├── intent-graph-query.sh     Read-side intent graph queries (v1.0.1)
+│   ├── intent-adherence.sh       Sealed-vs-realized adherence grid (v1.0.1)
 │   ├── export-decisions.sh       Decision log → CSV (legacy compat)
 │   └── migrate-to-v1.sh          v0.9.x → v1.0 migration
 ├── docs/
@@ -178,8 +209,10 @@ storytime/
 
 ## Links
 
-- [Guide](site/guide.html) — What, why, how to use, all 19 skills
-- [Walkthrough](site/walkthrough.html) — Full simulated cold-start session
-- [Reference](site/reference.html) — All 29 rules, citation formats, config, scripts
-- [v1.0 Proposal](docs/proposals/v1-consolidation.md) — Architecture and 30 design decisions
+- **Live docs:** [1ps0.github.io/storytime/](https://1ps0.github.io/storytime/)
+- [Guide](https://1ps0.github.io/storytime/guide.html) — What, why, how to use, all 19 skills
+- [Walkthrough](https://1ps0.github.io/storytime/walkthrough.html) — Full simulated cold-start session
+- [Reference](https://1ps0.github.io/storytime/reference.html) — All 29 rules, citation formats, intent graph, scripts
+- [v1.0 Architecture Proposal](docs/proposals/v1-consolidation.md) — 30 design decisions, the foundational reframe
+- [Cross-platform Proposal](docs/proposals/cross-platform-storytime.md) — v2.0 direction (OpenCode adapter as paradigm extension)
 - [Process Reference](docs/process-reference.md) — Internal process reference
