@@ -352,6 +352,34 @@ def _head(root):
         return "nogit"
 
 
+def inputs_snapshot(root):
+    """Fingerprint of everything the fold reads, as {key: stamp}.
+
+    The watcher (scripts/board_server.py) re-folds when this changes.
+    Living here means the watcher and the fold can never disagree about
+    what the inputs are. Includes HEAD so commits refresh the board
+    even before FIX-003's git hooks exist.
+    """
+    st_root = os.path.join(root, "specs", ".storytime")
+    snap = {}
+
+    def stamp(p):
+        try:
+            snap[p] = os.stat(p).st_mtime_ns
+        except OSError:
+            pass
+
+    sess = os.path.join(st_root, "sessions")
+    stamp(sess)
+    if os.path.isdir(sess):
+        for name in sorted(os.listdir(sess)):
+            stamp(os.path.join(sess, name, "_thread.md"))
+    stamp(os.path.join(st_root, "cohort", "_roster.md"))
+    stamp(os.path.join(st_root, "cohort", "_user.md"))
+    snap["git:HEAD"] = _head(root)
+    return snap
+
+
 # ---------------------------------------------------------------- emit
 
 def emit(state, out_path):

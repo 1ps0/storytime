@@ -49,6 +49,10 @@ header {
 }
 .stat b { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--heading); margin-right: 4px; }
 .stat.amber b { color: var(--orange); }
+#live { font-family: var(--mono); font-size: 10px; color: var(--text-muted); display: none; }
+#live .ldot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); margin-right: 4px; vertical-align: 1px; }
+#live.on .ldot { background: var(--green); }
+#live.on { color: var(--text); }
 .btn, .cmd {
   background: transparent; border: 1px solid var(--border); color: var(--text-muted);
   font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 5px; cursor: pointer;
@@ -231,7 +235,7 @@ header {
 
 <div id="app">
   <header>
-    <span id="title">board</span><span id="speaks">speaks 0.1.0</span><span id="banner"></span>
+    <span id="title">board</span><span id="speaks">speaks 0.1.0</span><span id="banner"></span><span id="live"><span class="ldot"></span><span id="livetxt"></span></span>
     <span class="hspace"></span>
     <span id="budget"></span>
     <button id="markseen" class="btn">mark seen</button>
@@ -463,6 +467,8 @@ var STAGES = ['criteria', 'build', 'pr', 'review', 'merged', 'deployed'];
 var cur = null;       // current state object
 var moved = {};       // item id -> true (changed since last look)
 var activeLens = null;
+var foldErr = null;   // synthetic fold/self alarm from the live layer (FIX-003)
+var drillId = null, drillKind = null; // open drill target, refreshed on live updates
 
 function $(s) { return document.querySelector(s); }
 function arr(x) { return Array.isArray(x) ? x : []; }
@@ -499,6 +505,7 @@ function load(o) {
   $('#error').style.display = 'none';
   $('#app').style.display = '';
   render();
+  refreshDrill();
 }
 
 /* ---- moved-since-last-look: client-side only (BOARD-002) ---- */
@@ -592,6 +599,7 @@ function renderDirectives() {
 
 function renderAlarms() {
   var gs = arr(cur.guardrail_blocks);
+  if (foldErr) gs = gs.concat([foldErr]);
   var el = $('#alarms');
   if (!gs.length) { el.style.display = 'none'; el.innerHTML = ''; return; } // guardrails silent while working
   el.style.display = '';
@@ -722,9 +730,26 @@ function showDrill(html) {
   d.classList.add('open');
   d.scrollTop = 0;
 }
-function closeDrill() { $('#drill').classList.remove('open'); }
+function closeDrill() { drillId = null; drillKind = null; $('#drill').classList.remove('open'); }
+
+function refreshDrill() {
+  if (!drillId) return;
+  var st = $('#drill').scrollTop;
+  if (drillKind === 'cand') {
+    var cs = arr(cur.candidates), c = null;
+    for (var i = 0; i < cs.length; i++) if (cs[i] && String(cs[i].id) === String(drillId)) c = cs[i];
+    if (!c) return closeDrill(); // gone from state: a stale drill is a lying drill
+    drillCand(c);
+  } else {
+    var it = findItem(drillId);
+    if (!it) return closeDrill();
+    drillItem(it);
+  }
+  $('#drill').scrollTop = st;
+}
 
 function drillItem(it) {
+  drillId = it.id; drillKind = 'item';
   var h = '<div class="dhead"><span class="did">' + esc(it.id || '') + '</span><span class="hspace"></span>' +
     (it.state ? schip(it.state, stateCls(it.state)) : '') +
     (it.lifecycle_state ? schip(it.lifecycle_state, '') : '') +
@@ -777,6 +802,7 @@ function drillItem(it) {
 }
 
 function drillCand(c) {
+  drillId = c.id; drillKind = 'cand';
   var h = '<div class="dhead"><span class="did">' + esc(c.id || '') + '</span><span class="hspace"></span>' +
     schip('candidate', '') + '<button class="dclose" aria-label="close">✕</button></div>';
   h += '<div class="dlabel">' + esc(c.label || '') + '</div>';
@@ -868,7 +894,56 @@ document.addEventListener('keydown', function (ev) {
   }
 });
 
-/* ---- data loading: embedded fixture, then state.json, then drag-drop ---- */
+/* ---- live layer (BOARD-017): SSE from board_server, polling under any
+   static server, static + drag-drop on file://. Quiet in every mode. ---- */
+var lastText = null;
+function setLive(mode) { // 'live' | 'poll' | null
+  var el = $('#live');
+  if (!mode) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.className = mode === 'live' ? 'on' : '';
+  $('#livetxt').textContent = mode;
+}
+function refetch() {
+  return fetch('state.json', { cache: 'no-store' })
+    .then(function (r) { return (r && r.ok) ? r.text() : null; })
+    .then(function (t) {
+      if (t == null || t === lastText) return;
+      lastText = t;
+      var x;
+      try { x = JSON.parse(t); } catch (e) { return; } // atomic emit makes torn reads impossible; malformed = quiet skip
+      load(x);
+    })
+    .catch(function () {});
+}
+function startPolling() {
+  setLive('poll');
+  setInterval(refetch, 5000);
+}
+function startLive() {
+  if (location.protocol !== 'http:' && location.protocol !== 'https:') return; // file://: static + drag-drop only
+  refetch();
+  if (!window.EventSource) return startPolling();
+  var es;
+  try { es = new EventSource('events'); } catch (e) { return startPolling(); }
+  var opened = false;
+  es.onopen = function () { opened = true; setLive('live'); refetch(); };
+  es.addEventListener('state', function () { foldErr = null; refetch(); });
+  es.addEventListener('fold-error', function (ev) {
+    var d = {};
+    try { d = JSON.parse(ev.data); } catch (e) {}
+    foldErr = { id: 'fold/self', guardrail: 'fold/self', item: null,
+                message: d.message || 'fold failed',
+                at_commit: (d.file || '') + (d.line ? ':' + d.line : '') };
+    if (cur) render(); // alarm lane carries it (FIX-003); state.json stays last-good
+  });
+  es.onerror = function () {
+    if (!opened) { es.close(); startPolling(); } // plain static server: no /events
+    else setLive(null); // dropped; EventSource auto-retries, onopen restores
+  };
+}
+
+/* ---- data loading: embedded fixture, then live layer, then drag-drop ---- */
 function boot() {
   var raw = document.getElementById('state');
   var o = null;
@@ -876,13 +951,7 @@ function boot() {
   catch (e) { return fail('cannot render — embedded state malformed: ' + e.message + ' · this board speaks ' + SPEAKS); }
   load(o);
 
-  // sibling state.json overrides the fixture when present; failure is silent (file:// fails, that's fine)
-  try {
-    fetch('state.json')
-      .then(function (r) { return (r && r.ok) ? r.json() : null; })
-      .then(function (x) { if (x != null) load(x); })
-      .catch(function () {});
-  } catch (e) {}
+  startLive(); // sibling state.json overrides the fixture; SSE/polling keep it current
 
   window.addEventListener('dragover', function (e) { e.preventDefault(); });
   window.addEventListener('drop', function (e) {
