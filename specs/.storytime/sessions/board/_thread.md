@@ -70,6 +70,11 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   lane as `fold/self`, HEAD watched so commits refresh pre-hooks.
   Tested: state push on thread touch; fold-error push on connect
   against a malformed repo, last-good state kept.
+- 003 (PORTABLE, 2026-08-02) — @user asked whether this applies to any
+  project storytime runs against. Sealed + realized BOARD-018
+  (35e46fe): plugin-served UI fallback, `--repo` operation verified
+  against a synthetic consumer repo, machine-level user state at
+  `~/.storytime/user.md`, bootstrap writes the ignore block.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -340,6 +345,30 @@ static + drag-drop on file://. Fold failures render in the alarm lane
 as guardrail `fold/self` with file:line while last-good state stays
 (FIX-003: never stderr oblivion) — verified end-to-end both ways.
 Binds 127.0.0.1 only (BOARD-016: local state stays local).
+
+### BOARD-018 — The board ships with the tool, not with the project
+  At: 2026-08-02
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 35e46fe
+  Parent: BOARD-010
+  Edge_type: refines
+
+From @user's portability question ("does this apply to any project i
+use the storytime tool against") — the answer had to be yes by wiring,
+not just by design. board.html and the fixture are tool UI: the server
+serves the plugin's copies when the target repo has none; state.json
+is always the target repo's fold, never the plugin's. `fold.py` and
+`board_server.py` take `--repo` and operate on any bootstrapped
+`specs/.storytime/` structure (verified against a synthetic consumer
+repo: no board/, no git, no cohort). User state resolves repo-first,
+then `~/.storytime/user.md` — the operator travels across projects,
+committed nowhere (BOARD-016); per-machine variance in local state is
+by design, determinism holds per machine. Bootstrap now writes the
+ignore block into new repos. Each repo's board shows that repo's
+truth; a cross-repo meta-board stays future work (backlog:
+meta-cohort / org-level graph).
 
 ## Proposals (registered, not sealed)
 
