@@ -5,6 +5,164 @@ their section as they become more urgent or well-defined.
 
 ---
 
+## Board Unification Debts (v1.1)
+
+Ingested 2026-08-02 from the board × storytime design session
+(claude.ai; staged as `storytime-fix-todos.md`, archived to
+`docs/drafts/` after ingest). Companion remembrance:
+`specs/.storytime/sessions/board/remembrance-board-x-storytime.md`
+(topic `board`). `Callout->` targets below reference BOARD-NNN ids
+staged in that document; formal extraction into the topic thread is
+the absorb step.
+
+Severity: **blocking** = the board cannot be trusted until fixed.
+**Structural** = the board works but degrades or lies at the edges.
+
+Ordering: FIX-000 → FIX-004 (keystone) → FIX-001-near, FIX-002,
+FIX-003 in any order → FIX-005 → FIX-001-far alongside the v1.2
+command-set work.
+
+### FIX-000 · Stable identity at creation
+
+Prerequisite · rearrangement · Callout-> board/BOARD-P1
+
+**Problem:** only decisions carry ids (TOPIC-NNN). Dreams, questions,
+candidates, and directives are anonymous prose blocks.
+
+**Consequence:** no fold can track an item across events; the board
+loses object permanence — items teleport instead of migrate, which
+destroys the perceptual training the whole grammar exists to produce.
+
+**Fix:** every item kind mints an immutable id at creation
+(topic-scoped counter or ulid). Ids are never reused and never
+renamed.
+
+**Acceptance:** lint fails on any id-less item; two folds spanning a
+retitle resolve to the same id.
+
+**Target:** v1.1 — blocks FIX-001, FIX-002, FIX-004.
+
+### FIX-001 · Markdown-as-database
+
+Blocking · containment is append, full fix is rearrangement ·
+Callout-> board/BOARD-010, board/BOARD-P3
+
+**Problem:** truth is stored as prose conventions — sigil lines,
+ascii boxes, frontmatter — and read back by grep. Format drift is a
+live threat; the lint exists because of it.
+
+**Consequence:** a truth surface that parses prose can silently lie.
+One off-format persona line and an item drops or misstates. A board
+that can lie is worse than no board.
+
+**Fix, near (append):** the board reads only the derived read model
+(state.json). Zero grep of session markdown anywhere in the board
+path. The fold owns all parsing and fails loudly — it never emits
+partial state.
+
+**Fix, far (rearrangement):** BOARD-P3 — invert selected files to
+data-first with prose rendered from them. Decisions and items first;
+narrative (breakouts, icebreakers, dreams) stays prose-canonical.
+
+**Acceptance:** board.html renders from a fixture state.json with the
+repo absent; the fold on malformed input exits nonzero with file and
+line, never partial output.
+
+**Target:** near v1.1 · far v1.2+.
+
+### FIX-002 · Topic silos vs the global glance
+
+Structural · Callout-> board/BOARD-006
+
+**Problem:** `sessions/<topic>/` makes cross-topic state
+second-class; reverse callouts are lint-cached, i.e. eventually
+consistent.
+
+**Consequence:** collisions, tensions, and shared bedrock live
+between topics — exactly what the board must show first. The global
+glance is the product.
+
+**Fix:** the fold is global by construction — one state.json across
+all topics. Reverse callouts are materialized inside every fold run;
+the lint cache is demoted to an optimization. Cross-topic tensions
+and collisions become first-class fold outputs.
+
+**Acceptance:** a tensions edge spanning two topics renders dashed on
+the board within one fold cycle, with no lint invocation required.
+
+**Target:** v1.1.
+
+### FIX-003 · Ceremony-shaped triggers
+
+Blocking for freshness · Callout-> board/BOARD-010 (event stream)
+
+**Problem:** state updates on skill invocation; the phase machine is
+the only clock.
+
+**Consequence:** drift accumulates during ordinary hacking between
+storytime runs — the board is stalest exactly when it matters most.
+
+**Fix (append):** event hooks beyond the six consolidation scales —
+post-commit, post-test-run, PR state change, and an idle heartbeat —
+each firing fold-then-render. Hooks are guardrail-grade: silent while
+working, surfaced only on failure.
+
+**Acceptance:** a commit made outside any storytime session updates
+state.json within one hook cycle; a hook failure lands in the alarm
+lane, not stderr oblivion.
+
+**Target:** v1.1.
+
+### FIX-004 · Append-only without a first-class fold
+
+Blocking · keystone · Callout-> board/BOARD-010 (read model)
+
+**Problem:** "current state" is derived by convention and on-demand
+scripts from append-only logs. No canonical artifact owns the
+reduction — supersedes resolution, latest-wins, adherence and probe
+overlays.
+
+**Consequence:** every consumer re-derives or trusts a cache, and a
+stale cache on a truth surface is the cardinal failure.
+
+**Fix:** the fold becomes a versioned artifact — one script, one
+output, schema version from day one. Consolidate invokes it.
+Supersedes, adherence, and probe overlays are applied inside the fold
+and nowhere else in the repo.
+
+**Acceptance:** the fold is deterministic — two runs with no
+intervening events produce byte-identical state.json; schema changes
+require an explicit version bump; nothing else in the repo computes
+"current."
+
+**Target:** v1.1. This is the keystone: FIX-001-near and FIX-002 land
+inside it.
+
+### FIX-005 · Voice-shaped output, unowned freshness
+
+Structural · Callout-> board/BOARD-P2
+
+**Problem:** outputs are persona conversation — the original
+complaint, worn by the human. Remembrance is model-shaped with no
+machine twin. One-driver-per-leg assigns speech, not maintenance: no
+persona owns keeping an item's state fresh.
+
+**Consequence:** the record grows while the readable surface starves;
+items rot with nobody accountable.
+
+**Fix:** consolidation dual-emits — remembrance for the model, state
+delta for the surface, same event, same commit. Add `owner:` to item
+frontmatter, a cohort member accountable for freshness; lint flags
+items untouched by their owner across N consolidations. Threads
+remain the record, the board is the read surface, and personas keep
+their voices in the drill-down — never in the glance.
+
+**Acceptance:** every consolidation commit contains both artifacts;
+every item carries an owner; staleness surfaces as an amber age
+marker on the board, not a lint lecture.
+
+**Target:** dual-emit v1.1 · ownership v1.2.
+
 ## Workflow Enhancements
 
 - **Branching narratives.** When the team reaches a fork (two viable
@@ -116,8 +274,10 @@ their section as they become more urgent or well-defined.
   fine (last phase), medium (episode), coarse (thread), surgical (specific
   file), and redo (undo + retry).
 
-- **`/storytime status`** — Show current state: active cohort,
-  recent sessions, pending specialist contracts, stale citations.
+- ~~**`/storytime status`**~~ IMPLEMENTED — `/storytime-status` shows
+  active cohort, recent sessions, specialist contracts, stale
+  citations. BOARD-P5 (see Board Unification Debts) proposes the
+  board as this surface's successor.
 
 - **`/storytime diff <topic>`** — Show what changed between the
   original plan and the current code. Like a continuous retro.

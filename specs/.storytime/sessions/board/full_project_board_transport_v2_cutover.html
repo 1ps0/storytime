@@ -1,0 +1,226 @@
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">A full project board: three live codebase lens cards, a candidates tray of surfaced items, a maturity board of two dozen items across spec, decisions and risks, a delivery pipeline, teammate rails with a collision, a budget strip, and a drill-down editor panel.</h2>
+<style>
+.lensP{font-family:var(--font-mono);font-size:11px;line-height:1.5;margin:0;overflow-x:auto;color:var(--text-secondary);}
+.cell{padding:7px;border-top:0.5px solid var(--border);border-left:0.5px solid var(--border);display:flex;flex-direction:column;gap:5px;}
+.tb{all:unset;cursor:pointer;font-size:11px;padding:2px 7px;border-radius:var(--radius);color:var(--text-secondary);border:0.5px solid var(--border);}
+.tb:hover{background:var(--surface-1);}
+</style>
+<div style="padding:0.5rem 0 0;">
+
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+  <div style="font-size:16px;font-weight:500;">Transport v2 cutover</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px;align-items:center;">
+    <span style="background:var(--bg-danger);color:var(--text-danger);padding:3px 10px;border-radius:var(--radius);">1 collision</span>
+    <span style="background:var(--bg-warning);color:var(--text-warning);padding:3px 10px;border-radius:var(--radius);">4 need you</span>
+    <span style="background:var(--bg-accent);color:var(--text-accent);padding:3px 10px;border-radius:var(--radius);">6 moved</span>
+    <button class="tb" id="lensT">lenses</button>
+    <button class="tb" id="denT">zoom out</button>
+  </div>
+</div>
+
+<div id="lensRow" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:10px;margin-bottom:12px;">
+  <div class="lensC" data-view="arch" style="background:var(--surface-1);border-radius:12px;padding:10px 12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="display:flex;gap:4px;"><button class="tb lv" data-v="arch">arch</button><button class="tb lv" data-v="flow">flow</button><button class="tb lv" data-v="tree">files</button></div>
+      <div style="display:flex;gap:4px;"><button class="tb lx" aria-label="Expand"><i class="ti ti-arrows-maximize" aria-hidden="true"></i></button><button class="tb lh" aria-label="Hide"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+    </div>
+    <pre class="lensP">cli ─▶ transport ─▶ egress
+       pol* lim* brk○
+legacy ┘ 41d idle</pre>
+  </div>
+  <div class="lensC" data-view="flow" style="background:var(--surface-1);border-radius:12px;padding:10px 12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="display:flex;gap:4px;"><button class="tb lv" data-v="arch">arch</button><button class="tb lv" data-v="flow">flow</button><button class="tb lv" data-v="tree">files</button></div>
+      <div style="display:flex;gap:4px;"><button class="tb lx" aria-label="Expand"><i class="ti ti-arrows-maximize" aria-hidden="true"></i></button><button class="tb lh" aria-label="Hide"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+    </div>
+    <pre class="lensP">send ▶ pol+ ▶ lim+ ▶ brk○
+     └▶ egress −214</pre>
+  </div>
+  <div class="lensC" data-view="tree" style="background:var(--surface-1);border-radius:12px;padding:10px 12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="display:flex;gap:4px;"><button class="tb lv" data-v="arch">arch</button><button class="tb lv" data-v="flow">flow</button><button class="tb lv" data-v="tree">files</button></div>
+      <div style="display:flex;gap:4px;"><button class="tb lx" aria-label="Expand"><i class="ti ti-arrows-maximize" aria-hidden="true"></i></button><button class="tb lh" aria-label="Hide"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+    </div>
+    <pre class="lensP">transport/ 6f ✚4 *
+client.py  idle 41d
+webhooks/  ⚠1</pre>
+  </div>
+</div>
+
+<div style="margin-bottom:12px;background:var(--surface-1);border-radius:12px;padding:10px 12px;">
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:7px;"><i class="ti ti-sparkles" aria-hidden="true" style="font-size:13px;"></i> surfaced candidates — accept to board or dismiss</div>
+  <div id="candRow" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
+</div>
+
+<div id="board" style="display:grid;grid-template-columns:56px repeat(3,minmax(0,1fr));border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+  <div></div>
+  <div style="padding:7px 9px;font-size:12px;color:var(--text-secondary);border-left:0.5px solid var(--border);">Spec and shape</div>
+  <div style="padding:7px 9px;font-size:12px;color:var(--text-secondary);border-left:0.5px solid var(--border);">Decisions</div>
+  <div style="padding:7px 9px;font-size:12px;color:var(--text-secondary);border-left:0.5px solid var(--border);">Questions and risks</div>
+  <div style="padding:9px 7px;font-size:11px;color:var(--text-muted);border-top:0.5px solid var(--border);">surface</div>
+  <div class="cell" id="s-spec"></div><div class="cell" id="s-dec"></div><div class="cell" id="s-risk"></div>
+  <div style="padding:9px 7px;font-size:11px;color:var(--text-muted);border-top:0.5px solid var(--border);background:var(--surface-1);">forming</div>
+  <div class="cell" id="f-spec" style="background:var(--surface-1);"></div><div class="cell" id="f-dec" style="background:var(--surface-1);"></div><div class="cell" id="f-risk" style="background:var(--surface-1);"></div>
+  <div style="padding:9px 7px;font-size:11px;color:var(--text-muted);border-top:0.5px solid var(--border-strong);background:var(--surface-0);">bedrock</div>
+  <div class="cell" id="b-spec" style="border-top:0.5px solid var(--border-strong);background:var(--surface-0);"></div><div class="cell" id="b-dec" style="border-top:0.5px solid var(--border-strong);background:var(--surface-0);"></div><div class="cell" id="b-risk" style="border-top:0.5px solid var(--border-strong);background:var(--surface-0);"></div>
+</div>
+
+<div style="margin-top:12px;border:0.5px solid var(--border);border-radius:12px;padding:10px 12px;">
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">delivery — predefined track, gated by green criteria</div>
+  <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;font-size:11px;color:var(--text-muted);margin-bottom:6px;">
+    <div>criteria</div><div>build</div><div>PR</div><div>review</div><div>merged</div><div>deployed</div>
+  </div>
+  <div id="track" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:start;"></div>
+</div>
+
+<div style="margin-top:12px;border:0.5px solid var(--border);border-radius:12px;padding:10px 12px;">
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">teammates — read-only rails</div>
+  <div id="mates" style="display:flex;flex-direction:column;gap:8px;"></div>
+</div>
+
+<div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--surface-1);border-radius:12px;padding:10px 14px;font-size:12.5px;">
+  <span style="color:var(--text-secondary);">sprint budget</span>
+  <span style="display:inline-flex;align-items:center;gap:6px;">agent <span style="display:inline-block;width:90px;height:6px;background:var(--surface-0);border-radius:3px;overflow:hidden;"><span style="display:block;width:71%;height:100%;background:#7F77DD;"></span></span> 14.2 / 20 h</span>
+  <span style="display:inline-flex;align-items:center;gap:6px;">tokens <span style="display:inline-block;width:90px;height:6px;background:var(--surface-0);border-radius:3px;overflow:hidden;"><span style="display:block;width:68%;height:100%;background:#7F77DD;"></span></span> $61 / $90</span>
+  <span style="background:var(--bg-warning);color:var(--text-warning);padding:3px 10px;border-radius:var(--radius);">review debt 23 min · 3 gates</span>
+</div>
+
+<div id="drill" style="display:none;margin-top:12px;background:var(--surface-2);border:0.5px solid var(--border-strong);border-radius:12px;padding:14px 16px;"></div>
+
+<div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.7;">depth = formedness · <span style="color:var(--text-warning)">amber</span> = waiting on you · <span style="color:var(--text-danger)">red</span> = violated or collision · dashed = contested · <span style="color:var(--text-accent)">●</span> = moved since last look · <i class="ti ti-user" aria-hidden="true" style="font-size:12px;"></i> yours · <i class="ti ti-sparkles" aria-hidden="true" style="font-size:12px;"></i> surfaced organically · <i class="ti ti-terminal-2" aria-hidden="true" style="font-size:12px;"></i> probe or CI born · tap any item to drill and edit; summaries stay read-only</div>
+
+<script>
+const OI={you:"ti-user",ai:"ti-sparkles",probe:"ti-terminal-2"};
+const IT=[
+{id:1,cell:"s-spec",ic:"ti-file-description",o:"ai",l:"Metrics emission ownership",mv:1,body:"Three call sites emit their own latency metrics with no owner of counter names. Blocks the latency-quantile breaker option.",prov:"surfaced by Claude while wiring send(), Jul 30",links:[{t:"3 call sites",p:"Show the three call sites emitting their own latency metrics, with file and line for each."}],cost:"0.2 agent-h"},
+{id:2,cell:"s-dec",ic:"ti-git-branch",o:"ai",l:"Deprecate legacy client.retry?",type:"dec",opts:["Remove now","Keep with sunset"],body:"Old path idle 41 days, 9 import sites all routed through Transport. Decision lens available.",prov:"surfaced by Claude, Jul 30",links:[{t:"decision lens",p:"Open the decision lens for deprecating legacy client.retry."}],cost:"0.1 agent-h"},
+{id:3,cell:"s-risk",ic:"ti-alert-triangle",o:"ai",l:"Backpressure under 429 storms",mv:1,body:"Provider-wide 429s plus uniform retry budgets can self-amplify. No mitigation sketched.",prov:"surfaced by Claude during limiter design, Aug 1",links:[],cost:"—"},
+{id:4,cell:"s-spec",ic:"ti-file-description",o:"you",l:"Multi-region failover story",body:"Your raw note: transport should eventually pick region by health. Parked deliberately.",prov:"added by you, Jul 29",links:[],cost:"—"},
+{id:5,cell:"s-risk",ic:"ti-alert-triangle",o:"ai",l:"SDK retry semantics undocumented",body:"External SDK consumers cannot see the new retry contract. Docs gap becomes a support risk at cutover.",prov:"surfaced by Claude, Aug 1",links:[],cost:"—"},
+{id:6,cell:"f-spec",ic:"ti-file-description",o:"you",need:1,l:"Per-route budget schema",body:"Draft schema done: token cost, burst ceiling, retry cap. Blocked on one call from you: budgets in config or in code beside the route.",prov:"yours, drafted with Claude, Jul 31",links:[{t:"draft schema",p:"Show the current per-route budget schema draft."}],cost:"1.4 agent-h · $6"},
+{id:7,cell:"f-spec",ic:"ti-file-description",o:"ai",l:"Streaming bypass path",body:"Streaming endpoints get pass-through policy, connect-only retries. Firming without you.",prov:"surfaced by Claude, Jul 31",links:[],cost:"0.8 agent-h"},
+{id:8,cell:"f-dec",ic:"ti-git-branch",o:"ai",need:1,con:1,mv:1,type:"dec",opts:["Error-rate trip","Latency-quantile trip"],l:"Circuit-breaker thresholds",body:"Contested two sessions. Error-rate is blunt but shippable; quantile needs the histogram nobody owns yet (item 1).",prov:"surfaced by Claude, Jul 29",links:[{t:"item 1",p:"Drill into metrics emission ownership."}],cost:"2.1 agent-h · $9"},
+{id:9,cell:"f-risk",ic:"ti-alert-triangle",o:"probe",need:1,l:"Routes missing idempotency keys",body:"Probe-born audit: 9 verified, 3 suspect, 2 unchecked of 14 POST routes. Stress-tests bedrock claim 15.",prov:"born from probe run, Aug 1",links:[{t:"claim 15",p:"Open the claim card for POSTs carry idempotency keys."}],cost:"0.6 agent-h"},
+{id:10,cell:"f-spec",ic:"ti-file-description",o:"you",l:"Header propagation contract",body:"Which inbound headers cross the transport boundary. Half-specified; trace headers agreed, auth pending.",prov:"yours, Jul 30",links:[],cost:"0.4 agent-h"},
+{id:11,cell:"f-risk",ic:"ti-alert-triangle",o:"ai",l:"Retry-storm chaos test design",body:"Test that provokes a synchronized 429 storm in staging. Turns risk 3 into a green-or-red fact.",prov:"surfaced by Claude, Aug 1",links:[],cost:"—"},
+{id:12,cell:"f-dec",ic:"ti-git-branch",o:"you",type:"dec",opts:["Hot-reload budgets","Restart to apply"],l:"Config hot-reload for budgets",body:"Ops wants live tuning during incidents; hot-reload adds a consistency window. Leaning hot-reload with a version stamp.",prov:"yours, Jul 31",links:[],cost:"0.3 agent-h"},
+{id:13,cell:"b-spec",ic:"ti-hexagon",o:"ai",mv:1,l:"All egress via Transport.send()",body:"Invariant, newly settled. Probe: no httpx import outside transport/. Passing.",prov:"settled Aug 2 · probe green",links:[{t:"probe result",p:"Show the latest probe run proving no direct httpx imports remain outside transport."}],cost:"—"},
+{id:14,cell:"b-dec",ic:"ti-hexagon",o:"you",l:"Token bucket, jittered backoff",body:"Settled Jul 28. Full-jitter exponential, per-route bucket. Load-bearing for budgets.",prov:"yours, Jul 28 · probe green",links:[],cost:"—"},
+{id:15,cell:"b-risk",ic:"ti-user",o:"you",st:1,l:"POSTs carry idempotency keys",body:"Your Jul 28 claim, currently under stress from audit item 9. Retry safety rests on it.",prov:"your claim, Jul 28 · probe amber",links:[{t:"claim card",p:"Open the claim card for POSTs carry idempotency keys."}],cost:"—"},
+{id:16,cell:"b-spec",ic:"ti-hexagon",o:"you",l:"Transport owns all timeout policy",body:"No per-callsite timeouts anywhere. Probe green since Jul 30.",prov:"yours, Jul 30 · probe green",links:[],cost:"—"},
+{id:17,cell:"b-risk",ic:"ti-hexagon",o:"probe",l:"No secrets in transport logs",body:"CI-born invariant after a near-miss. Redaction test runs on every change.",prov:"born from CI incident, Jul 27 · probe green",links:[],cost:"—"},
+{id:18,stage:3,dots:[1,1,1,1,1],pr:"#412",l:"Extract RateLimiter",o:"ai",body:"5 of 5 criteria green. Sitting in review 26 hours — this is 9 of your 23 review-debt minutes.",prov:"built by agent, PR #412",links:[{t:"PR #412",p:"Summarize PR 412 for review: risk-ranked diff, the two hunks worth human eyes, and the rest as one line each."}],cost:"3.2 agent-h · $14"},
+{id:19,stage:4,dots:[1,1,1,1],pr:"#409",l:"Jittered backoff impl",o:"you",body:"Merged, canary at 20 percent, error delta flat.",prov:"merged Aug 1",links:[],cost:"2.5 agent-h"},
+{id:20,stage:1,dots:[1,1,0,0,0,0],pr:"—",l:"Budget config loader",o:"ai",act:1,body:"Agent active now: attacking criterion 3 of 6, schema validation round-trip.",prov:"agent session live",links:[{t:"watch",p:"Show the live progress of the budget config loader build: which criterion is being attacked and the last test output."}],cost:"1.1 agent-h so far"},
+{id:21,stage:5,dots:[1,1,1],pr:"#404",l:"Remove direct httpx calls",o:"ai",body:"Deployed. Source of the newly settled invariant 13.",prov:"deployed Jul 31",links:[],cost:"1.8 agent-h"},
+{id:22,stage:0,dots:[0,0,0,0],pr:"—",l:"Streaming pass-through",o:"ai",body:"Criteria being defined from spec item 7. Nothing built yet, by design.",prov:"criteria draft, Aug 2",links:[],cost:"—"}
+];
+const CAND=[
+{l:"Unify error taxonomy across clients",p:"Accept candidate onto the board: unify error taxonomy across clients. Place at surface, spec lane, and note what surfaced it."},
+{l:"Latency histogram emission",p:"Accept candidate: latency histogram emission. Place at surface, spec lane, linked as unblocking the circuit-breaker decision."},
+{l:"Idempotency-key middleware",p:"Accept candidate: idempotency-key middleware that makes the whole audit class impossible. Surface, spec lane, linked to claim 15."},
+{l:"Sunset plan for client.py monolith",p:"Accept candidate: sunset plan for the client.py monolith. Surface, decisions lane."}
+];
+const MATES=[
+{n:"Priya",br:"feat/policy-metrics",pr:"#418 in review",col:1,note:"touches transport/policy.py — under your probes 13 and 16",p:"Review Priya PR 418 with my probes in mind: does anything in it violate the egress invariant or timeout ownership. Risk-ranked, pointers included."},
+{n:"Marcus",br:"fix/webhook-replay",pr:"build · tests 3/4",col:0,note:"touches webhooks.replay — one of your 3 suspect idempotency routes",p:"Summarize Marcus branch fix/webhook-replay and whether it adds or removes the idempotency key on webhooks.replay."}
+];
+const chips=[];
+function chip(it){
+ const b=document.createElement('button');
+ let bg='var(--surface-2)',bd='0.5px solid var(--border)',fg='var(--text-primary)';
+ if(it.need){bg='var(--bg-warning)';bd='0.5px solid var(--border-warning)';fg='var(--text-warning)';}
+ if(it.st){bg='var(--bg-warning)';bd='1px solid var(--border-warning)';fg='var(--text-warning)';}
+ if(it.con){bd='1px dashed '+(it.need?'var(--border-warning)':'var(--border-strong)');}
+ b.setAttribute('style','all:unset;cursor:pointer;display:flex;align-items:flex-start;gap:5px;background:'+bg+';border:'+bd+';border-radius:var(--radius);padding:5px 7px;font-size:12px;line-height:1.4;color:'+fg+';');
+ b.innerHTML='<i class="ti '+it.ic+' ci" aria-hidden="true" style="font-size:13px;margin-top:1px;flex:none;"></i><span class="cl">'+it.l+'</span><span style="margin-left:auto;flex:none;display:flex;gap:3px;align-items:center;"><i class="ti '+OI[it.o]+'" aria-hidden="true" style="font-size:11px;color:'+(it.st||it.need?fg:'var(--text-muted)')+';"></i>'+(it.mv?'<span style="color:var(--text-accent);font-size:10px;">●</span>':'')+'</span>';
+ b.addEventListener('click',()=>drill(it));
+ chips.push(b);
+ return b;
+}
+IT.filter(i=>i.cell).forEach(i=>document.getElementById(i.cell).appendChild(chip(i)));
+IT.filter(i=>i.stage!==undefined).forEach(i=>{
+ const p=document.createElement('button');
+ p.setAttribute('style','all:unset;cursor:pointer;grid-column:'+(i.stage+1)+';background:var(--surface-1);border:0.5px solid var(--border);border-radius:var(--radius);padding:6px 7px;font-size:11.5px;line-height:1.35;');
+ let dr='';i.dots.forEach(d=>{dr+='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;background:'+(d?'#639922':'transparent')+';border:1.5px solid '+(d?'#639922':'var(--border-strong)')+';"></span>';});
+ p.innerHTML='<span style="display:block;">'+i.l+(i.act?' <span style="color:#7F77DD;">▸</span>':'')+'</span><span style="display:block;margin-top:3px;">'+dr+'</span>';
+ p.addEventListener('click',()=>drill(i));
+ document.getElementById('track').appendChild(p);
+});
+CAND.forEach(c=>{
+ const w=document.createElement('span');
+ w.setAttribute('style','display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px dashed var(--border-strong);border-radius:var(--radius);padding:4px 6px 4px 9px;font-size:12px;');
+ w.innerHTML='<span>'+c.l+'</span>';
+ const a=document.createElement('button');a.className='tb';a.textContent='+';a.setAttribute('aria-label','Accept');
+ a.addEventListener('click',()=>{sendPrompt(c.p);});
+ const x=document.createElement('button');x.className='tb';x.textContent='×';x.setAttribute('aria-label','Dismiss');
+ x.addEventListener('click',()=>{w.remove();});
+ w.appendChild(a);w.appendChild(x);
+ document.getElementById('candRow').appendChild(w);
+});
+const ain=document.createElement('input');ain.type='text';ain.placeholder='add your own item or candidate';ain.setAttribute('style','font-size:12px;width:200px;');
+ain.addEventListener('keydown',e=>{if(e.key==='Enter'&&ain.value.trim()){sendPrompt('Add my item to the board: '+ain.value.trim()+'. Ask me lane and depth only if not obvious.');ain.value='';}});
+document.getElementById('candRow').appendChild(ain);
+MATES.forEach(m=>{
+ const r=document.createElement('div');
+ r.setAttribute('style','display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;'+(m.col?'background:var(--bg-danger);border:1px solid var(--border-danger);border-radius:var(--radius);padding:7px 10px;':'padding:2px 10px;'));
+ r.innerHTML='<span style="width:26px;height:26px;border-radius:50%;background:var(--surface-0);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex:none;">'+m.n[0]+'</span><span style="font-weight:500;">'+m.n+'</span><span style="font-family:var(--font-mono);font-size:11.5px;color:'+(m.col?'var(--text-danger)':'var(--text-secondary)')+';">'+m.br+'</span><span style="color:'+(m.col?'var(--text-danger)':'var(--text-secondary)')+';">'+m.pr+(m.col?' · collision':'')+'</span><span style="color:'+(m.col?'var(--text-danger)':'var(--text-muted)')+';flex:1;min-width:160px;">'+m.note+'</span>';
+ const b=document.createElement('button');b.style.fontSize='12px';b.textContent=m.col?'Review with my probes ↗':'Peek ↗';
+ b.addEventListener('click',()=>sendPrompt(m.p));
+ r.appendChild(b);
+ document.getElementById('mates').appendChild(r);
+});
+function drill(it){
+ const d=document.getElementById('drill');d.style.display='block';d.innerHTML='';
+ const h=document.createElement('div');h.setAttribute('style','display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;');
+ h.innerHTML='<span style="font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;"><i class="ti '+(it.ic||'ti-box')+'" aria-hidden="true"></i><span id="dT">'+it.l+'</span></span><span style="font-size:11.5px;color:var(--text-muted);">'+it.prov+' · burn '+it.cost+'</span>';
+ d.appendChild(h);
+ const bod=document.createElement('div');bod.id='dB';bod.setAttribute('style','font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;');bod.textContent=it.body;d.appendChild(bod);
+ if(it.links&&it.links.length){const lr=document.createElement('div');lr.setAttribute('style','display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;');it.links.forEach(L=>{const lb=document.createElement('button');lb.className='tb';lb.innerHTML='<i class="ti ti-external-link" aria-hidden="true" style="font-size:11px;"></i> '+L.t;lb.addEventListener('click',()=>sendPrompt(L.p));lr.appendChild(lb);});d.appendChild(lr);}
+ if(it.type==='dec'){
+  const ow=document.createElement('div');ow.setAttribute('style','margin-bottom:10px;');
+  ow.innerHTML='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:5px;">options — keep, drop, or add your own</div>';
+  const ol=document.createElement('div');ol.setAttribute('style','display:flex;flex-direction:column;gap:4px;');
+  const kept=[];
+  it.opts.forEach(o=>{const row=document.createElement('label');row.setAttribute('style','display:flex;gap:7px;align-items:center;font-size:13px;');const cb=document.createElement('input');cb.type='checkbox';cb.checked=true;cb.addEventListener('change',()=>{});row.appendChild(cb);row.appendChild(document.createTextNode(o));ol.appendChild(row);kept.push({o:o,cb:cb});});
+  const ar=document.createElement('div');ar.setAttribute('style','display:flex;gap:6px;margin-top:6px;');
+  const ni=document.createElement('input');ni.type='text';ni.placeholder='your option';ni.setAttribute('style','font-size:12.5px;flex:1;');
+  const ab=document.createElement('button');ab.textContent='Add';ab.style.fontSize='12.5px';
+  ab.addEventListener('click',()=>{if(!ni.value.trim())return;const row=document.createElement('label');row.setAttribute('style','display:flex;gap:7px;align-items:center;font-size:13px;');const cb=document.createElement('input');cb.type='checkbox';cb.checked=true;row.appendChild(cb);row.appendChild(document.createTextNode(ni.value.trim()));ol.appendChild(row);kept.push({o:ni.value.trim(),cb:cb});ni.value='';});
+  ar.appendChild(ni);ar.appendChild(ab);
+  ow.appendChild(ol);ow.appendChild(ar);d.appendChild(ow);
+  const cbn=document.createElement('button');cbn.style.fontSize='13px';cbn.style.marginRight='8px';cbn.textContent='Commit option set ↗';
+  cbn.addEventListener('click',()=>{const ks=kept.filter(k=>k.cb.checked).map(k=>k.o).join(' | ');sendPrompt('Update the option set for '+it.l+' to: '+ks+'. Ground each new option with evidence before I decide.');});
+  d.appendChild(cbn);
+ }
+ const eb=document.createElement('button');eb.style.fontSize='13px';eb.style.marginRight='8px';eb.textContent='Edit ↗';
+ eb.addEventListener('click',()=>{
+  if(bod.getAttribute('contenteditable')==='true'){sendPrompt('Board edit on item '+it.l+': title now "'+document.getElementById('dT').textContent+'", body now "'+bod.textContent+'". Persist and reconcile anything derived.');bod.setAttribute('contenteditable','false');document.getElementById('dT').setAttribute('contenteditable','false');bod.style.border='none';eb.textContent='Edit ↗';}
+  else{bod.setAttribute('contenteditable','true');document.getElementById('dT').setAttribute('contenteditable','true');bod.style.border='0.5px dashed var(--border-strong)';bod.style.borderRadius='var(--radius)';bod.style.padding='4px 6px';bod.focus();eb.textContent='Save edit ↗';}
+ });
+ d.appendChild(eb);
+ const pb=document.createElement('button');pb.style.fontSize='13px';pb.textContent='Pull this thread ↗';
+ pb.addEventListener('click',()=>sendPrompt('Pull the thread on '+it.l+' — current state and the live question in five lines or fewer, then wait.'));
+ d.appendChild(pb);
+ d.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+const V={
+arch:{m:"cli ─▶ transport ─▶ egress\n       pol* lim* brk○\nlegacy ┘ 41d idle",f:"┌─────────┐   ┌───────────── transport/ ─────────────┐\n│ clients │──▶│ send() ▶ policy* ▶ limiter* ▶ breaker○ │\n└─────────┘   │            │          │                │\n     │        │            ▼          ▼                │\n     │legacy  │        budgets+   token_bkt            │\n     └─retry──┤        (loader ▸agent)                 │\n   41d idle   └──────────────┬─────────────────────────┘\n                             ▼\n                       ┌─ egress ─┐  * changed today\n                       │ dispatch │  ○ stub  + new\n                       └──────────┘  ▸ agent active"},
+flow:{m:"send ▶ pol+ ▶ lim+ ▶ brk○\n     └▶ egress −214",f:"send(req)\n ├─ policy.resolve(route)   +38 −6   you·ai\n │   └─ budgets.lookup()    new ✚    ai ▸ building\n ├─ limiter.acquire()       +112     ai  tests 5/5\n │   └─ token_bucket.take() +64      ai\n ├─ breaker.check()         stub ○   awaits decision 8\n └─ egress.dispatch()       −214     httpx removed ✓\n      └─ retry(jitter)      merged   canary 20%"},
+tree:{m:"transport/ 6f ✚4 *\nclient.py  idle 41d\nwebhooks/  ⚠1",f:"transport/\n ├ send.py      ✚38    item 13 ⬢\n ├ policy.py    ✚112   item 16 ⬢  ⚠ Priya #418\n ├ limiter.py   ✚new   item 18 → review\n ├ breaker.py   ○stub  item 8 waits on you\n ├ budgets.py   ✚new   item 20 ▸ agent live\n └ egress.py    −214   item 21 deployed ✓\nclient.py       idle 41d · decision 2\nwebhooks/replay.py  ⚠ suspect key · Marcus"}
+};
+document.querySelectorAll('.lensC').forEach(card=>{
+ const pre=card.querySelector('.lensP');
+ const set=(v,full)=>{card.dataset.view=v;pre.textContent=full?V[v].f:V[v].m;};
+ card.querySelectorAll('.lv').forEach(b=>b.addEventListener('click',()=>set(b.dataset.v,card.dataset.big==='1')));
+ card.querySelector('.lx').addEventListener('click',()=>{const big=card.dataset.big==='1';card.dataset.big=big?'0':'1';card.style.gridColumn=big?'auto':'1 / -1';set(card.dataset.view,!big);});
+ card.querySelector('.lh').addEventListener('click',()=>{card.style.display='none';});
+});
+document.getElementById('lensT').addEventListener('click',()=>{const r=document.getElementById('lensRow');const off=r.style.display==='none';r.style.display=off?'grid':'none';if(off)r.querySelectorAll('.lensC').forEach(c=>c.style.display='');});
+let dense=false;
+document.getElementById('denT').addEventListener('click',()=>{
+ dense=!dense;document.getElementById('denT').textContent=dense?'zoom in':'zoom out';
+ chips.forEach(c=>{c.style.fontSize=dense?'10.5px':'12px';c.style.padding=dense?'3px 5px':'5px 7px';const ic=c.querySelector('.ci');if(ic)ic.style.display=dense?'none':'inline';});
+});
+</script>
+</div>
