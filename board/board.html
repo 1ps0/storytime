@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>board</title>
+<style>
+/* ---- house palette (site/style.css) ---- */
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --text-muted: #8b949e;
+  --heading: #f0f6fc;
+  --accent: #58a6ff;
+  --accent-dim: #1f6feb;
+  --green: #3fb950;
+  --orange: #d29922;
+  --red: #f85149;
+  --purple: #bc8cff;
+  --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body { color: var(--text); font-family: var(--sans); font-size: 13px; line-height: 1.45; min-width: 1200px; }
+button { font-family: inherit; }
+
+/* ---- header ---- */
+header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 20px; border-bottom: 1px solid var(--border);
+}
+#title { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--heading); }
+#speaks { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); }
+.fixban {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+  color: var(--orange); border: 1px solid rgba(210,153,34,.55);
+  background: rgba(210,153,34,.08); padding: 3px 10px; border-radius: 4px;
+}
+.hspace { flex: 1; }
+#budget { display: flex; gap: 8px; align-items: center; }
+.stat {
+  font-size: 11px; color: var(--text-muted);
+  border: 1px solid var(--border); background: var(--surface);
+  padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+}
+.stat b { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--heading); margin-right: 4px; }
+.stat.amber b { color: var(--orange); }
+.btn, .cmd {
+  background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+  font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 5px; cursor: pointer;
+}
+.btn:hover, .cmd:hover { border-color: var(--accent-dim); color: var(--text); }
+.cmd.tiny { font-size: 10px; padding: 2px 8px; }
+
+/* ---- lens strip (BOARD-004) ---- */
+#lensbar { padding: 9px 20px 0; display: flex; gap: 6px; align-items: center; }
+.tab {
+  background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+  font-family: var(--mono); font-size: 10.5px; padding: 2px 10px; border-radius: 999px; cursor: pointer;
+}
+.tab:hover { color: var(--text); }
+.tab.on { border-color: var(--accent-dim); color: var(--accent); }
+#lenspanel { margin: 10px 20px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden; }
+#lenspanel pre {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5; color: var(--text);
+  padding: 12px 14px; overflow-x: auto; max-height: 320px; overflow-y: auto; white-space: pre;
+}
+.lsrc { border-top: 1px solid var(--border); padding: 5px 14px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+
+/* ---- layout ---- */
+#layout {
+  display: grid; grid-template-columns: 206px minmax(0,1fr) 234px;
+  gap: 18px; padding: 16px 20px 6px; align-items: start;
+}
+.mlabel {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-muted); opacity: .85; margin-bottom: 8px;
+}
+.mlabel.redlab { color: var(--red); opacity: 1; }
+
+/* ---- directives rail (BOARD-009) ---- */
+.dir { border: 1px solid var(--border); background: var(--surface); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+.dir .dtext { font-size: 12px; color: var(--text); line-height: 1.35; }
+.dir .drow { margin-top: 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+.fired { border: 1px solid var(--border); border-radius: 999px; padding: 0 6px; line-height: 15px; white-space: nowrap; }
+.ptag { border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; line-height: 15px; }
+.dir.parked { opacity: .45; }
+
+/* ---- alarm lane (only exists when blocks exist) ---- */
+.alarm {
+  border: 1px solid var(--red); border-radius: 6px; background: rgba(248,81,73,.06);
+  box-shadow: 0 0 10px rgba(248,81,73,.18); padding: 8px 10px; margin-bottom: 8px;
+}
+.alarm .gid { font-family: var(--mono); font-size: 10.5px; color: var(--red); word-break: break-all; }
+.alarm .msg { font-size: 11.5px; color: var(--text); margin: 4px 0; line-height: 1.35; }
+.alarm .meta { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+.alink { color: var(--red); cursor: pointer; text-decoration: underline dotted; }
+
+/* ---- candidates tray (BOARD-008 entry) ---- */
+#tray { margin-bottom: 14px; }
+.tstrip { display: flex; gap: 14px; flex-wrap: wrap; }
+.candchip {
+  border: 1px dashed rgba(139,148,158,.6); outline: 1px dashed rgba(139,148,158,.3); outline-offset: 3px;
+  border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; gap: 8px; align-items: center;
+  background: transparent; margin: 3px;
+}
+.candchip:hover { border-color: var(--accent-dim); }
+.candchip .clabel { font-size: 12px; color: var(--text-muted); }
+
+/* ---- strata board (BOARD-002: depth rows x kind lanes) ---- */
+#strata { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.lanehead, .stratum { display: grid; grid-template-columns: 76px repeat(3, 1fr); }
+.trackhead, .trackrow { display: grid; grid-template-columns: 76px repeat(6, 1fr); }
+.lanehead span, .trackhead span {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-muted); padding: 7px 10px; border-bottom: 1px solid var(--border);
+}
+.slabel {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-muted); padding: 13px 10px; opacity: .8;
+}
+.stratum { border-bottom: 1px solid var(--border); }
+.stratum.forming { background: rgba(255,255,255,.015); }
+.stratum.bedrock { background: rgba(255,255,255,.032); border-bottom: none; }
+.lane { padding: 13px 10px; display: flex; flex-direction: column; gap: 13px; min-height: 58px; border-left: 1px solid rgba(48,54,61,.45); min-width: 0; }
+.trackhead span { border-top: 2px solid var(--border); border-bottom: 1px solid rgba(48,54,61,.6); }
+.trackrow { background: rgba(255,255,255,.02); }
+.trackrow .lane { min-height: 50px; padding: 11px 8px; }
+.trackrow .slabel { padding-top: 11px; }
+
+/* ---- cards (BOARD-003 loudness budget: normal is quiet) ---- */
+.card {
+  position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  padding: 7px 9px 10px; cursor: pointer; min-width: 0; transition: transform 120ms ease;
+}
+.card .label { font-size: 12.5px; color: var(--text-muted); line-height: 1.35; }
+.card .tags { margin-top: 5px; display: flex; gap: 4px; flex-wrap: wrap; padding-left: 6px; }
+.chip {
+  font-family: var(--mono); font-size: 9.5px; color: var(--text-muted);
+  border: 1px solid rgba(48,54,61,.9); padding: 0 5px; border-radius: 4px; line-height: 15px; white-space: nowrap;
+}
+.chip.coll { color: var(--red); border-color: rgba(248,81,73,.5); }
+.card.s-normal:hover { border-color: #454d57; }
+.card.s-wait { border-color: var(--orange); transform: scale(1.12); z-index: 2; }
+.card.s-wait .label { color: var(--orange); }
+.card.s-red { border-color: var(--red); box-shadow: 0 0 9px rgba(248,81,73,.28); }
+.card.s-red .label { color: var(--red); }
+.card.contested { border-style: dashed; }
+.card.cand { outline: 1px dashed rgba(139,148,158,.55); outline-offset: 3px; }
+.card:focus-visible { box-shadow: 0 0 0 2px rgba(88,166,255,.4); outline: none; }
+.crack { color: var(--red); margin-right: 3px; font-size: 11px; }
+.m-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.p-dot { position: absolute; bottom: 6px; left: 6px; width: 6px; height: 6px; border-radius: 50%; }
+.p-green { background: var(--green); }
+.p-red { background: var(--red); box-shadow: 0 0 5px rgba(248,81,73,.6); }
+.acc { margin-top: 6px; font-size: 10px; letter-spacing: 2px; line-height: 1; padding-left: 6px; }
+.acc .g { color: var(--green); }
+.acc .r { color: var(--red); margin-left: 4px; }
+.card.flash { box-shadow: 0 0 0 2px var(--red), 0 0 16px rgba(248,81,73,.55) !important; }
+
+/* ---- teammates rail ---- */
+.mate { padding: 6px 2px; border-bottom: 1px solid rgba(48,54,61,.5); }
+.mate:last-child { border-bottom: none; }
+.mrow { display: flex; justify-content: space-between; align-items: baseline; }
+.mate .cn { font-family: var(--mono); font-size: 11.5px; color: var(--text); }
+.mate .la { font-family: var(--mono); font-size: 9.5px; color: var(--text-muted); opacity: .8; }
+.mate .rf { font-size: 10.5px; color: var(--text-muted); }
+#alarms { margin-bottom: 16px; }
+
+/* ---- drill panel (BOARD-004 item truth) ---- */
+#drill {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 392px; max-width: 92vw;
+  background: var(--surface); border-left: 1px solid var(--border);
+  box-shadow: -12px 0 28px rgba(0,0,0,.45); z-index: 30; overflow-y: auto;
+  padding: 16px 18px 24px; transform: translateX(103%); transition: transform 120ms ease;
+}
+#drill.open { transform: translateX(0); }
+.dhead { display: flex; align-items: center; gap: 8px; }
+.did { font-family: var(--mono); font-size: 13px; color: var(--heading); }
+.dhead .hspace { flex: 1; }
+.schip { font-family: var(--mono); font-size: 10px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-muted); white-space: nowrap; }
+.schip.amber { color: var(--orange); border-color: rgba(210,153,34,.55); }
+.schip.redc { color: var(--red); border-color: rgba(248,81,73,.55); }
+.dclose { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 2px 4px; }
+.dclose:hover { color: var(--text); }
+.dlabel { font-size: 15px; color: var(--heading); margin-top: 8px; line-height: 1.3; }
+.dmeta { margin-top: 7px; padding-left: 0; }
+.dsec { margin-top: 15px; }
+.dsec .mlabel { margin-bottom: 5px; }
+.dsum { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+.opts { list-style: none; }
+.opts li { font-size: 12px; color: var(--text); margin-bottom: 5px; line-height: 1.4; }
+.om.solid { color: var(--heading); }
+.om.hollow { color: var(--text-muted); }
+.ptr { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); }
+.edges div { font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px; }
+.edges b { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text); }
+.tens { color: var(--purple); }
+.canon {
+  font-family: var(--mono); font-size: 11px; color: var(--accent);
+  border: 1px solid var(--accent-dim); background: rgba(31,111,235,.08);
+  padding: 8px 10px; border-radius: 6px; word-break: break-all; line-height: 1.5;
+}
+.dprobe { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.p-ind { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+.p-ind.pg { background: var(--green); }
+.p-ind.pr { background: var(--red); box-shadow: 0 0 5px rgba(248,81,73,.6); }
+.cmds { display: flex; flex-wrap: wrap; gap: 6px; }
+.cmd.did-copy { border-color: var(--accent); color: var(--accent); }
+
+/* ---- legend: exactly one line (BOARD-002) ---- */
+#legend {
+  padding: 10px 20px 16px; font-size: 11px; color: var(--text-muted);
+  white-space: nowrap; overflow: hidden;
+}
+.lg-a { color: var(--orange); }
+.lg-r { color: var(--red); }
+.lg-solid { color: var(--heading); }
+.lg-dash { display: inline-block; width: 14px; height: 9px; border: 1px dashed var(--text-muted); border-radius: 2px; }
+.lg-outl { display: inline-block; width: 12px; height: 7px; outline: 1px dashed var(--text-muted); outline-offset: 2px; border-radius: 1px; margin: 0 3px; }
+.lg-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+#error { display: none; padding: 26px 20px; font-family: var(--mono); font-size: 12.5px; color: var(--text); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <span id="title">board</span><span id="speaks">speaks 0.1.0</span><span id="banner"></span>
+    <span class="hspace"></span>
+    <span id="budget"></span>
+    <button id="markseen" class="btn">mark seen</button>
+  </header>
+
+  <div id="lensbar" style="display:none"></div>
+  <div id="lenspanel" style="display:none"></div>
+
+  <main id="layout">
+    <aside id="dirs"></aside>
+    <section id="center">
+      <div id="tray" style="display:none"></div>
+      <div id="strata"></div>
+    </section>
+    <aside id="right">
+      <div id="alarms" style="display:none"></div>
+      <div id="mates"></div>
+    </aside>
+  </main>
+
+  <footer id="legend">depth rows &#183; lanes=kind &#183; <span class="lg-a">amber=waiting on you</span> &#183; <span class="lg-r">red=violated/blocked</span> &#183; <span class="lg-dash"></span> dashed border=contested &#183; <span class="lg-outl"></span> dashed outline=candidate &#183; <span class="lg-solid">&#9679;</span>/<span>&#9675;</span>=fact/judgment &#183; <span class="lg-dot"></span> dot=moved</footer>
+</div>
+
+<div id="error"></div>
+<aside id="drill"></aside>
+
+<script type="application/json" id="state">
+{
+  "schema_version": "0.1.0",
+  "provenance": "fixture",
+  "generated_from": "fixture0",
+  "topics": [
+    { "id": "transport-v2", "title": "transport v2 cutover", "phase": "BUILD", "last_commit": "f1c7a9e", "open_questions": 2, "retired": 1 },
+    { "id": "billing-sync", "title": "billing sync", "phase": "PLAN", "last_commit": "d4b2e01", "open_questions": 1, "retired": 0 }
+  ],
+  "items": [
+    {
+      "id": "TRAN-001",
+      "topic": "transport-v2",
+      "kind": "decision",
+      "label": "single message bus, no fanout",
+      "depth": "bedrock",
+      "state": "normal",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@owner [keel]",
+      "owner": null,
+      "lifecycle_state": "realized",
+      "probe": { "status": "green", "pointer": "transport/bus.py:41" },
+      "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#TRAN-001",
+      "summary": "One bus carries all transport events; consumers filter. Realized at cutover commit; invariant probed on every change.",
+      "options": [],
+      "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
+      "track": null
+    },
+    {
+      "id": "TRAN-007",
+      "topic": "transport-v2",
+      "kind": "decision",
+      "label": "retry budget lives in transport",
+      "depth": "bedrock",
+      "state": "violated",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@operator [ballast]",
+      "owner": null,
+      "lifecycle_state": "sealed",
+      "probe": { "status": "red", "pointer": "transport/retry.py:88" },
+      "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#TRAN-007",
+      "summary": "Retry policy is transport-owned; callers never loop. Probe cracked: a caller-side retry loop landed in billing-sync 2 commits ago.",
+      "options": [],
+      "edges": { "parent": "TRAN-001", "edge_type": "refines", "tensions": [], "supersedes": null, "callouts": [ { "target": "billing-sync/BILL-003", "kind": "affects" } ] },
+      "track": null
+    },
+    {
+      "id": "TRAN-012",
+      "topic": "transport-v2",
+      "kind": "decision",
+      "label": "cutover order: reads then writes",
+      "depth": "forming",
+      "state": "waiting_user",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@user",
+      "owner": null,
+      "lifecycle_state": "focused",
+      "probe": { "status": "none", "pointer": null },
+      "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#TRAN-012",
+      "summary": "Read path cuts over first behind a flag; writes follow after one clean day. Two options measured, one judgment call open — waiting on @user.",
+      "options": [
+        { "text": "reads first, writes after 24h clean", "mark": "measured", "pointer": "ops/cutover-trial.md:12" },
+        { "text": "big-bang cutover in low-traffic window", "mark": "judgment", "pointer": null }
+      ],
+      "edges": { "parent": "TRAN-001", "edge_type": "implements", "tensions": [], "supersedes": null, "callouts": [] },
+      "track": null
+    },
+    {
+      "id": "TRAN-013",
+      "topic": "transport-v2",
+      "kind": "decision",
+      "label": "dual-write window length",
+      "depth": "surface",
+      "state": "normal",
+      "contested": true,
+      "is_candidate": false,
+      "origin": "@operator [ballast]",
+      "owner": null,
+      "lifecycle_state": "proposed",
+      "probe": { "status": "none", "pointer": null },
+      "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#TRAN-013",
+      "summary": "One week vs one day of dual-write. In tension with BILL-009's storage budget; dashed until the tension seals.",
+      "options": [],
+      "edges": { "parent": "TRAN-012", "edge_type": "refines", "tensions": ["BILL-009"], "supersedes": null, "callouts": [ { "target": "billing-sync/BILL-009", "kind": "related" } ] },
+      "track": null
+    },
+    {
+      "id": "TRAN-014",
+      "topic": "transport-v2",
+      "kind": "delivery",
+      "label": "reads cutover flag + shim",
+      "depth": "track",
+      "state": "blocked",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@owner [keel]",
+      "owner": null,
+      "lifecycle_state": "sealed",
+      "probe": { "status": "none", "pointer": null },
+      "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#TRAN-014",
+      "summary": "Delivery leg for TRAN-012's read path. Blocked in review by guardrail GRB-001 (atomic-writes violation).",
+      "options": [],
+      "edges": { "parent": "TRAN-012", "edge_type": "implements", "tensions": [], "supersedes": null, "callouts": [] },
+      "track": { "stage": "review", "acceptance": { "green": 4, "red": 1 } }
+    },
+    {
+      "id": "BILL-003",
+      "topic": "billing-sync",
+      "kind": "decision",
+      "label": "billing consumes bus, no polling",
+      "depth": "bedrock",
+      "state": "collision",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@domain [ledger]",
+      "owner": null,
+      "lifecycle_state": "sealed",
+      "probe": { "status": "green", "pointer": "billing/consume.py:17" },
+      "canonical": "specs/.storytime/sessions/billing-sync/_thread.md#BILL-003",
+      "summary": "Billing reads the transport bus directly. Collision: its caller-side retry loop violates TRAN-007 — both cards go loud until one yields.",
+      "options": [],
+      "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [ { "target": "transport-v2/TRAN-007", "kind": "affects" } ] },
+      "track": null
+    },
+    {
+      "id": "BILL-009",
+      "topic": "billing-sync",
+      "kind": "decision",
+      "label": "storage budget: 30-day cap",
+      "depth": "surface",
+      "state": "normal",
+      "contested": true,
+      "is_candidate": false,
+      "origin": "@domain [ledger]",
+      "owner": null,
+      "lifecycle_state": "proposed",
+      "probe": { "status": "none", "pointer": null },
+      "canonical": "specs/.storytime/sessions/billing-sync/_thread.md#BILL-009",
+      "summary": "Hard 30-day retention cap on sync buffers. In tension with TRAN-013's week-long dual-write window.",
+      "options": [],
+      "edges": { "parent": null, "edge_type": null, "tensions": ["TRAN-013"], "supersedes": null, "callouts": [ { "target": "transport-v2/TRAN-013", "kind": "related" } ] },
+      "track": null
+    },
+    {
+      "id": "TRAN-Q2",
+      "topic": "transport-v2",
+      "kind": "question",
+      "label": "who owns dead-letter drain?",
+      "depth": "surface",
+      "state": "waiting_user",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@operator [ballast]",
+      "owner": null,
+      "lifecycle_state": "proposed",
+      "probe": { "status": "none", "pointer": null },
+      "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#open-questions",
+      "summary": "Dead-letter queue drains need an owner before writes cut over. Waiting on @user to assign.",
+      "options": [],
+      "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
+      "track": null
+    }
+  ],
+  "directives": [
+    { "id": "DIR-001", "text": "never trade clean for easy silently", "origin": "@user", "status": "alive", "fired": 3, "last_candidate": "CAND-004", "source": "local" },
+    { "id": "DIR-002", "text": "look for factoring opportunities", "origin": "@user", "status": "alive", "fired": 1, "last_candidate": "CAND-007", "source": "repo" },
+    { "id": "DIR-003", "text": "flag schema drift between services", "origin": "@owner [keel]", "status": "parked", "fired": 0, "last_candidate": null, "source": "repo" }
+  ],
+  "guardrail_blocks": [
+    { "id": "GRB-001", "item": "TRAN-014", "guardrail": "check-conventions/atomic-writes", "message": "state write skipped tmp+fsync+mv", "at_commit": "9e2f110" }
+  ],
+  "candidates": [
+    { "id": "CAND-004", "label": "extract retry into transport module", "origin": "directive:DIR-001", "argument": "Billing's caller-side loop duplicates transport retry with a different backoff — the clean option is one owned module; the easy option that shipped is a copy. TRAN-007's probe is red because of it.", "target_topic": "transport-v2" },
+    { "id": "CAND-007", "label": "fold bus consumers into registry", "origin": "directive:DIR-002", "argument": "Three consumers self-register three different ways; a registry makes the fourth consumer a one-liner.", "target_topic": "transport-v2" }
+  ],
+  "budget": { "review_debt": 2, "waiting_user": 2, "open_questions": 3, "unrealized": 3 },
+  "lenses": [
+    { "id": "arch", "title": "architecture", "kind": "ascii", "content": "  producers ──▶ [ bus ] ──▶ consumers\n     web ─┐              ┌─ billing-sync\n   worker ─┼──▶ topic ───┼─ audit\n     cron ─┘   (single)  └─ notify (candidate)", "source": "transport/README.md:9" },
+    { "id": "flow", "title": "changed flow", "kind": "mermaid", "content": "graph LR\n  A[reads] -->|flag on| B[new bus]\n  A -->|flag off| C[old poll]\n  D[writes] -.->|after 24h clean| B", "source": "ops/cutover-plan.md:22" }
+  ],
+  "teammates": [
+    { "codename": "user", "role": "user", "focus": "steering", "status": "active", "last_active": "2026-08-02" },
+    { "codename": "keel", "role": "owner", "focus": "architecture", "status": "active", "last_active": "2026-08-02" },
+    { "codename": "ballast", "role": "operator", "focus": "reliability", "status": "active", "last_active": "2026-08-01" },
+    { "codename": "ledger", "role": "domain", "focus": "billing", "status": "active", "last_active": "2026-07-30" }
+  ]
+}
+</script>
+
+<script>
+(function () {
+'use strict';
+
+var SPEAKS = '0.1.0';          // schema version this client speaks (major "0")
+var KEY = 'board:lastlook';    // client-side "moved since last look" snapshot
+var DEPTHS = ['surface', 'forming', 'bedrock'];
+var KINDS = ['decision', 'question', 'delivery'];
+var STAGES = ['criteria', 'build', 'pr', 'review', 'merged', 'deployed'];
+
+var cur = null;       // current state object
+var moved = {};       // item id -> true (changed since last look)
+var activeLens = null;
+
+function $(s) { return document.querySelector(s); }
+function arr(x) { return Array.isArray(x) ? x : []; }
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function majorOf(v) { return typeof v === 'string' ? v.split('.')[0] : '0'; }
+function cssEsc(s) { return (window.CSS && CSS.escape) ? CSS.escape(String(s)) : String(s).replace(/["\\\]]/g, '\\$&'); }
+function findItem(id) {
+  var items = arr(cur && cur.items);
+  for (var i = 0; i < items.length; i++) if (items[i] && String(items[i].id) === String(id)) return items[i];
+  return null;
+}
+
+/* ---- fail honest: one plain line, never partial render ---- */
+function fail(msg) {
+  $('#app').style.display = 'none';
+  $('#drill').classList.remove('open');
+  var e = $('#error');
+  e.style.display = 'block';
+  e.textContent = msg;
+}
+
+function load(o) {
+  if (!o || typeof o !== 'object' || Array.isArray(o)) {
+    return fail('cannot render — state is not an object · this board speaks ' + SPEAKS);
+  }
+  if (majorOf(o.schema_version) !== '0') {
+    return fail('cannot render — state speaks ' + o.schema_version + ' · this board speaks ' + SPEAKS);
+  }
+  cur = o;
+  $('#error').style.display = 'none';
+  $('#app').style.display = '';
+  render();
+}
+
+/* ---- moved-since-last-look: client-side only (BOARD-002) ---- */
+function computeMoved() {
+  moved = {};
+  var raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (e) {}
+  if (!raw) return; // no prior look recorded: quiet
+  var snap;
+  try { snap = JSON.parse(raw); } catch (e) { return; }
+  arr(cur.items).forEach(function (it) {
+    if (!it || it.id == null) return;
+    if (snap[it.id] !== JSON.stringify(it)) moved[it.id] = true;
+  });
+}
+function markSeen() {
+  try {
+    var m = {};
+    arr(cur && cur.items).forEach(function (it) { if (it && it.id != null) m[it.id] = JSON.stringify(it); });
+    localStorage.setItem(KEY, JSON.stringify(m));
+  } catch (e) {}
+  render();
+}
+
+/* ---- render regions (every key optional; missing = quiet absence) ---- */
+function render() {
+  if (!cur) return;
+  computeMoved();
+  renderHeader();
+  renderLenses();
+  renderDirectives();
+  renderAlarms();
+  renderTray();
+  renderStrata();
+  renderMates();
+}
+
+function renderHeader() {
+  $('#banner').innerHTML = cur.provenance === 'fixture'
+    ? '<span class="fixban">FIXTURE — demo fiction, not real work</span>' : '';
+  var b = (cur.budget && typeof cur.budget === 'object') ? cur.budget : null;
+  var chips = '';
+  if (b) {
+    [['review debt', b.review_debt, ''],
+     ['waiting', b.waiting_user, 'amber'],
+     ['open questions', b.open_questions, ''],
+     ['unrealized', b.unrealized, '']].forEach(function (p) {
+      if (p[1] == null) return;
+      var amber = p[2] === 'amber' && p[1] > 0 ? ' amber' : '';
+      chips += '<span class="stat' + amber + '"><b>' + esc(p[1]) + '</b>' + esc(p[0]) + '</span>';
+    });
+  }
+  $('#budget').innerHTML = chips;
+}
+
+function renderLenses() {
+  var ls = arr(cur.lenses);
+  var bar = $('#lensbar'), panel = $('#lenspanel');
+  if (!ls.length) { bar.style.display = 'none'; panel.style.display = 'none'; return; }
+  bar.style.display = '';
+  bar.innerHTML = '<span class="mlabel" style="margin:0 6px 0 0">lenses</span>' + ls.map(function (l, i) {
+    return '<button class="tab' + (activeLens === i ? ' on' : '') + '" data-lens="' + i + '">' +
+      esc(l.title || l.id || 'lens ' + i) + '</button>';
+  }).join('');
+  var l = (activeLens != null) ? ls[activeLens] : null;
+  if (!l) { panel.style.display = 'none'; panel.innerHTML = ''; return; }
+  // ascii and mermaid both render as monospace pre (no mermaid library)
+  panel.style.display = '';
+  panel.innerHTML = '<pre>' + esc(l.content || '') + '</pre>' +
+    (l.source ? '<div class="lsrc">' + esc(l.source) + '</div>' : '');
+}
+
+function renderDirectives() {
+  var ds = arr(cur.directives);
+  var html = '';
+  if (ds.length) {
+    html += '<div class="mlabel">directives</div>';
+    html += ds.map(function (d) {
+      return '<div class="dir' + (d.status === 'parked' ? ' parked' : '') + '">' +
+        '<div class="dtext">' + esc(d.text || d.id || '') + '</div>' +
+        '<div class="drow">' +
+          (d.origin ? '<span>' + esc(d.origin) + '</span>' : '') +
+          '<span class="fired">fired ' + esc(d.fired != null ? d.fired : 0) + '&#215;</span>' +
+          (d.status === 'parked' ? '<span class="ptag">parked</span>' : '') +
+        '</div></div>';
+    }).join('');
+  }
+  html += '<button class="cmd tiny" data-copy="/storytime-qa add directive">+ directive</button>';
+  $('#dirs').innerHTML = html;
+}
+
+function renderAlarms() {
+  var gs = arr(cur.guardrail_blocks);
+  var el = $('#alarms');
+  if (!gs.length) { el.style.display = 'none'; el.innerHTML = ''; return; } // guardrails silent while working
+  el.style.display = '';
+  el.innerHTML = '<div class="mlabel redlab">blocked</div>' + gs.map(function (g) {
+    return '<div class="alarm">' +
+      '<div class="gid">' + esc(g.guardrail || g.id || '') + '</div>' +
+      '<div class="msg">' + esc(g.message || '') + '</div>' +
+      '<div class="meta">at ' + esc(g.at_commit || '—') +
+        (g.item ? ' · <a class="alink" data-goto="' + esc(g.item) + '">&#8594; ' + esc(g.item) + '</a>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+function renderTray() {
+  var cs = arr(cur.candidates);
+  var el = $('#tray');
+  if (!cs.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = '';
+  el.innerHTML = '<div class="mlabel">candidates</div><div class="tstrip">' + cs.map(function (c, i) {
+    return '<div class="candchip" data-cand="' + i + '">' +
+      '<span class="clabel">' + esc(c.label || c.id || '') + '</span>' +
+      (c.origin ? '<span class="chip">' + esc(c.origin) + '</span>' : '') +
+      '</div>';
+  }).join('') + '</div>';
+}
+
+function cardHTML(it) {
+  var red = it.state === 'violated' || it.state === 'blocked' || it.state === 'collision';
+  var stCls = it.state === 'waiting_user' ? 's-wait' : red ? 's-red' : 's-normal';
+  var probe = it.probe && it.probe.status;
+  var cracked = probe === 'red' && it.depth === 'bedrock'; // cracked bedrock: loudest tier
+  var cls = 'card ' + stCls + (cracked ? ' s-red' : '') +
+    (it.contested ? ' contested' : '') + (it.is_candidate ? ' cand' : '');
+  var tags = '';
+  if (it.topic) tags += '<span class="chip">' + esc(it.topic) + '</span>';
+  if (it.origin) tags += '<span class="chip">' + esc(it.origin) + '</span>';
+  if (it.state === 'collision') tags += '<span class="chip coll">collision</span>';
+  var acc = '';
+  if (it.track && it.track.acceptance) {
+    var g = Math.max(0, +it.track.acceptance.green || 0);
+    var r = Math.max(0, +it.track.acceptance.red || 0);
+    if (g || r) {
+      acc = '<div class="acc">' +
+        (g ? '<span class="g">' + new Array(Math.min(g, 12) + 1).join('●') + '</span>' : '') +
+        (r ? '<span class="r">' + new Array(Math.min(r, 12) + 1).join('●') + '</span>' : '') +
+        '</div>';
+    }
+  }
+  return '<div class="' + cls + '" data-id="' + esc(it.id) + '" tabindex="0">' +
+    (moved[it.id] ? '<span class="m-dot"></span>' : '') +
+    '<div class="label">' + (cracked ? '<span class="crack">⚡</span>' : '') + esc(it.label || it.id || '') + '</div>' +
+    (tags ? '<div class="tags">' + tags + '</div>' : '') + acc +
+    (probe === 'green' ? '<span class="p-dot p-green"></span>' :
+     probe === 'red' ? '<span class="p-dot p-red"></span>' : '') +
+    '</div>';
+}
+
+function renderStrata() {
+  var buckets = {};
+  DEPTHS.forEach(function (d) { buckets[d] = { decision: [], question: [], delivery: [] }; });
+  var track = {};
+  STAGES.forEach(function (s) { track[s] = []; });
+  var anyTrack = false;
+
+  arr(cur.items).forEach(function (it) {
+    if (!it || typeof it !== 'object') return;
+    if (it.depth === 'track' || (it.track && typeof it.track === 'object')) {
+      var s = String(it.track && it.track.stage || '').toLowerCase();
+      if (STAGES.indexOf(s) < 0) s = 'criteria';
+      track[s].push(it);
+      anyTrack = true;
+      return;
+    }
+    var d = DEPTHS.indexOf(it.depth) >= 0 ? it.depth : 'surface';
+    var k = KINDS.indexOf(it.kind) >= 0 ? it.kind : 'decision';
+    buckets[d][k].push(it);
+  });
+
+  var html = '<div class="lanehead"><span></span>' +
+    KINDS.map(function (k) { return '<span>' + k + '</span>'; }).join('') + '</div>';
+  html += DEPTHS.map(function (d) {
+    return '<div class="stratum ' + d + '"><span class="slabel">' + d + '</span>' +
+      KINDS.map(function (k) {
+        return '<div class="lane">' + buckets[d][k].map(cardHTML).join('') + '</div>';
+      }).join('') + '</div>';
+  }).join('');
+  if (anyTrack) {
+    html += '<div class="trackhead"><span></span>' +
+      STAGES.map(function (s) { return '<span>' + (s === 'pr' ? 'PR' : s) + '</span>'; }).join('') + '</div>';
+    html += '<div class="trackrow"><span class="slabel">track</span>' +
+      STAGES.map(function (s) { return '<div class="lane">' + track[s].map(cardHTML).join('') + '</div>'; }).join('') +
+      '</div>';
+  }
+  $('#strata').innerHTML = html;
+}
+
+function renderMates() {
+  var ts = arr(cur.teammates).slice();
+  var el = $('#mates');
+  if (!ts.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  ts.sort(function (a, b) {
+    var au = (a && (a.codename === 'user' || a.role === 'user')) ? 0 : 1;
+    var bu = (b && (b.codename === 'user' || b.role === 'user')) ? 0 : 1;
+    if (au !== bu) return au - bu;
+    return String(a && a.codename || '').localeCompare(String(b && b.codename || ''));
+  });
+  el.style.display = '';
+  el.innerHTML = '<div class="mlabel">team</div>' + ts.map(function (t) {
+    return '<div class="mate">' +
+      '<div class="mrow"><span class="cn">@' + esc(t.codename || '') + '</span>' +
+      '<span class="la">' + esc(t.last_active || '') + '</span></div>' +
+      '<div class="rf">' + esc(t.role || '') + (t.focus ? ' · ' + esc(t.focus) : '') + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+/* ---- drill panel: item truth; retrieves, never regenerates (BOARD-004) ---- */
+function sec(label, inner) { return '<div class="dsec"><div class="mlabel">' + label + '</div>' + inner + '</div>'; }
+function schip(txt, cls) { return '<span class="schip ' + cls + '">' + esc(txt) + '</span>'; }
+function stateCls(s) {
+  if (s === 'waiting_user') return 'amber';
+  if (s === 'violated' || s === 'blocked' || s === 'collision') return 'redc';
+  return '';
+}
+function showDrill(html) {
+  var d = $('#drill');
+  d.innerHTML = html;
+  d.classList.add('open');
+  d.scrollTop = 0;
+}
+function closeDrill() { $('#drill').classList.remove('open'); }
+
+function drillItem(it) {
+  var h = '<div class="dhead"><span class="did">' + esc(it.id || '') + '</span><span class="hspace"></span>' +
+    (it.state ? schip(it.state, stateCls(it.state)) : '') +
+    (it.lifecycle_state ? schip(it.lifecycle_state, '') : '') +
+    '<button class="dclose" aria-label="close">✕</button></div>';
+  h += '<div class="dlabel">' + esc(it.label || '') + '</div>';
+  var meta = '';
+  if (it.topic) meta += '<span class="chip">' + esc(it.topic) + '</span>';
+  if (it.kind) meta += '<span class="chip">' + esc(it.kind) + '</span>';
+  if (it.origin) meta += '<span class="chip">' + esc(it.origin) + '</span>';
+  if (meta) h += '<div class="tags dmeta">' + meta + '</div>';
+  if (it.summary) h += sec('summary', '<div class="dsum">' + esc(it.summary) + '</div>');
+  var ops = arr(it.options);
+  if (ops.length) {
+    h += sec('options', '<ul class="opts">' + ops.map(function (o) {
+      var solid = o.mark === 'measured';
+      return '<li><span class="om ' + (solid ? 'solid' : 'hollow') + '">' + (solid ? '●' : '○') + '</span> ' +
+        esc(o.text || '') + (o.pointer ? ' <span class="ptr">' + esc(o.pointer) + '</span>' : '') + '</li>';
+    }).join('') + '</ul>');
+  }
+  var e = it.edges || {};
+  var rows = [];
+  if (e.parent) rows.push('parent <b>' + esc(e.parent) + '</b>' + (e.edge_type ? ' · ' + esc(e.edge_type) : ''));
+  arr(e.tensions).forEach(function (t) { rows.push('<span class="tens">⇄ tension</span> <b>' + esc(t) + '</b>'); });
+  if (e.supersedes) rows.push('supersedes <b>' + esc(e.supersedes) + '</b>');
+  arr(e.callouts).forEach(function (c) {
+    rows.push('→ <b>' + esc(c && c.target || '') + '</b>' + (c && c.kind ? ' (' + esc(c.kind) + ')' : ''));
+  });
+  if (rows.length) h += sec('edges', '<div class="edges">' + rows.map(function (r) { return '<div>' + r + '</div>'; }).join('') + '</div>');
+  if (it.canonical) h += sec('canonical', '<div class="canon">' + esc(it.canonical) + '</div>');
+  var p = it.probe;
+  if (p && p.status && p.status !== 'none') {
+    h += sec('probe', '<div class="dprobe"><span class="p-ind ' + (p.status === 'green' ? 'pg' : 'pr') + '"></span>' +
+      esc(p.status) + (p.pointer ? ' <span class="ptr">' + esc(p.pointer) + '</span>' : '') + '</div>');
+  }
+  var id = it.id || '', topic = it.topic || '';
+  var cmds = [
+    ['seal', '/storytime-qa seal ' + id],
+    ['add-option', '/storytime-qa add option to ' + id]
+  ];
+  if (it.is_candidate) cmds.push(['accept-candidate', '/storytime-consolidate accept ' + id]);
+  cmds.push(
+    ['edit-item', '/storytime-qa edit ' + id],
+    ['park', '/storytime-remember nap'],
+    ['request-review', '/storytime-lint ' + (topic || id)]
+  );
+  h += sec('commands', '<div class="cmds">' + cmds.map(function (c) {
+    return '<button class="cmd" data-copy="' + esc(c[1]) + '">' + esc(c[0]) + '</button>';
+  }).join('') + '</div>');
+  showDrill(h);
+}
+
+function drillCand(c) {
+  var h = '<div class="dhead"><span class="did">' + esc(c.id || '') + '</span><span class="hspace"></span>' +
+    schip('candidate', '') + '<button class="dclose" aria-label="close">✕</button></div>';
+  h += '<div class="dlabel">' + esc(c.label || '') + '</div>';
+  var meta = '';
+  if (c.origin) meta += '<span class="chip">' + esc(c.origin) + '</span>';
+  if (c.target_topic) meta += '<span class="chip">' + esc(c.target_topic) + '</span>';
+  if (meta) h += '<div class="tags dmeta">' + meta + '</div>';
+  if (c.argument) h += sec('argument', '<div class="dsum">' + esc(c.argument) + '</div>');
+  h += sec('commands', '<div class="cmds"><button class="cmd" data-copy="' +
+    esc('/storytime-consolidate accept ' + (c.id || '')) + '">accept-candidate</button></div>');
+  showDrill(h);
+}
+
+/* ---- command stubs: copy skill invocation, mutate nothing ---- */
+function copyText(t, btn) {
+  var done = function () {
+    if (!btn) return;
+    if (btn.dataset.orig == null) btn.dataset.orig = btn.textContent;
+    btn.textContent = 'copied';
+    btn.classList.add('did-copy');
+    setTimeout(function () { btn.textContent = btn.dataset.orig; btn.classList.remove('did-copy'); }, 900);
+  };
+  var fb = function () {
+    var ta = document.createElement('textarea');
+    ta.value = t;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(done, function () { fb(); done(); });
+  } else { fb(); done(); }
+}
+
+function gotoItem(id) {
+  var el = document.querySelector('.card[data-id="' + cssEsc(id) + '"]');
+  if (!el) return;
+  el.scrollIntoView({ block: 'center' });
+  el.classList.add('flash');
+  setTimeout(function () { el.classList.remove('flash'); }, 1400);
+}
+
+/* ---- events ---- */
+document.addEventListener('click', function (ev) {
+  var t = ev.target;
+  var cmd = t.closest('.cmd');
+  if (cmd) { copyText(cmd.getAttribute('data-copy') || '', cmd); return; }
+  if (t.closest('.dclose')) { closeDrill(); return; }
+  var al = t.closest('.alink');
+  if (al) { gotoItem(al.getAttribute('data-goto')); return; }
+  var tab = t.closest('.tab');
+  if (tab) {
+    var i = +tab.getAttribute('data-lens');
+    activeLens = (activeLens === i) ? null : i;
+    renderLenses();
+    return;
+  }
+  if (t.closest('#markseen')) {
+    markSeen();
+    var b = $('#markseen'), o = b.textContent;
+    b.textContent = 'seen';
+    setTimeout(function () { b.textContent = o; }, 900);
+    return;
+  }
+  var cc = t.closest('.candchip');
+  if (cc) {
+    var c = arr(cur && cur.candidates)[+cc.getAttribute('data-cand')];
+    if (c) drillCand(c);
+    return;
+  }
+  var card = t.closest('.card');
+  if (card) {
+    var it = findItem(card.getAttribute('data-id'));
+    if (it) drillItem(it);
+    return;
+  }
+  if (!t.closest('#drill')) closeDrill();
+});
+
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape') { closeDrill(); return; }
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.classList && ev.target.classList.contains('card')) {
+    ev.preventDefault();
+    var it = findItem(ev.target.getAttribute('data-id'));
+    if (it) drillItem(it);
+  }
+});
+
+/* ---- data loading: embedded fixture, then state.json, then drag-drop ---- */
+function boot() {
+  var raw = document.getElementById('state');
+  var o = null;
+  try { o = JSON.parse(raw.textContent); }
+  catch (e) { return fail('cannot render — embedded state malformed: ' + e.message + ' · this board speaks ' + SPEAKS); }
+  load(o);
+
+  // sibling state.json overrides the fixture when present; failure is silent (file:// fails, that's fine)
+  try {
+    fetch('state.json')
+      .then(function (r) { return (r && r.ok) ? r.json() : null; })
+      .then(function (x) { if (x != null) load(x); })
+      .catch(function () {});
+  } catch (e) {}
+
+  window.addEventListener('dragover', function (e) { e.preventDefault(); });
+  window.addEventListener('drop', function (e) {
+    e.preventDefault();
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      var x;
+      try { x = JSON.parse(rd.result); }
+      catch (err) { return fail('cannot render — dropped file malformed: ' + err.message + ' · this board speaks ' + SPEAKS); }
+      load(x);
+    };
+    rd.readAsText(f);
+  });
+}
+
+boot();
+})();
+</script>
+</body>
+</html>

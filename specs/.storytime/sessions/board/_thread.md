@@ -5,16 +5,17 @@ topic: board
 created: 2026-08-02T13:07
 last_consolidation:
   scale: session
-  event: ABSORB
-  at: 2026-08-02T13:07
-last_completed_phase: ABSORB
-last_commit: 7846522
+  event: DONE
+  at: 2026-08-02T14:05
+last_completed_phase: BUILD
+last_commit: 33ede36
 remembrance_staged: false
 remembrance_path: null
 open_questions:
   - "heartbeat granularity: which ambient events beyond the six scales fire the fold (every commit? every test run? every N minutes?)"
   - "item update ownership: which persona maintains a given item's freshness (FIX-005 ownership half, v1.2)"
   - "FIX-002 callout target: cites BOARD-006 as authored; substance lives in BOARD-010 — confirm intent or amend"
+  - "OP-009 root context: persist in _user.md or hold in source doc only — @user's explicit call (staged flag)"
 ---
 
 # Thread — board
@@ -38,12 +39,30 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   tension caught: BOARD-010's fold vs V1-022's no-pre-built-index.
   Ingest commit: 7846522. Seal commit: the commit introducing this
   thread.
-- 001 (BUILD, in progress, 2026-08-02) — V1-022 superseded in full
+- 001 (BUILD, DONE 2026-08-02) — V1-022 superseded in full
   (BOARD-015, @user: "stateful capture, not hot index"); user-local
   operator state convention sealed (BOARD-016). Buildout begins per
   BOARD-013: schema v0, fold v0 (decisions-first), board.html v0
   against labeled fixture. @user priority: the board is how they stay
   on top of what is actually happening — prose medium is the bottleneck.
+  Mid-episode: @user staged their operator model (OP-001..010, derived
+  rail directives D-1..D-6) at repo root; ingested to
+  `cohort/operator-model-user.md` + merged `cohort/_user.md` (both
+  local-only per BOARD-016, verified ignored). OP entries are law:
+  feature ideas conflicting with an OP entry lose until @user
+  supersedes. D-1..D-6 registered as directives-rail candidates;
+  OP-004/D-3 constrains the board itself (no ambient trend lines —
+  deviation and harvest events only). OP-009 root-context persistence
+  in _user.md: pending @user's explicit call.
+  Shipped: state schema v0 + fold v0 + labeled fixture (f5e7a86 — all
+  four sealed acceptance criteria green: deterministic byte-identical,
+  fail-loud file:line with no partial output, atomic tmp+fsync+mv,
+  global supersede resolution); consolidate re-fold wiring (33ede36);
+  board.html v0 client (seal commit of this edit — 907-line monofile,
+  full BOARD-002 grammar, embedded fixture + live fetch + drag-drop,
+  fail-honest on schema-major mismatch). Live fold of this repo: 42
+  items, 3 topics, 2 retired excluded, 6 local rail directives.
+  BOARD-013 realized at f5e7a86.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -227,7 +246,8 @@ nothing; status-as-board exercises the full seam — fold → state.json
   At: 2026-08-02
   Drivers: @user
   Status: active
-  Lifecycle_state: sealed
+  Lifecycle_state: realized
+  Realized_at: f5e7a86
   Parent: BOARD-010
   Edge_type: implements
 
@@ -336,10 +356,23 @@ as a module with a thin CLI wrapper, not a one-off script; @platform
 
 ## Next action
 
-Schema v0 (docs/): items[], directives[], guardrail_blocks[],
-candidates[], budget, lenses, teammates; version field from day one.
-Then fold v0 per BOARD-013; then board.html v0 against a fixture
-labeled as fixture (the widget's "transport v2 cutover" data is demo
-fiction — provenance must be marked). Config flips deferred to their
-FIX moments: `post_commit_hook: disabled` flips at FIX-003;
-`dreams_enabled: false` unchanged until the tray (post-BOARD-012).
+The v0 seam is live end-to-end (schema → fold → board.html). Next, in
+BOARD-013's widening order:
+
+1. FIX-000 / BOARD-P1 (focused) — mint ids for questions, candidates,
+   directives, dreams; each kind enters the fold as its ids land.
+2. FIX-003 — event hooks beyond consolidate: post-commit fold (flip
+   `post_commit_hook` in config at that moment), test/PR events, idle
+   heartbeat; failures → `guardrail_blocks` under reserved `fold/self`.
+3. BOARD-012 realization — board surface replaces /storytime-status
+   skill output (skill invokes fold + points at board.html).
+4. Realized_at backfill on V1-era decisions (adherence evidence) so
+   the `unrealized` budget chip stops being unemittable.
+5. BOARD-P2 — consolidation dual-emit (remembrance + state delta).
+6. Lint: label ≤7 words, measured-option-needs-pointer, IG checks over
+   fold output instead of raw grep.
+
+Pending @user: OP-009 root-context persistence in _user.md; FIX-002
+callout target (BOARD-006 as authored vs BOARD-010 substance).
+Config unchanged until their moments: `post_commit_hook: disabled`,
+`dreams_enabled: false` (tray is post-BOARD-012).
