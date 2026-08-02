@@ -8,3 +8,12 @@
 # Editor scratch
 *.swp
 *~
+
+# User-specific storytime state — never commit (BOARD-016);
+# extracted templates commit when built
+specs/.storytime/cohort/operator-model-*.md
+specs/.storytime/cohort/_user.md
+specs/.storytime/intents.md
+
+# Derived board state — the fold regenerates it (FIX-004)
+board/state.json

@@ -74,7 +74,10 @@ sealing commit is the one that captures the plan._
 ### V1-022 — On-demand decisions view, no pre-built global index
   At: 2026-04-13
   Drivers: @domain [arbor]
-  Status: active
+  Status: superseded
+  Superseded-by: BOARD-015 (board topic, 2026-08-02) — the fold is a
+    stateful capture, not a hot index; one versioned artifact owns the
+    reduction (FIX-004)
 
 ### V1-023 — Delete history/decisions.md in V1-003 migration
   At: 2026-04-13

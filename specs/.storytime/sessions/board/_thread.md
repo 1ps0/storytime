@@ -38,6 +38,12 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   tension caught: BOARD-010's fold vs V1-022's no-pre-built-index.
   Ingest commit: 7846522. Seal commit: the commit introducing this
   thread.
+- 001 (BUILD, in progress, 2026-08-02) — V1-022 superseded in full
+  (BOARD-015, @user: "stateful capture, not hot index"); user-local
+  operator state convention sealed (BOARD-016). Buildout begins per
+  BOARD-013: schema v0, fold v0 (decisions-first), board.html v0
+  against labeled fixture. @user priority: the board is how they stay
+  on top of what is actually happening — prose medium is the bottleneck.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -170,7 +176,7 @@ only on block, attached to the blocked item.
   Drivers: @user
   Status: active
   Lifecycle_state: sealed
-  Tensions: [V1-022]
+  Tensions: []  # resolved 2026-08-02 — V1-022 superseded by BOARD-015
   Callout-> v1-consolidation/V1-022 (affects)
 
 Read model: one derived state.json — the fold of threads, intent
@@ -186,10 +192,9 @@ gracefully when a producer supplies less.
 
 Tension (caught at absorb by @domain [arbor]): V1-022 sealed
 "on-demand decisions view, no pre-built global index"; the fold is a
-pre-built derived index. Expected resolution: fold v0 supersedes
-V1-022 in part (pre-built becomes legitimate when one versioned
-artifact owns it, per FIX-004). Recorded as tension until sealed;
-reverse edge is lint-materialized per V1-020.
+pre-built derived index. Resolved same day, ahead of fold v0: @user
+sealed BOARD-015 superseding V1-022 in full — "it's not a hot index,
+it's a stateful capture."
 
 ### BOARD-011 — Append-first
   At: 2026-08-02
@@ -248,6 +253,41 @@ vs batch to session end) by applying BOARD-003 rather than minting
 new policy: batch by default; interrupt only when a probe on a claim
 touched by the change in flight flips red — which is already in the
 loudest-tier. Everything else waits amber at session end.
+
+### BOARD-015 — The fold supersedes V1-022: stateful capture, not hot index
+  At: 2026-08-02
+  Drivers: @user
+  Status: active
+  Lifecycle_state: sealed
+  Parent: BOARD-010
+  Edge_type: implements
+  Supersedes: V1-022
+  Callout-> v1-consolidation/V1-022 (supersedes)
+
+Resolves the tension recorded on BOARD-010 at absorb. @user, verbatim:
+"deprecate v1-022, this is the evolution that leaves it behind — its
+not a hot index, its a stateful capture." V1-022's bet was against
+stale caches masquerading as truth; FIX-004's fold answers it — one
+versioned, deterministic, atomically-written artifact owns the
+reduction, so the pre-built view is no longer a cache that can drift
+but a capture re-folded on every event. V1-032's read-side query
+script survives as a reader of the fold's parse layer (anchor's
+constraint), not a second parser. V1-022's Status flipped to
+superseded in its home thread.
+
+### BOARD-016 — User-specific operator state is local-only
+  At: 2026-08-02
+  Drivers: @user
+  Status: active
+  Lifecycle_state: sealed
+  Callout-> v1.0.1-intent-graph-nascent/V1-031 (affects)
+
+Anything specific to the individual user never commits:
+`cohort/operator-model-*.md`, `cohort/_user.md`, and `intents.md` are
+gitignored. What commits is extracted structure — generic templates
+built from the personal instances with the personal content removed.
+First instance: `cohort/operator-model-user.md` (local only). Template
+extraction deferred until the shape stabilizes.
 
 ## Proposals (registered, not sealed)
 
