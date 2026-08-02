@@ -12,8 +12,8 @@ Ingested 2026-08-02 from the board × storytime design session
 `docs/drafts/` after ingest). Companion remembrance:
 `specs/.storytime/sessions/board/remembrance-board-x-storytime.md`
 (topic `board`). `Callout->` targets below reference BOARD-NNN ids
-staged in that document; formal extraction into the topic thread is
-the absorb step.
+staged in that document and extracted into the topic thread
+(`sessions/board/_thread.md`, absorbed 2026-08-02).
 
 Severity: **blocking** = the board cannot be trusted until fixed.
 **Structural** = the board works but degrades or lies at the edges.

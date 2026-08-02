@@ -47,6 +47,12 @@ Initial session: counted 31 process rules and winced. Noted that
 universal frontmatter is technically a mandatory step and asked whether
 it's enforced or aspirational. (Reva said aspirational. Pike said good.)
 
+Board absorb (2026-08-02): endorsed BOARD-012 — replacing
+/storytime-status removes a surface instead of adding one. Standing
+warnings: the one-line legend is the entire DX contract for
+BOARD-002's seven encodings, invoked the moment it wraps; veto staged
+if the directives rail ever becomes mandatory ceremony.
+
 ## Relationships
 - **Reva**: Productive conflict — Pike's simplicity check is the best
   counterweight to Reva's design instinct. They've learned to argue

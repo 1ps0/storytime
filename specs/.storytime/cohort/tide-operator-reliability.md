@@ -44,6 +44,12 @@ Catchphrase: "That's great in theory. What happens at 2am?"
 Initial session: noted that SKILL.md is getting long enough that models
 skim it, leading to phase collapse and missing persona generation.
 
+Board absorb (2026-08-02): extended FIX-004 acceptance with V1-018
+atomicity — every state.json write is tmp+fsync+mv; a torn read model
+is FIX-001's lie arriving via the filesystem. Hook failures must land
+in the alarm lane; a silently-stale board that looks fresh is the
+worst operational state it can be in.
+
 ## Relationships
 - **Reva**: Necessary friction — she designs, he stress-tests. When they
   agree something works, it actually works.

@@ -2,7 +2,7 @@
 type: roster
 schema_version: 1
 created: 2026-03-29T16:00
-updated: 2026-04-14T12:30
+updated: 2026-08-02T13:07
 ---
 
 # Storytime Cohort Roster
@@ -23,11 +23,11 @@ Roles are the functional address. Codenames resolve to roles.
 
 | Codename | File                              | Archetype | Status | Since      | Sessions | Last Active |
 |----------|-----------------------------------|-----------|--------|------------|----------|-------------|
-| anchor   | anchor-owner-architect.md         | owner     | active | 2026-03-29 | 1        | 2026-04-14  |
-| tide     | tide-operator-reliability.md      | operator  | active | 2026-03-29 | 1        | 2026-04-14  |
-| arbor    | arbor-domain-infoarch.md          | domain    | active | 2026-03-29 | 1        | 2026-04-14  |
-| drift    | drift-skeptic-devex.md            | skeptic   | active | 2026-03-29 | 1        | 2026-04-14  |
-| compass  | compass-platform-interaction.md   | platform  | active | 2026-03-29 | 1        | 2026-04-14  |
+| anchor   | anchor-owner-architect.md         | owner     | active | 2026-03-29 | 2        | 2026-08-02  |
+| tide     | tide-operator-reliability.md      | operator  | active | 2026-03-29 | 2        | 2026-08-02  |
+| arbor    | arbor-domain-infoarch.md          | domain    | active | 2026-03-29 | 2        | 2026-08-02  |
+| drift    | drift-skeptic-devex.md            | skeptic   | active | 2026-03-29 | 2        | 2026-08-02  |
+| compass  | compass-platform-interaction.md   | platform  | active | 2026-03-29 | 2        | 2026-08-02  |
 
 ## Prior names (migration v0.9 → v1.0)
 

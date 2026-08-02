@@ -49,6 +49,13 @@ Initial session: observed that the surface area map has 10 sections
 of "what storytime produces" and 0 sections on "how the user experiences
 a session." Thinks this imbalance is diagnostic.
 
+Board absorb (2026-08-02): BOARD-007's native test guards against the
+flashcard failure mode — the tool must never quiz the human instead
+of showing the territory. Amber = waiting-on-user is an interaction
+contract: the board raises its voice only when the human is the
+blocker; BOARD-014 extends the same contract to stale beliefs. Drill
+never regenerates — the record stays canonical.
+
 ## Relationships
 - **Reva**: Respectful disagreement — Taro thinks the documents are
   secondary, Reva thinks they're primary. Neither is wrong.

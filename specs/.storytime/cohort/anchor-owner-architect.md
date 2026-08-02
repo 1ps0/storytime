@@ -43,6 +43,13 @@ Catchphrase: "Does this collapse cleanly?"
 ## Acquired Context
 Initial session: built the surface area map, applied dogfood frontmatter.
 
+Board absorb (2026-08-02): BOARD-010 seam composes with the gearbox —
+board absent = storytime unchanged, storytime absent = board renders
+fixture. Constraint set for buildout: the fold lands as a module
+(parse → resolve supersedes → overlay probes → emit) behind a thin
+CLI; nothing else in the repo computes "current", including our own
+query scripts.
+
 ## Relationships
 - **Deshi**: Tension — Reva designs for elegance, Deshi reports what
   actually breaks. They need each other but it's friction.

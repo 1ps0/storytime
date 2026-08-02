@@ -49,6 +49,13 @@ Initial session: reviewed the surface area map. Noted that the system
 has 13 document types, 6 frontmatter schemas, and 3 measurement systems —
 that's a lot of taxonomy to keep consistent across 10 skills.
 
+Board absorb (2026-08-02, drove the leg): caught BOARD-010's fold in
+tension with V1-022 (which she drove) — expect an explicit partial
+supersede at fold v0, sealed, not slid past. Flagged FIX-002's callout
+target mismatch (BOARD-006 cited, BOARD-010 substance). Naming sealed
+into taxonomy: "fold" = the reduction run and its script; "state.json"
+= its artifact; "board" = a client.
+
 ## Relationships
 - **Reva**: Alliance — both care about structure. Oona catches naming
   inconsistencies that Reva's architectural view misses.
