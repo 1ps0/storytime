@@ -150,7 +150,22 @@ Timestamp backfill results (18 files):
   Review backfilled files? [y/n]
 ```
 
-### 6. Report
+### 6. Fold the State
+
+After all file operations land, re-fold the read model — consolidation
+is an event on the board's event stream (BOARD-010):
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/fold.py --repo .
+```
+
+Emits `board/state.json` (atomic, deterministic; local-only — it may
+fold user-local directives per BOARD-016). On failure the fold exits
+nonzero with file:line — surface the error and stop; a consolidation
+that leaves stale state behind is worse than one that halts. Skip
+silently only if `scripts/fold.py` does not exist (pre-board repos).
+
+### 7. Report
 
 Show what was done:
 - Files moved (with old → new paths)
@@ -158,6 +173,7 @@ Show what was done:
 - Files left in place
 - Timestamps backfilled (with confidence breakdown)
 - New archive index state
+- Fold result (item count + schema version, or the failure)
 
 ## Rules
 
@@ -173,3 +189,6 @@ Show what was done:
    of `2026-02-15`. Mark confidence on every inferred timestamp.
 8. **Universal frontmatter on every file** — `type`, `created`, `session`.
    See `${CLAUDE_PLUGIN_ROOT}/docs/timestamps.md` for the full spec.
+9. **Every consolidation re-folds.** `board/state.json` is derived by
+   `scripts/fold.py` and nowhere else (FIX-004). A fold failure is part
+   of the consolidation outcome — report it, never swallow it.
