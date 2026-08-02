@@ -97,12 +97,29 @@ created: <YYYY-MM-DD>
 
 No other directories created.
 
+**All modes with persistent state (native, adapt) — ignore block:**
+
+Append to the repo's `.gitignore` (create it if absent). User-local
+state never commits (BOARD-016); derived board state is fold-owned and
+regenerable (FIX-004):
+
+```gitignore
+# storytime: user-local state (BOARD-016) + derived board state (FIX-004)
+specs/.storytime/cohort/_user.md
+specs/.storytime/cohort/operator-model-*.md
+specs/.storytime/intents.md
+board/state.json
+```
+
 ### 4. Report
 
 Show what was created and what the next step is:
 - "Run `/storytime:storytime <problem>` to start your first session"
 - "Run `/storytime:survey` to scan the codebase first"
 - "Run `/storytime:consolidate` to organize existing docs"
+- "Run `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/board_server.py --repo .`
+  for the live board — board.html serves from the plugin (BOARD-018),
+  state.json folds from this repo"
 
 ## If Already Bootstrapped
 

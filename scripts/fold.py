@@ -218,6 +218,22 @@ def parse_local_directives(path):
     return out
 
 
+def user_state_path(root):
+    """Where @user's local state lives: repo-first, then machine-level.
+
+    The operator travels across projects (BOARD-018) without committing
+    anywhere (BOARD-016). Returns the canonical repo path even when
+    absent, so callers can treat it uniformly.
+    """
+    repo_user = os.path.join(root, "specs", ".storytime", "cohort", "_user.md")
+    if os.path.exists(repo_user):
+        return repo_user
+    home_user = os.path.expanduser(os.path.join("~", ".storytime", "user.md"))
+    if os.path.exists(home_user):
+        return home_user
+    return repo_user
+
+
 # ---------------------------------------------------------------- folding
 
 def _label(title):
@@ -322,7 +338,7 @@ def fold_repo(root):
 
     roster_path = os.path.join(st_root, "cohort", "_roster.md")
     teammates = parse_roster(roster_path) if os.path.exists(roster_path) else []
-    user_path = os.path.join(st_root, "cohort", "_user.md")
+    user_path = user_state_path(root)
     if os.path.exists(user_path):
         teammates.insert(0, {"codename": "user", "role": "user",
                              "status": "active", "last_active": ""})
@@ -376,6 +392,7 @@ def inputs_snapshot(root):
             stamp(os.path.join(sess, name, "_thread.md"))
     stamp(os.path.join(st_root, "cohort", "_roster.md"))
     stamp(os.path.join(st_root, "cohort", "_user.md"))
+    stamp(os.path.expanduser(os.path.join("~", ".storytime", "user.md")))
     snap["git:HEAD"] = _head(root)
     return snap
 

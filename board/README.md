@@ -30,6 +30,24 @@ Files:
 - `fixture-state.json` — committed demo fiction ("transport v2
   cutover"), provenance-labeled; clients must banner it as fixture.
 
+## Any project (BOARD-018)
+
+The board ships with the tool, not with the project. Against any repo
+with a bootstrapped `specs/.storytime/`:
+
+```
+python3 scripts/board_server.py --repo /path/to/project
+python3 scripts/fold.py --repo /path/to/project     # one-shot fold
+```
+
+`board.html` and the fixture serve from this plugin's `board/` when
+the target repo has none of its own; `state.json` always folds from
+the target repo. User state resolves repo-first
+(`specs/.storytime/cohort/_user.md`), then machine-level
+(`~/.storytime/user.md`) — put your operator model there and your
+rail directives follow you across every project, committed nowhere.
+Bootstrap writes the ignore block into new repos.
+
 Contract: `docs/board-state-schema.md` (schema 0.1.0). Producer:
 `scripts/fold.py` — the only thing in the repo that computes "current"
 (FIX-004, BOARD-015). Grammar: BOARD-002; one legend line must always

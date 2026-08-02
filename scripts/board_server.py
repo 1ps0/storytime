@@ -32,6 +32,12 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fold  # noqa: E402  — sibling module; the fold owns parsing and inputs
 
+# Tool UI ships with the tool (BOARD-018): when the target repo has no
+# board/board.html of its own, serve the plugin's copy. state.json is
+# always the target repo's fold — never the plugin's.
+PLUGIN_BOARD = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "board"))
+
 
 class Bus:
     """Fan-out of watcher events to connected SSE clients."""
@@ -103,6 +109,16 @@ def make_handler(board_dir, bus):
 
         def log_message(self, fmt, *args):
             pass  # guardrail-grade: silent while working
+
+        def translate_path(self, path):
+            p = super().translate_path(path)
+            if not os.path.exists(p):
+                name = os.path.basename(p)
+                if name in ("board.html", "fixture-state.json"):
+                    alt = os.path.join(PLUGIN_BOARD, name)
+                    if os.path.exists(alt):
+                        return alt
+            return p
 
         def do_GET(self):
             if self.path in ("/", "/index.html"):
