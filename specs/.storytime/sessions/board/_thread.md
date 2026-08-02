@@ -7,8 +7,8 @@ last_consolidation:
   scale: session
   event: DONE
   at: 2026-08-02T14:05
-last_completed_phase: BUILD
-last_commit: 33ede36
+last_completed_phase: LIVE
+last_commit: 817a796
 remembrance_staged: false
 remembrance_path: null
 open_questions:
@@ -63,6 +63,13 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   fail-honest on schema-major mismatch). Live fold of this repo: 42
   items, 3 topics, 2 retired excluded, 6 local rail directives.
   BOARD-013 realized at f5e7a86.
+- 002 (LIVE, 2026-08-02) — @user: the board should be live and update
+  inline as an application. Sealed + realized BOARD-017 (817a796):
+  watch-fold-push server (`scripts/board_server.py`), SSE live layer
+  in board.html with polling/static fallbacks, fold-error → alarm
+  lane as `fold/self`, HEAD watched so commits refresh pre-hooks.
+  Tested: state push on thread touch; fold-error push on connect
+  against a malformed repo, last-good state kept.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -309,6 +316,31 @@ built from the personal instances with the personal content removed.
 First instance: `cohort/operator-model-user.md` (local only). Template
 extraction deferred until the shape stabilizes.
 
+### BOARD-017 — The board is a live application
+  At: 2026-08-02
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 817a796
+  Parent: BOARD-010
+  Edge_type: implements
+
+@user, verbatim: "shouldnt the board be live status and updated inline
+as an application." Yes — FIX-003 already named the drift, OP-002 puts
+discipline in machinery not rituals, and BOARD-010's event stream is
+fold-then-*render*; v0 had shipped only the render half. The loop:
+`scripts/board_server.py` watches `fold.inputs_snapshot` (single
+source of truth — watcher and fold cannot disagree about inputs;
+includes git HEAD, so commits refresh the board before FIX-003's hooks
+exist), re-folds on change, pushes SSE; the client re-renders inline
+(moved dots accrue against last look; an open drill refreshes, or
+closes if its item left the state — a stale drill is a lying drill).
+Degrades per BOARD-010: silent polling under any static server,
+static + drag-drop on file://. Fold failures render in the alarm lane
+as guardrail `fold/self` with file:line while last-good state stays
+(FIX-003: never stderr oblivion) — verified end-to-end both ways.
+Binds 127.0.0.1 only (BOARD-016: local state stays local).
+
 ## Proposals (registered, not sealed)
 
 ### BOARD-P1 — Stable IDs at creation for every item kind
@@ -361,9 +393,11 @@ BOARD-013's widening order:
 
 1. FIX-000 / BOARD-P1 (focused) — mint ids for questions, candidates,
    directives, dreams; each kind enters the fold as its ids land.
-2. FIX-003 — event hooks beyond consolidate: post-commit fold (flip
-   `post_commit_hook` in config at that moment), test/PR events, idle
-   heartbeat; failures → `guardrail_blocks` under reserved `fold/self`.
+2. FIX-003 remainder — ambient watcher + HEAD-change refold + idle
+   heartbeat shipped via BOARD-017's server; still open: git
+   post-commit hook so folds happen with no server running (flip
+   `post_commit_hook` then), and test-run / PR events feeding probe
+   overlays and `guardrail_blocks`.
 3. BOARD-012 realization — board surface replaces /storytime-status
    skill output (skill invokes fold + points at board.html).
 4. Realized_at backfill on V1-era decisions (adherence evidence) so
