@@ -53,6 +53,14 @@ header {
 #live .ldot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); margin-right: 4px; vertical-align: 1px; }
 #live.on .ldot { background: var(--green); }
 #live.on { color: var(--text); }
+.cap { font-size: 10.5px; color: var(--text-muted); margin: 2px 0 7px; line-height: 1.4; max-width: 340px; }
+.cmdrow { margin-bottom: 2px; }
+#glossary { display: none; margin: 10px 20px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); padding: 12px 16px; columns: 2; column-gap: 28px; }
+#glossary.open { display: block; }
+.g-ent { break-inside: avoid; margin-bottom: 8px; }
+.g-term { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+.g-def { font-size: 11.5px; color: var(--text-muted); line-height: 1.4; }
+.chip.q { color: var(--accent); border-color: rgba(88,166,255,.5); }
 .btn, .cmd {
   background: transparent; border: 1px solid var(--border); color: var(--text-muted);
   font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 5px; cursor: pointer;
@@ -238,11 +246,13 @@ header {
     <span id="title">board</span><span id="speaks">speaks 0.1.0</span><span id="banner"></span><span id="live"><span class="ldot"></span><span id="livetxt"></span></span>
     <span class="hspace"></span>
     <span id="budget"></span>
-    <button id="markseen" class="btn">mark seen</button>
+    <button id="helpbtn" class="btn" title="plain-language guide to every action and word on this board">?</button>
+    <button id="markseen" class="btn" title="remember what the board looks like right now — blue dots then mark only what changes after this">mark seen</button>
   </header>
 
   <div id="lensbar" style="display:none"></div>
   <div id="lenspanel" style="display:none"></div>
+  <div id="glossary"></div>
 
   <main id="layout">
     <aside id="dirs"></aside>
@@ -256,7 +266,7 @@ header {
     </aside>
   </main>
 
-  <footer id="legend">depth rows &#183; lanes=kind &#183; <span class="lg-a">amber=waiting on you</span> &#183; <span class="lg-r">red=violated/blocked</span> &#183; <span class="lg-dash"></span> dashed border=contested &#183; <span class="lg-outl"></span> dashed outline=candidate &#183; <span class="lg-solid">&#9679;</span>/<span>&#9675;</span>=fact/judgment &#183; <span class="lg-dot"></span> dot=moved</footer>
+  <footer id="legend"><span title="new ideas at the surface, settled decisions at bedrock">depth rows</span> &#183; <span title="columns group cards by what they are: decisions, questions, delivery work">lanes=kind</span> &#183; <span class="lg-a" title="waiting on you — only you can move it">amber=waiting on you</span> &#183; <span class="lg-r" title="broken promise, blocked work, or two cards in conflict">red=violated/blocked</span> &#183; <span class="lg-dash"></span> <span title="pulls against another card somewhere">dashed border=contested</span> &#183; <span class="lg-outl"></span> <span title="an idea waiting for your yes or no">dashed outline=candidate</span> &#183; <span class="lg-solid">&#9679;</span>/<span>&#9675;</span><span title="solid = measured fact with evidence; hollow = judgment call">=fact/judgment</span> &#183; <span class="lg-dot"></span> <span title="changed since you last pressed mark seen">dot=moved</span> &#183; press ? for plain words</footer>
 </div>
 
 <div id="error"></div>
@@ -264,7 +274,7 @@ header {
 
 <script type="application/json" id="state">
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
   "topics": [
@@ -433,6 +443,9 @@ header {
     { "id": "DIR-002", "text": "look for factoring opportunities", "origin": "@user", "status": "alive", "fired": 1, "last_candidate": "CAND-007", "source": "repo" },
     { "id": "DIR-003", "text": "flag schema drift between services", "origin": "@owner [keel]", "status": "parked", "fired": 0, "last_candidate": null, "source": "repo" }
   ],
+  "commands": [
+    { "id": "CMD-001", "command": "seal", "item": "TRAN-012", "args": null, "origin": "@user", "at": "2026-08-06T10:12:00" }
+  ],
   "guardrail_blocks": [
     { "id": "GRB-001", "item": "TRAN-014", "guardrail": "check-conventions/atomic-writes", "message": "state write skipped tmp+fsync+mv", "at_commit": "9e2f110" }
   ],
@@ -458,7 +471,7 @@ header {
 (function () {
 'use strict';
 
-var SPEAKS = '0.1.0';          // schema version this client speaks (major "0")
+var SPEAKS = '0.2.0';          // schema version this client speaks (major "0")
 var KEY = 'board:lastlook';    // client-side "moved since last look" snapshot
 var DEPTHS = ['surface', 'forming', 'bedrock'];
 var KINDS = ['decision', 'question', 'delivery'];
@@ -469,6 +482,48 @@ var moved = {};       // item id -> true (changed since last look)
 var activeLens = null;
 var foldErr = null;   // synthetic fold/self alarm from the live layer (FIX-003)
 var drillId = null, drillKind = null; // open drill target, refreshed on live updates
+var liveMode = false; // true only when the board server is on the other end
+var pendingByItem = {}; // item id -> [queued command names] (BOARD-021)
+
+/* ---- plain-language explainers (BOARD-021: no insider vocabulary) ---- */
+var HELP = {
+  commands: {
+    'seal': 'Lock this in as decided. It becomes part of what the work stands on.',
+    'add-option': 'Add another possible answer to this open decision.',
+    'accept-candidate': 'Say yes to this suggestion — turn it into real work.',
+    'edit-item': 'Change this card’s wording. Goes through the agent so the record stays true.',
+    'park': 'Save where things stand and pause safely. Nothing is lost.',
+    'request-review': 'Ask for a check of this topic’s records — structure, citations, hygiene.',
+    'add-directive': 'Add a standing instruction the system keeps acting on for you.'
+  },
+  terms: {
+    'surface / forming / bedrock': 'New ideas start at the surface, harden as they take shape, and settled decisions sink to bedrock — the layer the work stands on.',
+    'track': 'Work being delivered, left to right: criteria → build → PR → review → merged → deployed.',
+    'amber': 'Waiting on you. Only you can move it — that’s why it’s bigger and orange.',
+    'red': 'A broken promise, blocked work, or two cards in conflict. The loudest the board gets.',
+    'dashed border': 'Contested — this card pulls against another one somewhere.',
+    'dashed outline': 'A candidate: an idea waiting for your yes or no.',
+    'blue dot': 'Changed since you last pressed “mark seen”.',
+    '● / ○': 'Solid dot: a measured fact, with a pointer to the evidence. Hollow dot: a judgment call.',
+    'probe': 'An automatic check that a decision still holds true in the code. Green = holds, red = broken.',
+    'drill': 'Click any card to read its full story from the written record. Nothing is made up on the spot.',
+    'fold': 'The rebuild of this board from the repo’s records. The board only ever shows what’s written down.',
+    'directive': 'A standing instruction that keeps generating suggestions. “fired 3×” means it’s alive.',
+    'queued': 'Your click is recorded. The agent actions it with full authority, then this board updates by itself.'
+  }
+};
+
+function renderGlossary() {
+  var h = '<div class="mlabel">actions</div>';
+  Object.keys(HELP.commands).forEach(function (k) {
+    h += '<div class="g-ent"><span class="g-term">' + esc(k) + '</span><div class="g-def">' + esc(HELP.commands[k]) + '</div></div>';
+  });
+  h += '<div class="mlabel" style="margin-top:10px">words on the board</div>';
+  Object.keys(HELP.terms).forEach(function (k) {
+    h += '<div class="g-ent"><span class="g-term">' + esc(k) + '</span><div class="g-def">' + esc(HELP.terms[k]) + '</div></div>';
+  });
+  $('#glossary').innerHTML = h;
+}
 
 function $(s) { return document.querySelector(s); }
 function arr(x) { return Array.isArray(x) ? x : []; }
@@ -534,6 +589,10 @@ function markSeen() {
 function render() {
   if (!cur) return;
   computeMoved();
+  pendingByItem = {};
+  arr(cur.commands).forEach(function (c) {
+    if (c && c.item) (pendingByItem[c.item] = pendingByItem[c.item] || []).push(c.command);
+  });
   renderHeader();
   renderLenses();
   renderDirectives();
@@ -558,6 +617,8 @@ function renderHeader() {
       chips += '<span class="stat' + amber + '"><b>' + esc(p[1]) + '</b>' + esc(p[0]) + '</span>';
     });
   }
+  var qn = arr(cur.commands).length;
+  if (qn) chips += '<span class="stat" title="' + esc(HELP.terms.queued) + '"><b>' + qn + '</b>queued</span>';
   $('#budget').innerHTML = chips;
 }
 
@@ -593,7 +654,7 @@ function renderDirectives() {
         '</div></div>';
     }).join('');
   }
-  html += '<button class="cmd tiny" data-copy="/storytime-qa add directive">+ directive</button>';
+  html += '<button class="cmd tiny" data-cmd="add-directive" data-copy="/storytime-qa add directive" title="' + esc(HELP.commands['add-directive']) + '">+ directive</button>';
   $('#dirs').innerHTML = html;
 }
 
@@ -637,6 +698,7 @@ function cardHTML(it) {
   if (it.topic) tags += '<span class="chip">' + esc(it.topic) + '</span>';
   if (it.origin) tags += '<span class="chip">' + esc(it.origin) + '</span>';
   if (it.state === 'collision') tags += '<span class="chip coll">collision</span>';
+  if (pendingByItem[it.id]) tags += '<span class="chip q" title="' + esc(HELP.terms.queued) + '">&#9203; ' + esc(pendingByItem[it.id].join(', ')) + '</span>';
   var acc = '';
   if (it.track && it.track.acceptance) {
     var g = Math.max(0, +it.track.acceptance.green || 0);
@@ -795,9 +857,14 @@ function drillItem(it) {
     ['park', '/storytime-remember nap'],
     ['request-review', '/storytime-lint ' + (topic || id)]
   );
-  h += sec('commands', '<div class="cmds">' + cmds.map(function (c) {
-    return '<button class="cmd" data-copy="' + esc(c[1]) + '">' + esc(c[0]) + '</button>';
-  }).join('') + '</div>');
+  var queuedHere = pendingByItem[id] || [];
+  h += sec(liveMode ? 'actions' : 'actions (not live — copies the command; paste it to the agent)',
+    '<div>' + cmds.map(function (c) {
+      var q = queuedHere.indexOf(c[0]) >= 0;
+      return '<div class="cmdrow"><button class="cmd" data-cmd="' + esc(c[0]) + '" data-item="' + esc(id) + '" data-copy="' + esc(c[1]) + '">' +
+        (q ? '&#9203; ' + esc(c[0]) + ' — queued' : esc(c[0])) + '</button></div>' +
+        '<div class="cap">' + esc(HELP.commands[c[0]] || '') + '</div>';
+    }).join('') + '</div>');
   showDrill(h);
 }
 
@@ -811,20 +878,32 @@ function drillCand(c) {
   if (c.target_topic) meta += '<span class="chip">' + esc(c.target_topic) + '</span>';
   if (meta) h += '<div class="tags dmeta">' + meta + '</div>';
   if (c.argument) h += sec('argument', '<div class="dsum">' + esc(c.argument) + '</div>');
-  h += sec('commands', '<div class="cmds"><button class="cmd" data-copy="' +
-    esc('/storytime-consolidate accept ' + (c.id || '')) + '">accept-candidate</button></div>');
+  h += sec(liveMode ? 'actions' : 'actions (not live — copies the command; paste it to the agent)',
+    '<div class="cmdrow"><button class="cmd" data-cmd="accept-candidate" data-item="' + esc(c.id || '') + '" data-copy="' +
+    esc('/storytime-consolidate accept ' + (c.id || '')) + '">accept-candidate</button></div>' +
+    '<div class="cap">' + esc(HELP.commands['accept-candidate']) + '</div>');
   showDrill(h);
 }
 
 /* ---- command stubs: copy skill invocation, mutate nothing ---- */
+function flashBtn(btn, text) {
+  if (!btn) return;
+  if (btn.dataset.orig == null) btn.dataset.orig = btn.textContent;
+  btn.textContent = text;
+  btn.classList.add('did-copy');
+  setTimeout(function () { btn.textContent = btn.dataset.orig; btn.classList.remove('did-copy'); }, 900);
+}
+
+function postCommand(name, item, btn) {
+  fetch('command', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command: name, item: item }) })
+    .then(function (r) { if (!r || !r.ok) throw 0; return r.json(); })
+    .then(function () { flashBtn(btn, 'queued ✓'); })
+    .catch(function () { copyText(btn.getAttribute('data-copy') || '', btn); });
+}
+
 function copyText(t, btn) {
-  var done = function () {
-    if (!btn) return;
-    if (btn.dataset.orig == null) btn.dataset.orig = btn.textContent;
-    btn.textContent = 'copied';
-    btn.classList.add('did-copy');
-    setTimeout(function () { btn.textContent = btn.dataset.orig; btn.classList.remove('did-copy'); }, 900);
-  };
+  var done = function () { flashBtn(btn, 'copied'); };
   var fb = function () {
     var ta = document.createElement('textarea');
     ta.value = t;
@@ -852,7 +931,13 @@ function gotoItem(id) {
 document.addEventListener('click', function (ev) {
   var t = ev.target;
   var cmd = t.closest('.cmd');
-  if (cmd) { copyText(cmd.getAttribute('data-copy') || '', cmd); return; }
+  if (cmd) {
+    var cname = cmd.getAttribute('data-cmd');
+    if (liveMode && cname) postCommand(cname, cmd.getAttribute('data-item') || null, cmd);
+    else copyText(cmd.getAttribute('data-copy') || '', cmd);
+    return;
+  }
+  if (t.closest('#helpbtn')) { $('#glossary').classList.toggle('open'); return; }
   if (t.closest('.dclose')) { closeDrill(); return; }
   var al = t.closest('.alink');
   if (al) { gotoItem(al.getAttribute('data-goto')); return; }
@@ -927,7 +1012,7 @@ function startLive() {
   var es;
   try { es = new EventSource('events'); } catch (e) { return startPolling(); }
   var opened = false;
-  es.onopen = function () { opened = true; setLive('live'); refetch(); };
+  es.onopen = function () { opened = true; liveMode = true; setLive('live'); refetch(); };
   es.addEventListener('state', function () { foldErr = null; refetch(); });
   es.addEventListener('fold-error', function (ev) {
     var d = {};
@@ -939,12 +1024,13 @@ function startLive() {
   });
   es.onerror = function () {
     if (!opened) { es.close(); startPolling(); } // plain static server: no /events
-    else setLive(null); // dropped; EventSource auto-retries, onopen restores
+    else { liveMode = false; setLive(null); } // dropped; EventSource auto-retries, onopen restores
   };
 }
 
 /* ---- data loading: embedded fixture, then live layer, then drag-drop ---- */
 function boot() {
+  renderGlossary();
   var raw = document.getElementById('state');
   var o = null;
   try { o = JSON.parse(raw.textContent); }

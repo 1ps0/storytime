@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
   "topics": [
@@ -167,6 +167,9 @@
     { "id": "DIR-001", "text": "never trade clean for easy silently", "origin": "@user", "status": "alive", "fired": 3, "last_candidate": "CAND-004", "source": "local" },
     { "id": "DIR-002", "text": "look for factoring opportunities", "origin": "@user", "status": "alive", "fired": 1, "last_candidate": "CAND-007", "source": "repo" },
     { "id": "DIR-003", "text": "flag schema drift between services", "origin": "@owner [keel]", "status": "parked", "fired": 0, "last_candidate": null, "source": "repo" }
+  ],
+  "commands": [
+    { "id": "CMD-001", "command": "seal", "item": "TRAN-012", "args": null, "origin": "@user", "at": "2026-08-06T10:12:00" }
   ],
   "guardrail_blocks": [
     { "id": "GRB-001", "item": "TRAN-014", "guardrail": "check-conventions/atomic-writes", "message": "state write skipped tmp+fsync+mv", "at_commit": "9e2f110" }

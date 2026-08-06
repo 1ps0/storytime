@@ -21,6 +21,7 @@ Binds 127.0.0.1 only — the live state may fold user-local directives
 """
 
 import argparse
+import datetime
 import json
 import os
 import queue
@@ -37,6 +38,31 @@ import fold  # noqa: E402  — sibling module; the fold owns parsing and inputs
 # always the target repo's fold — never the plugin's.
 PLUGIN_BOARD = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "board"))
+
+
+# BOARD-010's command set. A click queues intent (BOARD-021); the agent
+# actions it with full authority — the server never edits the record.
+COMMANDS = {"seal", "add-option", "accept-candidate", "edit-item",
+            "add-directive", "park", "request-review"}
+
+
+def enqueue_command(root, command, item=None, args=None):
+    """Append a pending command to specs/.storytime/commands.jsonl.
+    Append-only, fsync'd; local-only (gitignored, BOARD-016)."""
+    path = os.path.join(root, "specs", ".storytime", "commands.jsonl")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    n = 0
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            n = sum(1 for ln in f if ln.strip())
+    entry = {"id": f"CMD-{n + 1:03d}", "command": command, "item": item,
+             "args": args, "origin": "@user", "status": "pending",
+             "at": datetime.datetime.now().isoformat(timespec="seconds")}
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, sort_keys=True) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+    return entry
 
 
 class Bus:
@@ -102,7 +128,7 @@ class Watcher(threading.Thread):
             time.sleep(self.interval)
 
 
-def make_handler(board_dir, bus):
+def make_handler(board_dir, bus, repo_root):
     class Handler(SimpleHTTPRequestHandler):
         def __init__(self, *a, **kw):
             super().__init__(*a, directory=board_dir, **kw)
@@ -129,6 +155,35 @@ def make_handler(board_dir, bus):
             if self.path == "/events":
                 return self.sse()
             return super().do_GET()
+
+        def do_POST(self):
+            if self.path != "/command":
+                self.send_error(404)
+                return
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                cmd = json.loads(self.rfile.read(n) or b"{}")
+            except (ValueError, json.JSONDecodeError):
+                return self._json(400, {"ok": False, "error": "bad json"})
+            name = str(cmd.get("command", ""))
+            if name not in COMMANDS:
+                return self._json(400, {"ok": False,
+                                        "error": f"unknown command {name!r}"})
+            entry = enqueue_command(repo_root, name, cmd.get("item"),
+                                    cmd.get("args"))
+            print(f"board: queued {entry['id']} — {name}"
+                  f"{' on ' + str(cmd.get('item')) if cmd.get('item') else ''}",
+                  flush=True)
+            self._json(200, {"ok": True, "id": entry["id"]})
+            # the watcher sees commands.jsonl change and refolds+pushes
+
+        def _json(self, code, obj):
+            body = json.dumps(obj).encode()
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
 
         def sse(self):
             self.send_response(200)
@@ -184,7 +239,7 @@ def main(argv=None):
     Watcher(root, out_path, bus, args.interval).start()
 
     srv = ThreadingHTTPServer(("127.0.0.1", args.port),
-                              make_handler(board_dir, bus))
+                              make_handler(board_dir, bus, root))
     print(f"board: live at http://localhost:{args.port}/board.html "
           f"(watching fold inputs every {args.interval}s; Ctrl-C stops)",
           flush=True)

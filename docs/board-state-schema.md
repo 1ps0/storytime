@@ -41,12 +41,13 @@ directives (BOARD-016) — and is gitignored.
 
 ```json
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "provenance": "fold" | "fixture",
   "generated_from": "<git short sha>",
   "topics": [Topic],
   "items": [Item],
   "directives": [Directive],
+  "commands": [Command],
   "guardrail_blocks": [GuardrailBlock],
   "candidates": [Candidate],
   "budget": Budget,
@@ -54,6 +55,8 @@ directives (BOARD-016) — and is gitignored.
   "teammates": [Teammate]
 }
 ```
+
+Version history: 0.2.0 added `commands[]` (BOARD-021, additive).
 
 `provenance: "fixture"` MUST be rendered visibly by any client (the
 widget lineage's "transport v2 cutover" content is demo fiction; a
@@ -157,6 +160,28 @@ alive. `source: "local"` marks directives folded from user-local state
 (BOARD-016): they appear on a local board but are absent from any
 committed state. The fold emits `[]` when no directives source exists.
 
+## Command
+
+The pending half of the control loop (BOARD-021). A board click POSTs
+`{command, item}` to the server, which appends a pending entry to
+`specs/.storytime/commands.jsonl` (append-only, fsync'd, gitignored —
+it is @user intent, BOARD-016). The fold surfaces pending entries
+here; the board renders them as queued chips. The agent consumes the
+queue with full authority — thread edits, skill runs — then marks
+entries `done`; the next fold clears them from the board. Neither the
+server nor the board ever edits the record itself.
+
+```json
+{
+  "id": "CMD-001",
+  "command": "seal",
+  "item": "TRAN-012",
+  "args": null,
+  "origin": "@user",
+  "at": "2026-08-06T10:12:00"
+}
+```
+
 ## GuardrailBlock
 
 The alarm lane — the only place guardrails surface (BOARD-009), only
@@ -237,9 +262,16 @@ The roster rails (origin, BOARD-002). From committed roster data only.
 
 ## Command set (BOARD-010) — client obligations
 
-v0 clients stub commands as copy-to-clipboard skill invocations; no
-command mutates state directly (the board is a client of storytime's
-authority, never a fork):
+Two tiers, by what is on the other end. **Live** (served by
+board_server): a click POSTs to `/command`, the intent is queued
+instantly (OP-001: the click always lands), and the queued state
+renders on the card until the agent actions it. **Not live** (static
+server or file://): the click copies the skill invocation for pasting
+to the agent, and the drill says so in plain words. In both tiers no
+command mutates state directly — the board is a client of storytime's
+authority, never a fork. Every action button carries a plain-language
+caption (BOARD-021: no insider vocabulary); the invocations behind
+them:
 
 | command | stub target |
 |---|---|

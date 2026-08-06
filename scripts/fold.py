@@ -29,7 +29,7 @@ import re
 import subprocess
 import sys
 
-SCHEMA_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"  # 0.2: + commands[] (BOARD-021 queue; additive)
 
 DECISION_RE = re.compile(r"^### ([A-Z][A-Za-z0-9.]*-[A-Za-z0-9]+) — (.+)$")
 FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z_-]*): ?(.*)$")
@@ -218,6 +218,33 @@ def parse_local_directives(path):
     return out
 
 
+def parse_commands(path):
+    """Pending board commands (BOARD-021): @user intent queued by the
+    board client, actioned by the agent with full authority — the
+    board never edits the record itself. Malformed lines fail loud."""
+    if not os.path.exists(path):
+        return []
+    out = []
+    with open(path, encoding="utf-8") as f:
+        for i, line in enumerate(f, start=1):
+            if not line.strip():
+                continue
+            try:
+                c = json.loads(line)
+            except json.JSONDecodeError as e:
+                raise FoldError(path, i, f"malformed command line: {e}")
+            if c.get("status", "pending") == "pending":
+                out.append({
+                    "id": str(c.get("id", f"line{i}")),
+                    "command": str(c.get("command", "")),
+                    "item": c.get("item"),
+                    "args": c.get("args"),
+                    "origin": str(c.get("origin", "@user")),
+                    "at": str(c.get("at", "")),
+                })
+    return sorted(out, key=lambda c: c["id"])
+
+
 def user_state_path(root):
     """Where @user's local state lives: repo-first, then machine-level.
 
@@ -352,6 +379,7 @@ def fold_repo(root):
         "topics": sorted(topics, key=lambda t: t["id"]),
         "items": sorted(items, key=lambda x: (x["topic"], x["id"])),
         "directives": parse_local_directives(user_path),
+        "commands": parse_commands(os.path.join(st_root, "commands.jsonl")),
         "guardrail_blocks": [],
         "candidates": [],
         "budget": {"open_questions": sum(t["open_questions"] for t in topics)},
@@ -395,6 +423,7 @@ def inputs_snapshot(root):
     stamp(os.path.join(st_root, "cohort", "_roster.md"))
     stamp(os.path.join(st_root, "cohort", "_user.md"))
     stamp(os.path.expanduser(os.path.join("~", ".storytime", "user.md")))
+    stamp(os.path.join(st_root, "commands.jsonl"))
     snap["git:HEAD"] = _head(root)
     return snap
 

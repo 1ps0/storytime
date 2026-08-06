@@ -117,6 +117,7 @@ regenerable (FIX-004):
 specs/.storytime/cohort/_user.md
 specs/.storytime/cohort/operator-model-*.md
 specs/.storytime/intents.md
+specs/.storytime/commands.jsonl
 board/state.json
 ```
 

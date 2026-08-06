@@ -60,7 +60,16 @@ the target repo. User state resolves repo-first
 rail directives follow you across every project, committed nowhere.
 Bootstrap writes the ignore block into new repos.
 
-Contract: `docs/board-state-schema.md` (schema 0.1.0). Producer:
+## Acting from the board (BOARD-021)
+
+Under the board server, action buttons are live: a click queues your
+intent to `specs/.storytime/commands.jsonl` (local-only), the card
+shows a queued chip, and the agent actions it with full authority —
+the board never edits the record itself. Not live, buttons copy the
+skill invocation instead and say so. Press `?` in the header for the
+plain-language guide to every action and term.
+
+Contract: `docs/board-state-schema.md` (schema 0.2.0). Producer:
 `scripts/fold.py` — the only thing in the repo that computes "current"
 (FIX-004, BOARD-015). Grammar: BOARD-002; one legend line must always
 suffice.

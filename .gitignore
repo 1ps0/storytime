@@ -14,6 +14,7 @@
 specs/.storytime/cohort/operator-model-*.md
 specs/.storytime/cohort/_user.md
 specs/.storytime/intents.md
+specs/.storytime/commands.jsonl
 /operator-model-*.md
 
 # Derived board state — the fold regenerates it (FIX-004)
