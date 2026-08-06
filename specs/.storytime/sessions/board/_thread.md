@@ -7,8 +7,8 @@ last_consolidation:
   scale: session
   event: DONE
   at: 2026-08-02T14:05
-last_completed_phase: LIVE
-last_commit: 817a796
+last_completed_phase: READY
+last_commit: d8430fe
 remembrance_staged: false
 remembrance_path: null
 open_questions:
@@ -75,6 +75,12 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   (35e46fe): plugin-served UI fallback, `--repo` operation verified
   against a synthetic consumer repo, machine-level user state at
   `~/.storytime/user.md`, bootstrap writes the ignore block.
+- 004 (READY, 2026-08-06) — @user asked how a consumer repo ensures
+  sufficient structure and state. Sealed + realized BOARD-019
+  (d8430fe): `fold.py --check` readiness gate, all five verdict paths
+  tested (ready / ready-empty / not-bootstrapped / malformed / this
+  repo), server prints the verdict at startup, bootstrap's report
+  tells new repos to run it.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -369,6 +375,30 @@ by design, determinism holds per machine. Bootstrap now writes the
 ignore block into new repos. Each repo's board shows that repo's
 truth; a cross-repo meta-board stays future work (backlog:
 meta-cohort / org-level graph).
+
+### BOARD-019 — Board-readiness is proven mechanically, never assumed
+  At: 2026-08-06
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: d8430fe
+  Parent: BOARD-018
+  Edge_type: refines
+  Callout-> v1-consolidation/V1-029 (related)
+
+From @user: how does a separate repo (kickbox) ensure sufficient
+structure and state to use the board appropriately. Layered answer,
+one command at its center: bootstrap *creates* (skeleton, config,
+ignore block); `fold.py --check` *proves* — structure, ignore
+coverage, user-state resolution, fold validity — with a verdict
+(ready / ready-empty / not-bootstrapped / malformed, exit 0/0/1/2)
+and the fix named next to every gap; the fold *fails loud* on drift
+(file:line); the board *renders sparse state as quiet absence*, never
+as error. The server prints the same verdict at startup. State is
+never pre-provisioned: it accumulates through normal use (sessions,
+absorb, breakouts), so an empty board over sound structure is
+correct, not broken — no rituals exist to feed the board (OP-002).
+V1-029's pre-flight-gate precedent, applied to the control surface.
 
 ## Proposals (registered, not sealed)
 
