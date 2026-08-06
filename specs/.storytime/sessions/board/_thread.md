@@ -7,8 +7,8 @@ last_consolidation:
   scale: session
   event: DONE
   at: 2026-08-02T14:05
-last_completed_phase: CONTROL
-last_commit: 0091809
+last_completed_phase: PRODUCERS
+last_commit: 8675043
 remembrance_staged: false
 remembrance_path: null
 open_questions:
@@ -91,6 +91,18 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   actions → board clears), plain-language captions on every action,
   legend tooltips, `?` glossary. Schema 0.2.0 (+commands[]). E2E:
   POST → queue → fold → SSE verified; bogus commands rejected.
+- 007 (PRODUCERS, 2026-08-06) — @user routed kickbox's consumer-side
+  requirements (`specs/architecture/board-producer.md`). All three
+  asks settled and realized at 8675043 (BOARD-022..024): producers.d
+  merge contract, action ladder enforced client-side, question cards
+  with derived identity. Schema 0.3.0. Mid-episode @user twice hit
+  "actions — offline" on a live server: root cause was a client that
+  never retried SSE after falling back to polling, compounded by
+  stale server processes predating the POST endpoint — client now
+  re-reaches for live every 15s (no reload ritual, OP-002), offline
+  wording explains itself in plain words, both running servers
+  restarted on current code. Kickbox's own board (port 9999) folds
+  25 real items — it was already bootstrapped.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -459,6 +471,66 @@ vocabulary (BOARD-007 spirit; OP-002). Schema 0.2.0 adds
 `commands[]` (additive). Queue-consumption wiring into skills is the
 open half: the agent drains on request now; automatic drain at
 session start / consolidation is next.
+
+### BOARD-022 — Producers are inputs; the fold owns the reduction
+  At: 2026-08-06
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 8675043
+  Parent: BOARD-010
+  Edge_type: refines
+
+Answers kickbox's multi-producer ask (kickbox
+`specs/architecture/board-producer.md` — routed by @user): the board
+surveys the whole project, so other systems feed it — but no producer
+computes "current" and none can overwrite another. Contract:
+`board/producers.d/<name>.json`, same schema major, subset keys,
+producer name = filename stem, producer-declared `as_of` surfaced in
+the header. The fold merges, stamps every entity with its producer,
+auto-stubs referenced topics, and fails loud on version mismatch,
+name mismatch, malformed files, or duplicate ids across producers —
+nothing silently dropped. FIX-004 intact: still exactly one reducer.
+Verified: thread + producer coexistence, genuine id collision → exit
+2 naming both producers.
+
+### BOARD-023 — The action ladder: compose never mint; risk survives the click
+  At: 2026-08-06
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 8675043
+  Parent: BOARD-021
+  Edge_type: refines
+
+Kickbox's non-negotiable, adopted verbatim as the cross-project
+action contract — it is OP-009's design law arriving from the ops
+side. Items may declare
+`action: {verb, args, risk, execution, bridge}`. Client obligations,
+enforced not advised: `sensitive` NEVER renders as a button — the
+card copies the command and says in plain words that the password
+ceremony is the safety; `routine` + `local-bridge` may be one click,
+POSTing `{verb, args, item}` to a bridge the client verifies is
+localhost (anything else is refused); the bridge is the producing
+project's own runner, allow-list, and audit log — the board holds no
+credential and mints no verb. Blessing stays a terminal act forever.
+
+### BOARD-024 — Questions are cards, with honest interim identity
+  At: 2026-08-06
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 8675043
+  Parent: BOARD-013
+  Edge_type: refines
+
+The question lane gets items, not just a count (kickbox ask #3).
+Thread `open_questions` fold to cards with content-derived ids
+(`<TOPIC>-Q-<hash6>` — stable under reorder, new id on rewording),
+marked `identity: derived` so nobody mistakes them for minted.
+Interim until FIX-000 minting replaces them. Non-thread candidates
+arrive via producers (BOARD-022). Schema 0.3.0; budget.waiting_user
+now derived by the fold across all producers.
 
 ## Proposals (registered, not sealed)
 
