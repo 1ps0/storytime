@@ -23,13 +23,17 @@ CLI stays a thin wrapper.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
 import subprocess
 import sys
 
-SCHEMA_VERSION = "0.2.0"  # 0.2: + commands[] (BOARD-021 queue; additive)
+# 0.2: + commands[] (BOARD-021). 0.3: + producers[]/producer stamps,
+# item action{}, itemized question items with derived identity
+# (BOARD-022..024; all additive).
+SCHEMA_VERSION = "0.3.0"
 
 DECISION_RE = re.compile(r"^### ([A-Z][A-Za-z0-9.]*-[A-Za-z0-9]+) — (.+)$")
 FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z_-]*): ?(.*)$")
@@ -153,15 +157,84 @@ def parse_thread(path):
         lines = f.read().splitlines()
     fm, fm_end = parse_frontmatter(lines, path)
     open_qs = fm.get("open_questions") or []
+    if not isinstance(open_qs, list):
+        open_qs = []
     topic = {
         "id": str(fm["topic"]),
         "title": str(fm["topic"]),
         "phase": str(fm.get("last_completed_phase") or "UNKNOWN"),
         "last_commit": str(fm.get("last_commit") or ""),
-        "open_questions": len(open_qs) if isinstance(open_qs, list) else 0,
+        "open_questions": len(open_qs),
         "retired": 0,
     }
-    return topic, parse_decisions(lines, path, fm_end), path
+    return topic, parse_decisions(lines, path, fm_end), path, open_qs
+
+
+def question_items(topic_id, open_qs, thread_rel):
+    """Itemized open questions (BOARD-024) — the question lane gets
+    cards, not just a count. Ids are content-derived (stable under
+    reorder; a reworded question is a new id): interim identity until
+    FIX-000 minting, marked `identity: derived`."""
+    out = []
+    for q in open_qs:
+        text = str(q)
+        h = hashlib.sha1(text.encode("utf-8")).hexdigest()[:6]
+        words = re.split(r"\s+", text.strip())
+        out.append({
+            "id": f"{topic_id.upper()}-Q-{h}",
+            "topic": topic_id, "kind": "question",
+            "label": " ".join(words[:7]).rstrip(":,;—-"),
+            "depth": "surface", "state": "normal",
+            "contested": False, "is_candidate": False,
+            "origin": "thread", "owner": None,
+            "lifecycle_state": "proposed",
+            "identity": "derived",
+            "probe": {"status": "none", "pointer": None},
+            "canonical": f"{thread_rel}#open-questions",
+            "summary": text, "options": [],
+            "edges": {"parent": None, "edge_type": None, "tensions": [],
+                      "supersedes": None, "callouts": []},
+            "track": None,
+        })
+    return out
+
+
+def parse_producers(root):
+    """Partial states from other systems (BOARD-022): every
+    board/producers.d/<name>.json is a same-schema subset merged by the
+    fold. Producers are inputs; the fold owns the reduction — version
+    majors must match, names must match filename stems, and nothing is
+    silently dropped. First intended producer: kickbox `kb board-state`
+    (kickbox specs/architecture/board-producer.md)."""
+    pdir = os.path.join(root, "board", "producers.d")
+    if not os.path.isdir(pdir):
+        return []
+    out = []
+    for name in sorted(os.listdir(pdir)):
+        if not name.endswith(".json"):
+            continue
+        path = os.path.join(pdir, name)
+        stem = name[:-5]
+        try:
+            with open(path, encoding="utf-8") as f:
+                p = json.load(f)
+        except json.JSONDecodeError as e:
+            raise FoldError(path, e.lineno, f"malformed producer file: {e.msg}")
+        if not isinstance(p, dict):
+            raise FoldError(path, 1, "producer file must be a JSON object")
+        major = str(p.get("schema_version", "")).split(".")[0]
+        if major != SCHEMA_VERSION.split(".")[0]:
+            raise FoldError(path, 1,
+                            f"producer speaks {p.get('schema_version')!r}; "
+                            f"fold speaks {SCHEMA_VERSION}")
+        declared = p.get("producer", stem)
+        if declared != stem:
+            raise FoldError(path, 1, f"producer name {declared!r} != "
+                                     f"filename stem {stem!r}")
+        p["producer"] = stem
+        p["_path"] = path
+        out.append(p)
+    return out
 
 
 def parse_roster(path):
@@ -295,7 +368,7 @@ def fold_repo(root):
                         "no specs/.storytime/sessions — repo not bootstrapped "
                         "(run /storytime-bootstrap)")
 
-    topics, all_blocks, skipped = [], [], []
+    topics, all_blocks, skipped, q_items = [], [], [], []
     for name in sorted(os.listdir(sess_dir)):
         tdir = os.path.join(sess_dir, name)
         tpath = os.path.join(tdir, "_thread.md")
@@ -304,12 +377,13 @@ def fold_repo(root):
         if not os.path.exists(tpath):
             skipped.append(name)
             continue
-        topic, blocks, path = parse_thread(tpath)
+        topic, blocks, path, open_qs = parse_thread(tpath)
         rel = os.path.relpath(path, root)
         for b in blocks:
             b["topic"], b["path"] = topic["id"], rel
         topics.append(topic)
         all_blocks.extend(blocks)
+        q_items.extend(question_items(topic["id"], open_qs, rel))
 
     # supersedes resolution — fold-owned, global (FIX-004, FIX-002)
     superseded = set()
@@ -365,25 +439,84 @@ def fold_repo(root):
             "track": None,
         })
 
+    items.extend(q_items)
+    for it in items:
+        it["producer"] = "storytime"
+
     roster_path = os.path.join(st_root, "cohort", "_roster.md")
     teammates = parse_roster(roster_path) if os.path.exists(roster_path) else []
     user_path = user_state_path(root)
     if os.path.exists(user_path):
         teammates.insert(0, {"codename": "user", "role": "user",
                              "status": "active", "last_active": ""})
+    directives = parse_local_directives(user_path)
+    for d in directives:
+        d["producer"] = "storytime"
+
+    # merge producer partials (BOARD-022): producers are inputs, the
+    # fold owns the reduction; nothing is silently dropped
+    candidates, blocks_out, lenses, prod_summaries = [], [], [], []
+    topic_ids = {t["id"] for t in topics}
+    for p in parse_producers(root):
+        pname = p["producer"]
+        summary = {"name": pname, "items": 0}
+        if p.get("as_of"):
+            summary["as_of"] = str(p["as_of"])
+        for key, bucket in (("items", items), ("candidates", candidates),
+                            ("guardrail_blocks", blocks_out),
+                            ("directives", directives), ("lenses", lenses)):
+            for entry in p.get(key) or []:
+                if not isinstance(entry, dict):
+                    raise FoldError(p["_path"], 1,
+                                    f"{key} entry is not an object")
+                entry.setdefault("producer", pname)
+                bucket.append(entry)
+                if key == "items":
+                    summary["items"] += 1
+        for t in p.get("topics") or []:
+            tid = t.get("id")
+            if tid in topic_ids:
+                raise FoldError(p["_path"], 1,
+                                f"topic {tid!r} already owned elsewhere")
+            topic_ids.add(tid)
+            topics.append(t)
+        prod_summaries.append(summary)
+
+    for it in items:  # auto-stub topics referenced only by producer items
+        tid = it.get("topic")
+        if tid and tid not in topic_ids:
+            topic_ids.add(tid)
+            topics.append({"id": tid, "title": tid, "phase": "",
+                           "last_commit": "", "open_questions": 0,
+                           "retired": 0})
+
+    seen = {}  # identity is global across producers (FIX-000 spirit)
+    for it in items:
+        iid = str(it.get("id"))
+        if iid in seen:
+            raise FoldError("<merge>", 0,
+                            f"duplicate item id {iid!r}: "
+                            f"{seen[iid]} vs {it.get('producer')}")
+        seen[iid] = it.get("producer", "?")
 
     state = {
         "schema_version": SCHEMA_VERSION,
         "provenance": "fold",
         "generated_from": _head(root),
-        "topics": sorted(topics, key=lambda t: t["id"]),
-        "items": sorted(items, key=lambda x: (x["topic"], x["id"])),
-        "directives": parse_local_directives(user_path),
+        "producers": prod_summaries,
+        "topics": sorted(topics, key=lambda t: str(t.get("id"))),
+        "items": sorted(items, key=lambda x: (str(x.get("topic")),
+                                              str(x.get("id")))),
+        "directives": directives,
         "commands": parse_commands(os.path.join(st_root, "commands.jsonl")),
-        "guardrail_blocks": [],
-        "candidates": [],
-        "budget": {"open_questions": sum(t["open_questions"] for t in topics)},
-        "lenses": [],
+        "guardrail_blocks": blocks_out,
+        "candidates": candidates,
+        "budget": {
+            "open_questions": sum(t.get("open_questions", 0) for t in topics),
+            "waiting_user": sum(1 for it in items
+                                if it.get("state") == "waiting_user"),
+        },
+        "lenses": lenses,
         "teammates": teammates,
     }
     return state, skipped
@@ -424,6 +557,11 @@ def inputs_snapshot(root):
     stamp(os.path.join(st_root, "cohort", "_user.md"))
     stamp(os.path.expanduser(os.path.join("~", ".storytime", "user.md")))
     stamp(os.path.join(st_root, "commands.jsonl"))
+    pdir = os.path.join(root, "board", "producers.d")
+    stamp(pdir)
+    if os.path.isdir(pdir):
+        for name in sorted(os.listdir(pdir)):
+            stamp(os.path.join(pdir, name))
     snap["git:HEAD"] = _head(root)
     return snap
 
@@ -495,6 +633,11 @@ def check_repo(root):
 
     for name in skipped:
         lines.append(f"note: sessions/{name} has no _thread.md — not folded")
+    prods = state.get("producers") or []
+    lines.append("producers: " + (", ".join(
+        p["name"] + (" (as_of " + p["as_of"] + ")" if p.get("as_of") else "")
+        for p in prods) if prods
+        else "none — board/producers.d/ absent; storytime threads only"))
     lines.append(f"state: {len(state['items'])} items · "
                  f"{len(state['topics'])} topics · "
                  f"{sum(t['retired'] for t in state['topics'])} retired · "

@@ -41,9 +41,10 @@ directives (BOARD-016) — and is gitignored.
 
 ```json
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": "fold" | "fixture",
   "generated_from": "<git short sha>",
+  "producers": [ { "name": "kickbox", "as_of": "<iso>", "items": 12 } ],
   "topics": [Topic],
   "items": [Item],
   "directives": [Directive],
@@ -56,7 +57,32 @@ directives (BOARD-016) — and is gitignored.
 }
 ```
 
-Version history: 0.2.0 added `commands[]` (BOARD-021, additive).
+Version history: 0.2.0 added `commands[]` (BOARD-021). 0.3.0 added
+`producers[]`, per-entity `producer` stamps, `Item.action`, and
+itemized question items with `identity: "derived"` (BOARD-022..024).
+All additive.
+
+## Producers — the multi-producer contract (BOARD-022)
+
+The fold merges partial states from other systems so the board surveys
+the whole project, not just storytime threads. **Producers are inputs;
+the fold owns the reduction** — no producer computes "current", and
+none can overwrite another.
+
+A producer drops `board/producers.d/<name>.json` (atomic write,
+please): a JSON object with `schema_version` (same major),
+`producer: "<name>"` (must equal the filename stem), optional
+`as_of` (ISO string, the producer's own freshness claim, surfaced in
+the header), and any subset of `items`, `candidates`,
+`guardrail_blocks`, `directives`, `lenses`, `topics` — same shapes as
+this schema. The fold stamps every merged entity with
+`producer: "<name>"` (its own get `"storytime"`), auto-stubs topics
+referenced only by producer items, and **fails loud** on: version
+major mismatch, name ≠ stem, malformed JSON, or duplicate item ids
+across producers. Nothing is silently dropped (FIX-001).
+
+First intended producer: kickbox's `kb board-state` (see kickbox
+`specs/architecture/board-producer.md`).
 
 `provenance: "fixture"` MUST be rendered visibly by any client (the
 widget lineage's "transport v2 cutover" content is demo fiction; a
@@ -135,6 +161,32 @@ Field rules:
 - `canonical` — drill target (BOARD-004): file + anchor of the
   authoritative entry. Drill retrieves; it never regenerates.
 - `owner` — FIX-005 (v1.2); null until ownership lands.
+- `producer` — which system emitted this entity (stamped by the fold;
+  `"storytime"` for thread-derived). Clients show non-storytime
+  producers as a card chip.
+- `identity: "derived"` (optional) — the id is content-derived, not
+  minted (question items today: `<TOPIC>-Q-<hash6>`, stable under
+  reorder, new id on rewording). Interim until FIX-000; clients treat
+  it like any id.
+- `action` (optional) — a real-world act this card offers, executed by
+  the *producing* project's own machinery, never the board's
+  (BOARD-023, "compose never mint"):
+
+  ```json
+  { "verb": "kb fix stale-mirror", "args": null,
+    "risk": "routine" | "sensitive",
+    "execution": "local-bridge" | "copy-command",
+    "bridge": "http://127.0.0.1:7077/act" }
+  ```
+
+  Client obligations, non-negotiable: `sensitive` NEVER renders as a
+  button — the card copies the command and says why in plain words
+  (the password ceremony is the safety). `routine` +
+  `execution: "local-bridge"` may be one click: POST
+  `{verb, args, item}` to `bridge`, which must be localhost — clients
+  refuse any non-localhost bridge. The bridge shells the producer's
+  own verb through its own runner, allow-list, and audit log, and
+  responds `{ok, output?|error?}`. `copy-command` always copies.
 - Authored fields (`label`, `summary`, `options[].text`) are
   edit-round-trip surfaces (BOARD-005); everything else is derived
   and read-only in any client.
@@ -226,6 +278,10 @@ The strip — scalar debts, current-only (no trends, OP-004).
   "unrealized": 3
 }
 ```
+
+`waiting_user` is derived by the fold (count of items in state
+`waiting_user`, across all producers) — producers set item states,
+never budget totals.
 
 `unrealized` = sealed decisions with no delivery under them —
 `get_unrealized` as a first-class alarm (BOARD-006).

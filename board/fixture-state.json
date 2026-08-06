@@ -1,10 +1,11 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
   "topics": [
     { "id": "transport-v2", "title": "transport v2 cutover", "phase": "BUILD", "last_commit": "f1c7a9e", "open_questions": 2, "retired": 1 },
-    { "id": "billing-sync", "title": "billing sync", "phase": "PLAN", "last_commit": "d4b2e01", "open_questions": 1, "retired": 0 }
+    { "id": "billing-sync", "title": "billing sync", "phase": "PLAN", "last_commit": "d4b2e01", "open_questions": 1, "retired": 0 },
+    { "id": "opsbox", "title": "opsbox (producer demo)", "phase": "LIVE", "last_commit": "", "open_questions": 0, "retired": 0 }
   ],
   "items": [
     {
@@ -161,6 +162,48 @@
       "options": [],
       "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
       "track": null
+    },
+    {
+      "id": "OPS-CHECK-firewall",
+      "topic": "opsbox",
+      "kind": "delivery",
+      "label": "firewall check failing",
+      "depth": "surface",
+      "state": "violated",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "probe",
+      "owner": null,
+      "lifecycle_state": "sealed",
+      "producer": "opsbox",
+      "probe": { "status": "red", "pointer": "opsbox check firewall" },
+      "canonical": "/var/lib/opsbox/status.json#firewall",
+      "summary": "Nightly check failing since 2026-08-05. A named fix exists and is routine-tier — one click runs it through opsbox's own audited runner, same log as the terminal.",
+      "options": [],
+      "action": { "verb": "opsbox fix firewall", "args": null, "risk": "routine", "execution": "local-bridge", "bridge": "http://127.0.0.1:7077/act" },
+      "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
+      "track": null
+    },
+    {
+      "id": "OPS-AUTH-timesync",
+      "topic": "opsbox",
+      "kind": "delivery",
+      "label": "new fix awaits blessing",
+      "depth": "surface",
+      "state": "waiting_user",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@user",
+      "owner": null,
+      "lifecycle_state": "proposed",
+      "producer": "opsbox",
+      "probe": { "status": "none", "pointer": null },
+      "canonical": "opsbox authorize --list#timesync",
+      "summary": "Sensitive tier: blessing is deliberately never a button. The card hands you the command; the password ceremony in your terminal is the safety.",
+      "options": [],
+      "action": { "verb": "opsbox authorize timesync-fix", "args": null, "risk": "sensitive", "execution": "copy-command" },
+      "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
+      "track": null
     }
   ],
   "directives": [
@@ -170,6 +213,9 @@
   ],
   "commands": [
     { "id": "CMD-001", "command": "seal", "item": "TRAN-012", "args": null, "origin": "@user", "at": "2026-08-06T10:12:00" }
+  ],
+  "producers": [
+    { "name": "opsbox", "as_of": "2026-08-06T09:58:00", "items": 2 }
   ],
   "guardrail_blocks": [
     { "id": "GRB-001", "item": "TRAN-014", "guardrail": "check-conventions/atomic-writes", "message": "state write skipped tmp+fsync+mv", "at_commit": "9e2f110" }

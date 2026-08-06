@@ -60,6 +60,17 @@ the target repo. User state resolves repo-first
 rail directives follow you across every project, committed nowhere.
 Bootstrap writes the ignore block into new repos.
 
+## Other systems on the board (BOARD-022/023)
+
+Any project subsystem can feed cards by dropping
+`board/producers.d/<name>.json` (same schema, subset keys) — the fold
+merges all producers into one state; id collisions fail loud. Cards
+carry their producer's name; the header shows each producer's own
+`as_of` freshness claim. Producer cards may declare an `action`:
+routine ones can run as one click through the producer's own audited
+bridge (localhost only); sensitive ones are deliberately never a
+button. Contract details: `docs/board-state-schema.md` §Producers.
+
 ## Acting from the board (BOARD-021)
 
 Under the board server, action buttons are live: a click queues your

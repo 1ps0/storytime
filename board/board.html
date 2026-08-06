@@ -274,12 +274,13 @@ header {
 
 <script type="application/json" id="state">
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
   "topics": [
     { "id": "transport-v2", "title": "transport v2 cutover", "phase": "BUILD", "last_commit": "f1c7a9e", "open_questions": 2, "retired": 1 },
-    { "id": "billing-sync", "title": "billing sync", "phase": "PLAN", "last_commit": "d4b2e01", "open_questions": 1, "retired": 0 }
+    { "id": "billing-sync", "title": "billing sync", "phase": "PLAN", "last_commit": "d4b2e01", "open_questions": 1, "retired": 0 },
+    { "id": "opsbox", "title": "opsbox (producer demo)", "phase": "LIVE", "last_commit": "", "open_questions": 0, "retired": 0 }
   ],
   "items": [
     {
@@ -436,6 +437,48 @@ header {
       "options": [],
       "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
       "track": null
+    },
+    {
+      "id": "OPS-CHECK-firewall",
+      "topic": "opsbox",
+      "kind": "delivery",
+      "label": "firewall check failing",
+      "depth": "surface",
+      "state": "violated",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "probe",
+      "owner": null,
+      "lifecycle_state": "sealed",
+      "producer": "opsbox",
+      "probe": { "status": "red", "pointer": "opsbox check firewall" },
+      "canonical": "/var/lib/opsbox/status.json#firewall",
+      "summary": "Nightly check failing since 2026-08-05. A named fix exists and is routine-tier — one click runs it through opsbox's own audited runner, same log as the terminal.",
+      "options": [],
+      "action": { "verb": "opsbox fix firewall", "args": null, "risk": "routine", "execution": "local-bridge", "bridge": "http://127.0.0.1:7077/act" },
+      "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
+      "track": null
+    },
+    {
+      "id": "OPS-AUTH-timesync",
+      "topic": "opsbox",
+      "kind": "delivery",
+      "label": "new fix awaits blessing",
+      "depth": "surface",
+      "state": "waiting_user",
+      "contested": false,
+      "is_candidate": false,
+      "origin": "@user",
+      "owner": null,
+      "lifecycle_state": "proposed",
+      "producer": "opsbox",
+      "probe": { "status": "none", "pointer": null },
+      "canonical": "opsbox authorize --list#timesync",
+      "summary": "Sensitive tier: blessing is deliberately never a button. The card hands you the command; the password ceremony in your terminal is the safety.",
+      "options": [],
+      "action": { "verb": "opsbox authorize timesync-fix", "args": null, "risk": "sensitive", "execution": "copy-command" },
+      "edges": { "parent": null, "edge_type": null, "tensions": [], "supersedes": null, "callouts": [] },
+      "track": null
     }
   ],
   "directives": [
@@ -445,6 +488,9 @@ header {
   ],
   "commands": [
     { "id": "CMD-001", "command": "seal", "item": "TRAN-012", "args": null, "origin": "@user", "at": "2026-08-06T10:12:00" }
+  ],
+  "producers": [
+    { "name": "opsbox", "as_of": "2026-08-06T09:58:00", "items": 2 }
   ],
   "guardrail_blocks": [
     { "id": "GRB-001", "item": "TRAN-014", "guardrail": "check-conventions/atomic-writes", "message": "state write skipped tmp+fsync+mv", "at_commit": "9e2f110" }
@@ -471,7 +517,7 @@ header {
 (function () {
 'use strict';
 
-var SPEAKS = '0.2.0';          // schema version this client speaks (major "0")
+var SPEAKS = '0.3.0';          // schema version this client speaks (major "0")
 var KEY = 'board:lastlook';    // client-side "moved since last look" snapshot
 var DEPTHS = ['surface', 'forming', 'bedrock'];
 var KINDS = ['decision', 'question', 'delivery'];
@@ -509,9 +555,17 @@ var HELP = {
     'drill': 'Click any card to read its full story from the written record. Nothing is made up on the spot.',
     'fold': 'The rebuild of this board from the repo’s records. The board only ever shows what’s written down.',
     'directive': 'A standing instruction that keeps generating suggestions. “fired 3×” means it’s alive.',
-    'queued': 'Your click is recorded. The agent actions it with full authority, then this board updates by itself.'
+    'queued': 'Your click is recorded. The agent actions it with full authority, then this board updates by itself.',
+    'live / offline': 'Green “live” dot in the header: the board server is running — buttons act on their own and the page keeps itself current. Offline: buttons copy command text for you to paste to Claude instead. Go live: run  python3 scripts/board_server.py  in the repo — this page finds it by itself within ~15 seconds, no reload needed.',
+    'producer': 'Another system feeding cards onto this board — its name shows on its cards. The fold merges every producer into one picture; none of them can overwrite each other.',
+    'routine / sensitive': 'Routine actions can be one click — they run through the producing project’s own audited path. Sensitive actions are deliberately never a button: the password step in your terminal IS the safety, so the card hands you the command instead.'
   }
 };
+
+function offlineCap() {
+  return liveMode ? '' :
+    '<div class="cap">Buttons act on their own when the board server is running. Start it: <b>python3 scripts/board_server.py</b> — this page will find it by itself within ~15s. Until then, a click copies the command text for you to paste to Claude.</div>';
+}
 
 function renderGlossary() {
   var h = '<div class="mlabel">actions</div>';
@@ -619,6 +673,11 @@ function renderHeader() {
   }
   var qn = arr(cur.commands).length;
   if (qn) chips += '<span class="stat" title="' + esc(HELP.terms.queued) + '"><b>' + qn + '</b>queued</span>';
+  arr(cur.producers).forEach(function (p) {
+    if (!p || !p.name) return;
+    chips += '<span class="stat" title="' + esc(HELP.terms.producer) + '">' + esc(p.name) +
+      (p.as_of ? ' <b style="font-weight:400">' + esc(String(p.as_of).replace('T', ' ')) + '</b>' : '') + '</span>';
+  });
   $('#budget').innerHTML = chips;
 }
 
@@ -699,6 +758,7 @@ function cardHTML(it) {
   if (it.origin) tags += '<span class="chip">' + esc(it.origin) + '</span>';
   if (it.state === 'collision') tags += '<span class="chip coll">collision</span>';
   if (pendingByItem[it.id]) tags += '<span class="chip q" title="' + esc(HELP.terms.queued) + '">&#9203; ' + esc(pendingByItem[it.id].join(', ')) + '</span>';
+  if (it.producer && it.producer !== 'storytime') tags += '<span class="chip" title="' + esc(HELP.terms.producer) + '">' + esc(it.producer) + '</span>';
   var acc = '';
   if (it.track && it.track.acceptance) {
     var g = Math.max(0, +it.track.acceptance.green || 0);
@@ -846,6 +906,20 @@ function drillItem(it) {
     h += sec('probe', '<div class="dprobe"><span class="p-ind ' + (p.status === 'green' ? 'pg' : 'pr') + '"></span>' +
       esc(p.status) + (p.pointer ? ' <span class="ptr">' + esc(p.pointer) + '</span>' : '') + '</div>');
   }
+  var act = it.action;
+  if (act && act.verb) {
+    var sens = act.risk === 'sensitive';
+    var bridgeable = !sens && act.execution === 'local-bridge' && isLocalBridge(act.bridge);
+    var capTxt = sens ? HELP.terms['routine / sensitive'] :
+      (bridgeable ? 'One click — runs through this project’s own audited path, same log as the terminal.' :
+       'Copies the command — this project executes it through its own audited path.');
+    h += sec('do it' + (sens ? ' — needs your password, on purpose' : ''),
+      '<div class="cmdrow"><button class="cmd"' +
+      (bridgeable ? ' data-bridge="' + esc(act.bridge) + '" data-verb="' + esc(act.verb) + '" data-args="' + esc(JSON.stringify(act.args || null)) + '"' : '') +
+      ' data-copy="' + esc(act.verb) + '">' +
+      esc(bridgeable ? 'run: ' + act.verb : 'copy: ' + act.verb) + '</button></div>' +
+      '<div class="cap">' + esc(capTxt) + '</div><div class="cap" id="bridgeout"></div>');
+  }
   var id = it.id || '', topic = it.topic || '';
   var cmds = [
     ['seal', '/storytime-qa seal ' + id],
@@ -858,8 +932,8 @@ function drillItem(it) {
     ['request-review', '/storytime-lint ' + (topic || id)]
   );
   var queuedHere = pendingByItem[id] || [];
-  h += sec(liveMode ? 'actions' : 'actions (not live — copies the command; paste it to the agent)',
-    '<div>' + cmds.map(function (c) {
+  h += sec(liveMode ? 'actions' : 'actions — offline: buttons copy, they don’t run',
+    offlineCap() + '<div>' + cmds.map(function (c) {
       var q = queuedHere.indexOf(c[0]) >= 0;
       return '<div class="cmdrow"><button class="cmd" data-cmd="' + esc(c[0]) + '" data-item="' + esc(id) + '" data-copy="' + esc(c[1]) + '">' +
         (q ? '&#9203; ' + esc(c[0]) + ' — queued' : esc(c[0])) + '</button></div>' +
@@ -878,8 +952,8 @@ function drillCand(c) {
   if (c.target_topic) meta += '<span class="chip">' + esc(c.target_topic) + '</span>';
   if (meta) h += '<div class="tags dmeta">' + meta + '</div>';
   if (c.argument) h += sec('argument', '<div class="dsum">' + esc(c.argument) + '</div>');
-  h += sec(liveMode ? 'actions' : 'actions (not live — copies the command; paste it to the agent)',
-    '<div class="cmdrow"><button class="cmd" data-cmd="accept-candidate" data-item="' + esc(c.id || '') + '" data-copy="' +
+  h += sec(liveMode ? 'actions' : 'actions — offline: buttons copy, they don’t run',
+    offlineCap() + '<div class="cmdrow"><button class="cmd" data-cmd="accept-candidate" data-item="' + esc(c.id || '') + '" data-copy="' +
     esc('/storytime-consolidate accept ' + (c.id || '')) + '">accept-candidate</button></div>' +
     '<div class="cap">' + esc(HELP.commands['accept-candidate']) + '</div>');
   showDrill(h);
@@ -892,6 +966,29 @@ function flashBtn(btn, text) {
   btn.textContent = text;
   btn.classList.add('did-copy');
   setTimeout(function () { btn.textContent = btn.dataset.orig; btn.classList.remove('did-copy'); }, 900);
+}
+
+function isLocalBridge(u) {
+  if (!u) return false;
+  try {
+    var url = new URL(u);
+    return (url.protocol === 'http:' || url.protocol === 'https:') &&
+      (url.hostname === '127.0.0.1' || url.hostname === 'localhost');
+  } catch (e) { return false; }
+}
+
+function postBridge(bridge, verb, args, btn) {
+  // Producer action bridge (BOARD-023): localhost only, the producing
+  // project's own runner, allow-list, and audit log — never ours.
+  fetch(bridge, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ verb: verb, args: args, item: drillId }) })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+    .then(function (res) {
+      flashBtn(btn, res.ok ? 'ran ✓' : 'refused');
+      var out = $('#bridgeout');
+      if (out) out.textContent = (res.j && (res.j.output || res.j.error)) || '';
+    })
+    .catch(function () { copyText(btn.getAttribute('data-copy') || '', btn); });
 }
 
 function postCommand(name, item, btn) {
@@ -932,6 +1029,13 @@ document.addEventListener('click', function (ev) {
   var t = ev.target;
   var cmd = t.closest('.cmd');
   if (cmd) {
+    var bridge = cmd.getAttribute('data-bridge');
+    if (bridge) {
+      var bargs = null;
+      try { bargs = JSON.parse(cmd.getAttribute('data-args') || 'null'); } catch (e) {}
+      postBridge(bridge, cmd.getAttribute('data-verb') || '', bargs, cmd);
+      return;
+    }
     var cname = cmd.getAttribute('data-cmd');
     if (liveMode && cname) postCommand(cname, cmd.getAttribute('data-item') || null, cmd);
     else copyText(cmd.getAttribute('data-copy') || '', cmd);
@@ -1001,18 +1105,29 @@ function refetch() {
     })
     .catch(function () {});
 }
+var pollTimer = null, sseRetryTimer = null, es = null;
 function startPolling() {
+  liveMode = false;
   setLive('poll');
-  setInterval(refetch, 5000);
+  if (!pollTimer) pollTimer = setInterval(refetch, 5000);
+  // keep reaching for live: a server started AFTER this page loaded
+  // must still be found — no reload ritual (OP-002)
+  if (!sseRetryTimer) sseRetryTimer = setInterval(trySSE, 15000);
 }
-function startLive() {
-  if (location.protocol !== 'http:' && location.protocol !== 'https:') return; // file://: static + drag-drop only
+function goLive() {
+  liveMode = true;
+  setLive('live');
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (sseRetryTimer) { clearInterval(sseRetryTimer); sseRetryTimer = null; }
   refetch();
+  if (cur) { render(); refreshDrill(); } // flip offline labels the moment live arrives
+}
+function trySSE() {
   if (!window.EventSource) return startPolling();
-  var es;
-  try { es = new EventSource('events'); } catch (e) { return startPolling(); }
+  if (es) { try { es.close(); } catch (e) {} es = null; }
   var opened = false;
-  es.onopen = function () { opened = true; liveMode = true; setLive('live'); refetch(); };
+  try { es = new EventSource('events'); } catch (e) { return startPolling(); }
+  es.onopen = function () { opened = true; goLive(); };
   es.addEventListener('state', function () { foldErr = null; refetch(); });
   es.addEventListener('fold-error', function (ev) {
     var d = {};
@@ -1023,9 +1138,14 @@ function startLive() {
     if (cur) render(); // alarm lane carries it (FIX-003); state.json stays last-good
   });
   es.onerror = function () {
-    if (!opened) { es.close(); startPolling(); } // plain static server: no /events
-    else { liveMode = false; setLive(null); } // dropped; EventSource auto-retries, onopen restores
+    if (!opened) { try { es.close(); } catch (e) {} es = null; startPolling(); } // no /events here (yet)
+    else { liveMode = false; setLive(null); if (cur) { render(); refreshDrill(); } } // dropped; ES auto-retries → onopen restores
   };
+}
+function startLive() {
+  if (location.protocol !== 'http:' && location.protocol !== 'https:') return; // file://: static + drag-drop only
+  refetch();
+  trySSE();
 }
 
 /* ---- data loading: embedded fixture, then live layer, then drag-drop ---- */
