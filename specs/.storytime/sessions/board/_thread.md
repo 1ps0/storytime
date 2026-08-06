@@ -7,8 +7,8 @@ last_consolidation:
   scale: session
   event: DONE
   at: 2026-08-02T14:05
-last_completed_phase: READY
-last_commit: d8430fe
+last_completed_phase: CONTROL
+last_commit: 0091809
 remembrance_staged: false
 remembrance_path: null
 open_questions:
@@ -81,6 +81,16 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   tested (ready / ready-empty / not-bootstrapped / malformed / this
   repo), server prints the verdict at startup, bootstrap's report
   tells new repos to run it.
+- 005 (FLOOR, 2026-08-06) — sealed + realized BOARD-020 (7728861):
+  mechanical bootstrap floor, bare repo → `ready (empty)` in one
+  idempotent command; guided skill calls the same module. Recovered
+  the never-committed root ignore pattern.
+- 006 (CONTROL, 2026-08-06) — @user mid-turn: buttons should action,
+  and every button needs explainers. Sealed + realized BOARD-021
+  (0091809): command queue (click → POST → pending chip → agent
+  actions → board clears), plain-language captions on every action,
+  legend tooltips, `?` glossary. Schema 0.2.0 (+commands[]). E2E:
+  POST → queue → fold → SSE verified; bogus commands rejected.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -399,6 +409,56 @@ never pre-provisioned: it accumulates through normal use (sessions,
 absorb, breakouts), so an empty board over sound structure is
 correct, not broken — no rituals exist to feed the board (OP-002).
 V1-029's pre-flight-gate precedent, applied to the control surface.
+
+### BOARD-020 — Structure is mechanical; state is interpretive
+  At: 2026-08-06
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 7728861
+  Parent: BOARD-019
+  Edge_type: refines
+
+From @user: is there a method to action storytime-naive repos up to
+board-ready. There is now, and the split is the decision:
+`scripts/bootstrap_repo.py` is the mechanical floor — non-interactive,
+idempotent (keyed on rules, not comment wording), never overwrites —
+taking any bare repo to `ready (empty)` in one command; the guided
+/storytime-bootstrap keeps mode judgment and calls the same module so
+skill and script cannot drift. State is never fabricated: absorb and
+sessions create it. Verified bare → floor → `ready (empty)` →
+ignore-covered, and safe re-run against both a naive repo and this
+one. Side catch: the root `/operator-model-*.md` ignore pattern from
+episode 001 had never been committed — protection existed only in the
+working tree; committed at 7728861.
+
+### BOARD-021 — The board is a control center; every control explains itself
+  At: 2026-08-06
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 0091809
+  Parent: BOARD-010
+  Edge_type: implements
+
+@user, mid-buildout: "isnt the board supposed to be a control center,
+where i click buttons to action them?" and "each button needs
+explainers. i dont understand terms." Both are the spec — BOARD-010
+named the command set; v0 stubbed it as copy-to-clipboard. Now: a
+click POSTs to the server, which appends pending intent to
+`specs/.storytime/commands.jsonl` (append-only, fsync'd, local-only
+per BOARD-016) — the click always lands instantly (OP-001); the card
+and header show queued chips; the agent consumes the queue with full
+authority and marks entries done; the fold clears them. Neither
+server nor board ever edits the record (BOARD-005 round-trip
+preserved). Not-live boards fall back to copy-the-command and say so
+in plain words. Explainers: every action button carries a
+plain-language caption, every legend term a tooltip, and `?` opens a
+glossary — a surface built for re-grounding must not require insider
+vocabulary (BOARD-007 spirit; OP-002). Schema 0.2.0 adds
+`commands[]` (additive). Queue-consumption wiring into skills is the
+open half: the agent drains on request now; automatic drain at
+session start / consolidation is next.
 
 ## Proposals (registered, not sealed)
 
