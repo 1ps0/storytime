@@ -50,6 +50,15 @@ on the landscape and ask.
 
 ### 3. Create Structure
 
+**All modes — run the mechanical floor first (BOARD-020):**
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/bootstrap_repo.py --repo . --mode <chosen mode>
+```
+Idempotent, never overwrites: creates the mode's directories,
+`config.md` (only if absent), and the ignore block (only if missing).
+The sections below describe what it writes plus the mode-specific
+extras this skill still handles (adapt-mode `output_paths` detection).
+
 **Storytime-native:**
 ```bash
 mkdir -p specs/.storytime/{sessions,cohort,specialists,archive/{current,rollups,cold},history/sessions}

@@ -36,10 +36,15 @@ The board ships with the tool, not with the project. Against any repo
 with a bootstrapped `specs/.storytime/`:
 
 ```
+python3 scripts/bootstrap_repo.py --repo /path/to/project # bare → floor (idempotent)
 python3 scripts/fold.py --check --repo /path/to/project   # readiness gate
 python3 scripts/board_server.py --repo /path/to/project
 python3 scripts/fold.py --repo /path/to/project           # one-shot fold
 ```
+
+A storytime-naive repo goes to `ready (empty)` in one command
+(BOARD-020: structure is mechanical, state is interpretive — seed it
+with `/storytime-absorb` over the repo's existing docs).
 
 `--check` (BOARD-019) proves readiness instead of assuming it:
 structure, ignore coverage, user-state resolution, fold validity —

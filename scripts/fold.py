@@ -402,8 +402,13 @@ def inputs_snapshot(root):
 # ---------------------------------------------------------------- readiness
 
 def _ignore_coverage(root):
-    if _head(root) == "nogit":
-        return "n/a (not a git repo)"
+    try:  # --git-dir succeeds even on unborn HEAD (zero-commit repos)
+        r = subprocess.run(["git", "-C", root, "rev-parse", "--git-dir"],
+                           capture_output=True)
+        if r.returncode != 0:
+            return "n/a (not a git repo)"
+    except FileNotFoundError:
+        return "n/a (git unavailable)"
     misses = []
     for rel in ("board/state.json", "specs/.storytime/cohort/_user.md"):
         try:
@@ -430,7 +435,9 @@ def check_repo(root):
     sess = os.path.join(st_root, "sessions")
     if not os.path.isdir(sess):
         lines.append("structure: specs/.storytime/sessions/ missing")
-        lines.append("fix: run /storytime-bootstrap in this repo")
+        lines.append("fix: run /storytime-bootstrap (guided) or "
+                     "`python3 scripts/bootstrap_repo.py --repo .` "
+                     "(mechanical floor, BOARD-020)")
         return 1, "not-bootstrapped", lines
 
     cfg = os.path.join(st_root, "config.md")
