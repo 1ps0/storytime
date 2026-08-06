@@ -36,9 +36,16 @@ The board ships with the tool, not with the project. Against any repo
 with a bootstrapped `specs/.storytime/`:
 
 ```
+python3 scripts/fold.py --check --repo /path/to/project   # readiness gate
 python3 scripts/board_server.py --repo /path/to/project
-python3 scripts/fold.py --repo /path/to/project     # one-shot fold
+python3 scripts/fold.py --repo /path/to/project           # one-shot fold
 ```
+
+`--check` (BOARD-019) proves readiness instead of assuming it:
+structure, ignore coverage, user-state resolution, fold validity —
+verdict `ready` / `ready (empty)` / `not-bootstrapped` / `malformed`,
+with the fix named next to every gap. The server prints the same
+verdict at startup.
 
 `board.html` and the fixture serve from this plugin's `board/` when
 the target repo has none of its own; `state.json` always folds from

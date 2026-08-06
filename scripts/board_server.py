@@ -174,6 +174,12 @@ def main(argv=None):
     os.makedirs(board_dir, exist_ok=True)
     out_path = os.path.join(board_dir, "state.json")
 
+    code, verdict, lines = fold.check_repo(root)
+    print(f"board: readiness — {verdict}", flush=True)
+    if code:
+        for ln in lines:
+            print(f"board:   {ln}", flush=True)
+
     bus = Bus()
     Watcher(root, out_path, bus, args.interval).start()
 

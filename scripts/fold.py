@@ -264,7 +264,9 @@ def fold_repo(root):
     st_root = os.path.join(root, "specs", ".storytime")
     sess_dir = os.path.join(st_root, "sessions")
     if not os.path.isdir(sess_dir):
-        raise FoldError(sess_dir, 0, "no sessions directory — nothing to fold")
+        raise FoldError(sess_dir, 0,
+                        "no specs/.storytime/sessions — repo not bootstrapped "
+                        "(run /storytime-bootstrap)")
 
     topics, all_blocks, skipped = [], [], []
     for name in sorted(os.listdir(sess_dir)):
@@ -397,6 +399,79 @@ def inputs_snapshot(root):
     return snap
 
 
+# ---------------------------------------------------------------- readiness
+
+def _ignore_coverage(root):
+    if _head(root) == "nogit":
+        return "n/a (not a git repo)"
+    misses = []
+    for rel in ("board/state.json", "specs/.storytime/cohort/_user.md"):
+        try:
+            r = subprocess.run(["git", "-C", root, "check-ignore", "-q", rel],
+                               capture_output=True)
+        except FileNotFoundError:
+            return "n/a (git unavailable)"
+        if r.returncode != 0:
+            misses.append(rel)
+    if misses:
+        return ("GAPS — not ignored: " + ", ".join(misses) +
+                " (add bootstrap's ignore block)")
+    return "covers user-local + derived state"
+
+
+def check_repo(root):
+    """Mechanical board-readiness gate (BOARD-019; V1-029 precedent).
+
+    Returns (exit_code, verdict, lines). 0 = ready (possibly empty),
+    1 = not bootstrapped, 2 = malformed state. Every gap names its fix.
+    """
+    lines = []
+    st_root = os.path.join(root, "specs", ".storytime")
+    sess = os.path.join(st_root, "sessions")
+    if not os.path.isdir(sess):
+        lines.append("structure: specs/.storytime/sessions/ missing")
+        lines.append("fix: run /storytime-bootstrap in this repo")
+        return 1, "not-bootstrapped", lines
+
+    cfg = os.path.join(st_root, "config.md")
+    lines.append("config.md: " + ("present" if os.path.exists(cfg)
+                 else "MISSING — run /storytime-bootstrap"))
+    roster = os.path.join(st_root, "cohort", "_roster.md")
+    lines.append("cohort/_roster.md: " + ("present" if os.path.exists(roster)
+                 else "absent — teammates rail empty until a cohort exists"))
+    upath = user_state_path(root)
+    if os.path.exists(upath):
+        machine = upath.startswith(os.path.expanduser(
+            os.path.join("~", ".storytime")))
+        lines.append("user state: " + ("machine (" + upath + ")" if machine
+                     else "repo (" + os.path.relpath(upath, root) + ")"))
+    else:
+        lines.append("user state: none — directives rail empty "
+                     "(optional: ~/.storytime/user.md)")
+    lines.append("ignore rules: " + _ignore_coverage(root))
+
+    try:
+        state, skipped = fold_repo(root)
+    except FoldError as e:
+        lines.append(f"MALFORMED — {e}")
+        lines.append("fix: correct that file:line (see /storytime-lint)")
+        return 2, "malformed", lines
+
+    for name in skipped:
+        lines.append(f"note: sessions/{name} has no _thread.md — not folded")
+    lines.append(f"state: {len(state['items'])} items · "
+                 f"{len(state['topics'])} topics · "
+                 f"{sum(t['retired'] for t in state['topics'])} retired · "
+                 f"{len(state['directives'])} directives · "
+                 f"schema {state['schema_version']} · "
+                 f"from {state['generated_from']}")
+    if not state["topics"]:
+        lines.append("empty — structure is sound; state arrives with the "
+                     "first session or /storytime-absorb")
+        return 0, "ready (empty)", lines
+    return 0, "ready", lines
+
+
 # ---------------------------------------------------------------- emit
 
 def emit(state, out_path):
@@ -419,10 +494,19 @@ def main(argv=None):
                     help="output path (default: <repo>/board/state.json)")
     ap.add_argument("--stdout", action="store_true", help="print instead of write")
     ap.add_argument("--check", action="store_true",
-                    help="parse + validate only; print summary, write nothing")
+                    help="board-readiness report: structure, hygiene, state, "
+                         "verdict; writes nothing (BOARD-019)")
     args = ap.parse_args(argv)
 
     root = os.path.abspath(args.repo)
+
+    if args.check:
+        code, verdict, lines = check_repo(root)
+        for ln in lines:
+            print(f"fold: {ln}")
+        print(f"fold: verdict — {verdict}")
+        return code
+
     try:
         state, skipped = fold_repo(root)
     except FoldError as e:
@@ -433,13 +517,6 @@ def main(argv=None):
         print(f"fold: note: sessions/{name} has no _thread.md — not folded",
               file=sys.stderr)
 
-    if args.check:
-        print(f"fold: ok — {len(state['topics'])} topics, "
-              f"{len(state['items'])} items, "
-              f"{sum(t['retired'] for t in state['topics'])} retired, "
-              f"{len(state['directives'])} directives, "
-              f"schema {state['schema_version']}, from {state['generated_from']}")
-        return 0
     if args.stdout:
         sys.stdout.write(json.dumps(state, indent=2, sort_keys=True,
                                     ensure_ascii=False) + "\n")

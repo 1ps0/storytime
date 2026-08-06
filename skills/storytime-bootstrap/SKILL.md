@@ -120,6 +120,9 @@ Show what was created and what the next step is:
 - "Run `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/board_server.py --repo .`
   for the live board — board.html serves from the plugin (BOARD-018),
   state.json folds from this repo"
+- Verify: `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/fold.py --check --repo .`
+  — the board-readiness gate (BOARD-019); expect `ready` or
+  `ready (empty)` on a fresh bootstrap
 
 ## If Already Bootstrapped
 
