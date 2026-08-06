@@ -120,7 +120,20 @@ class Watcher(threading.Thread):
                   file=sys.stderr)
 
     def run(self):
+        # self-reload: a running server must never keep serving old code
+        # (no restart ritual, OP-002) — when its own modules change on
+        # disk, re-exec; SSE clients drop and re-reach automatically
+        self_files = [os.path.abspath(fold.__file__),
+                      os.path.abspath(__file__)]
+        baseline = [os.stat(p).st_mtime_ns for p in self_files]
         while True:
+            try:
+                if [os.stat(p).st_mtime_ns for p in self_files] != baseline:
+                    print("board: code changed on disk — reloading myself",
+                          flush=True)
+                    os.execv(sys.executable, [sys.executable] + sys.argv)
+            except OSError:
+                pass
             snap = fold.inputs_snapshot(self.root)
             if snap != self._last:
                 self._last = snap
@@ -241,6 +254,7 @@ def main(argv=None):
     srv = ThreadingHTTPServer(("127.0.0.1", args.port),
                               make_handler(board_dir, bus, root))
     print(f"board: live at http://localhost:{args.port}/board.html "
+          f"— repo {os.path.basename(root)} "
           f"(watching fold inputs every {args.interval}s; Ctrl-C stops)",
           flush=True)
     try:

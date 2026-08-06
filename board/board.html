@@ -274,9 +274,10 @@ header {
 
 <script type="application/json" id="state">
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
+  "repo": { "name": "transport-demo", "root": "(fixture — demo fiction)", "branch": "" },
   "topics": [
     { "id": "transport-v2", "title": "transport v2 cutover", "phase": "BUILD", "last_commit": "f1c7a9e", "open_questions": 2, "retired": 1 },
     { "id": "billing-sync", "title": "billing sync", "phase": "PLAN", "last_commit": "d4b2e01", "open_questions": 1, "retired": 0 },
@@ -517,7 +518,7 @@ header {
 (function () {
 'use strict';
 
-var SPEAKS = '0.3.0';          // schema version this client speaks (major "0")
+var SPEAKS = '0.4.0';          // schema version this client speaks (major "0")
 var KEY = 'board:lastlook';    // client-side "moved since last look" snapshot
 var DEPTHS = ['surface', 'forming', 'bedrock'];
 var KINDS = ['decision', 'question', 'delivery'];
@@ -657,6 +658,11 @@ function render() {
 }
 
 function renderHeader() {
+  var rname = (cur.repo && cur.repo.name) ? String(cur.repo.name) : '';
+  $('#title').textContent = rname ? 'board · ' + rname : 'board';
+  $('#title').title = cur.repo ? ((cur.repo.root || '') +
+    (cur.repo.branch ? '  [' + cur.repo.branch + ']' : '')) : '';
+  document.title = rname ? 'board — ' + rname : 'board';
   $('#banner').innerHTML = cur.provenance === 'fixture'
     ? '<span class="fixban">FIXTURE — demo fiction, not real work</span>' : '';
   var b = (cur.budget && typeof cur.budget === 'object') ? cur.budget : null;

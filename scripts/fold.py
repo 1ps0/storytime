@@ -32,8 +32,8 @@ import sys
 
 # 0.2: + commands[] (BOARD-021). 0.3: + producers[]/producer stamps,
 # item action{}, itemized question items with derived identity
-# (BOARD-022..024; all additive).
-SCHEMA_VERSION = "0.3.0"
+# (BOARD-022..024). 0.4: + repo{} identity (BOARD-025). All additive.
+SCHEMA_VERSION = "0.4.0"
 
 DECISION_RE = re.compile(r"^### ([A-Z][A-Za-z0-9.]*-[A-Za-z0-9]+) — (.+)$")
 FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z_-]*): ?(.*)$")
@@ -503,6 +503,8 @@ def fold_repo(root):
         "schema_version": SCHEMA_VERSION,
         "provenance": "fold",
         "generated_from": _head(root),
+        "repo": {"name": os.path.basename(root), "root": root,
+                 "branch": _branch(root)},
         "producers": prod_summaries,
         "topics": sorted(topics, key=lambda t: str(t.get("id"))),
         "items": sorted(items, key=lambda x: (str(x.get("topic")),
@@ -529,6 +531,16 @@ def _head(root):
         return out.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "nogit"
+
+
+def _branch(root):
+    try:
+        out = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                             cwd=root, capture_output=True, text=True,
+                             check=True)
+        return out.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return ""
 
 
 def inputs_snapshot(root):

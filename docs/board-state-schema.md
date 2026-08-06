@@ -41,9 +41,10 @@ directives (BOARD-016) — and is gitignored.
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "provenance": "fold" | "fixture",
   "generated_from": "<git short sha>",
+  "repo": { "name": "kickbox", "root": "/abs/path", "branch": "main" },
   "producers": [ { "name": "kickbox", "as_of": "<iso>", "items": 12 } ],
   "topics": [Topic],
   "items": [Item],
@@ -60,7 +61,12 @@ directives (BOARD-016) — and is gitignored.
 Version history: 0.2.0 added `commands[]` (BOARD-021). 0.3.0 added
 `producers[]`, per-entity `producer` stamps, `Item.action`, and
 itemized question items with `identity: "derived"` (BOARD-022..024).
-All additive.
+0.4.0 added `repo{}` identity (BOARD-025). All additive.
+
+`repo` is the board's identity: clients MUST render `repo.name` in the
+header and the page title (multiple boards over different repos must
+be tellable apart at a glance and in the tab bar); `root` and `branch`
+belong in a tooltip, not the glance.
 
 ## Producers — the multi-producer contract (BOARD-022)
 
