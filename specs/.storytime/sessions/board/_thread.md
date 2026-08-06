@@ -7,8 +7,8 @@ last_consolidation:
   scale: session
   event: DONE
   at: 2026-08-02T14:05
-last_completed_phase: PRODUCERS
-last_commit: 8675043
+last_completed_phase: IDENTITY
+last_commit: 5631839
 remembrance_staged: false
 remembrance_path: null
 open_questions:
@@ -103,6 +103,10 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   wording explains itself in plain words, both running servers
   restarted on current code. Kickbox's own board (port 9999) folds
   25 real items — it was already bootstrapped.
+- 008 (IDENTITY, 2026-08-06) — @user: boards must say which repo they
+  are tied to. Sealed + realized BOARD-025 (5631839): repo{} in the
+  contract (0.4.0), name in header + tab title, self-reloading server
+  ends the restart ritual for good.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -531,6 +535,27 @@ marked `identity: derived` so nobody mistakes them for minted.
 Interim until FIX-000 minting replaces them. Non-thread candidates
 arrive via producers (BOARD-022). Schema 0.3.0; budget.waiting_user
 now derived by the fold across all producers.
+
+### BOARD-025 — The board names its repo; the server keeps itself current
+  At: 2026-08-06
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: 5631839
+  Parent: BOARD-018
+  Edge_type: refines
+
+@user: "the board should also report what repo its tied to." With
+multiple boards over multiple repos (storytime:8000, kickbox:9999),
+identity must be on the surface: the fold emits
+`repo {name, root, branch}` (schema 0.4.0); clients MUST render the
+name in the header and the tab title, root+branch in the tooltip.
+Companion fix from the same session pain: the server watches its own
+module mtimes and re-execs on change — a running server can never
+serve stale behavior again, closing the restart ritual that caused
+the "actions offline" confusion twice (OP-002: rituals belong to
+machines). Verified: both identities render; self-reload fired on
+touch and kept serving.
 
 ## Proposals (registered, not sealed)
 
