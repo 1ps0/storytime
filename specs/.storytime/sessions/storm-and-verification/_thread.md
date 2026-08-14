@@ -128,7 +128,7 @@ failure; holding them untriaged is merely deferred work.
   Lifecycle_state: sealed
   Parent: STORM-002
   Edge_type: refines
-  Callout-> board/BOARD-003 (refines)
+  Callout-> board/BOARD-003 (affects)
   Callout-> board/BOARD-002 (related)
 
 The board in storm: amber and red only, tray closed, lenses to micro,
@@ -230,7 +230,7 @@ below, not sealed here.
   Lifecycle_state: sealed
   Parent: VERIF-001
   Edge_type: refines
-  Callout-> board/BOARD-006 (refines)
+  Callout-> board/BOARD-006 (affects)
 
 Important interfaces get property-based tests: invariants plus
 generated inputs, not example lists. Sealed decisions and bedrock
@@ -286,7 +286,7 @@ else goes honestly gray; recovery includes the catch-up pass
 
 ### VERIF-P1 — Dots earn solidity
   Lifecycle_state: proposed
-  Callout-> board/BOARD-002 (amends)
+  Callout-> board/BOARD-002 (affects)
 
 Grammar amendment from VERIF-003: kill-rate high → solid green;
 kill-rate low or unmeasured → hollow green. A dot's fill is its

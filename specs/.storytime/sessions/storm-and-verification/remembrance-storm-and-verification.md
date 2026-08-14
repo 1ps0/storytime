@@ -1,3 +1,12 @@
+---
+type: remembrance
+schema_version: 1
+topic: storm-and-verification
+staged: 2026-08-02
+ingested: 2026-08-14
+source: "claude.ai design session, operator thread ii"
+---
+
 # storm mode + verification craft
 
 staged: 2026-08-02 · source: claude.ai design session, operator thread ii

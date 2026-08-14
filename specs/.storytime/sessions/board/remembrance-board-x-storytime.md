@@ -1,3 +1,13 @@
+---
+type: remembrance
+schema_version: 1
+topic: board
+tier: shift
+staged: 2026-08-02
+ingested: 2026-08-02
+source: "claude.ai design session (web)"
+---
+
 # remembrance — board × storytime
 
 staged: 2026-08-02 · source: claude.ai design session (web) · tier: shift
