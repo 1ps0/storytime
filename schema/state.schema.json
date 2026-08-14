@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://1ps0.github.io/storytime/schema/projectstate/0.4/state.schema.json",
+  "title": "Project State (state.json) — draft for projectstate/0.4",
+  "description": "Machine-readable half of the project-state contract. The prose half (docs/board-state-schema.md) carries the behavioral MUSTs this schema cannot express: determinism, canonical serialization, atomicity, fail-loud/degrade-quiet, one-reducer, client rendering obligations. Extension fields use the x- prefix; everything un-prefixed is reserved for the spec.",
+  "type": "object",
+  "required": ["schema_version"],
+  "additionalProperties": false,
+  "patternProperties": { "^x-": {} },
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^0\\.[0-9]+\\.[0-9]+$" },
+    "provenance": { "enum": ["fold", "fixture"] },
+    "generated_from": {
+      "type": "string",
+      "pattern": "^([0-9a-f]{7,12}|nogit|fixture0)$"
+    },
+    "repo": { "$ref": "#/$defs/repo" },
+    "producers": { "type": "array", "items": { "$ref": "#/$defs/producer_summary" } },
+    "topics": { "type": "array", "items": { "$ref": "#/$defs/topic" } },
+    "items": { "type": "array", "items": { "$ref": "#/$defs/item" } },
+    "directives": { "type": "array", "items": { "$ref": "#/$defs/directive" } },
+    "commands": { "type": "array", "items": { "$ref": "#/$defs/command" } },
+    "guardrail_blocks": { "type": "array", "items": { "$ref": "#/$defs/guardrail_block" } },
+    "candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } },
+    "budget": { "$ref": "#/$defs/budget" },
+    "lenses": { "type": "array", "items": { "$ref": "#/$defs/lens" } },
+    "teammates": { "type": "array", "items": { "$ref": "#/$defs/teammate" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "nullable_string": { "type": ["string", "null"] },
+    "repo": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "root": { "type": "string" },
+        "branch": { "type": "string" }
+      }
+    },
+    "producer_summary": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "as_of": { "type": "string" },
+        "items": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "topic": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string" },
+        "phase": { "type": "string" },
+        "last_commit": { "type": "string" },
+        "open_questions": { "type": "integer", "minimum": 0 },
+        "retired": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "probe": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "status": { "enum": ["green", "red", "none"] },
+        "pointer": { "$ref": "#/$defs/nullable_string" }
+      }
+    },
+    "option": {
+      "type": "object",
+      "required": ["text", "mark"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "text": { "type": "string" },
+        "mark": { "enum": ["measured", "judgment"] },
+        "pointer": { "$ref": "#/$defs/nullable_string" }
+      },
+      "if": { "properties": { "mark": { "const": "measured" } } },
+      "then": {
+        "properties": { "pointer": { "type": "string", "minLength": 1 } },
+        "required": ["pointer"]
+      }
+    },
+    "callout": {
+      "type": "object",
+      "required": ["target"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "target": { "type": "string", "minLength": 1 },
+        "kind": {
+          "anyOf": [
+            { "enum": ["depends-on", "affects", "supersedes", "superseded-by", "related"] },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "edges": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "parent": { "$ref": "#/$defs/nullable_string" },
+        "edge_type": {
+          "anyOf": [
+            { "enum": ["refines", "specializes", "implements", "co-implies", "tensions"] },
+            { "type": "null" }
+          ]
+        },
+        "tensions": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "supersedes": { "$ref": "#/$defs/nullable_string" },
+        "callouts": { "type": "array", "items": { "$ref": "#/$defs/callout" } }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": ["verb", "risk", "execution"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "verb": { "type": "string", "minLength": 1 },
+        "args": {},
+        "risk": { "enum": ["routine", "sensitive"] },
+        "execution": { "enum": ["local-bridge", "copy-command"] },
+        "bridge": {
+          "type": "string",
+          "pattern": "^https?://(127\\.0\\.0\\.1|localhost|\\[::1\\])(:[0-9]+)?(/.*)?$"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "execution": { "const": "local-bridge" } } },
+          "then": { "required": ["bridge"] }
+        },
+        {
+          "if": { "properties": { "risk": { "const": "sensitive" } } },
+          "then": { "properties": { "execution": { "const": "copy-command" } } }
+        }
+      ]
+    },
+    "track": {
+      "type": "object",
+      "required": ["stage"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "stage": { "enum": ["criteria", "build", "pr", "review", "merged", "deployed"] },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": { "^x-": {} },
+          "properties": {
+            "green": { "type": "integer", "minimum": 0 },
+            "red": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": ["id", "topic", "kind", "label", "depth", "state"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "topic": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["decision", "question", "delivery"] },
+        "label": { "type": "string", "minLength": 1 },
+        "depth": { "enum": ["surface", "forming", "bedrock", "track"] },
+        "state": { "enum": ["normal", "waiting_user", "violated", "blocked", "collision"] },
+        "contested": { "type": "boolean" },
+        "is_candidate": { "type": "boolean" },
+        "origin": { "type": "string" },
+        "owner": { "$ref": "#/$defs/nullable_string" },
+        "lifecycle_state": { "enum": ["proposed", "focused", "sealed", "realized"] },
+        "identity": { "enum": ["derived"] },
+        "producer": { "type": "string" },
+        "probe": { "$ref": "#/$defs/probe" },
+        "canonical": { "type": "string" },
+        "summary": { "type": "string" },
+        "options": { "type": "array", "items": { "$ref": "#/$defs/option" } },
+        "action": { "$ref": "#/$defs/action" },
+        "edges": { "$ref": "#/$defs/edges" },
+        "track": { "anyOf": [{ "$ref": "#/$defs/track" }, { "type": "null" }] }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["edges"],
+            "properties": { "edges": { "required": ["tensions"], "properties": { "tensions": { "minItems": 1 } } } }
+          },
+          "then": { "properties": { "contested": { "const": true } } }
+        },
+        {
+          "if": {
+            "required": ["edges"],
+            "properties": { "edges": { "required": ["tensions"], "properties": { "tensions": { "maxItems": 0 } } } }
+          },
+          "then": { "properties": { "contested": { "const": false } } }
+        }
+      ]
+    },
+    "directive": {
+      "type": "object",
+      "required": ["id", "text"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "text": { "type": "string", "minLength": 1 },
+        "origin": { "type": "string" },
+        "status": { "enum": ["alive", "parked"] },
+        "fired": { "type": "integer", "minimum": 0 },
+        "last_candidate": { "$ref": "#/$defs/nullable_string" },
+        "source": { "enum": ["local", "repo"] },
+        "producer": { "type": "string" }
+      }
+    },
+    "command": {
+      "type": "object",
+      "required": ["id", "command"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "command": {
+          "enum": ["seal", "add-option", "accept-candidate", "edit-item", "add-directive", "park", "request-review"]
+        },
+        "item": { "$ref": "#/$defs/nullable_string" },
+        "args": {},
+        "origin": { "type": "string" },
+        "at": { "type": "string" }
+      }
+    },
+    "guardrail_block": {
+      "type": "object",
+      "required": ["id", "guardrail"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "item": { "$ref": "#/$defs/nullable_string" },
+        "guardrail": { "type": "string", "minLength": 1 },
+        "message": { "type": "string" },
+        "at_commit": { "type": "string" },
+        "producer": { "type": "string" }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["id", "label"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string", "minLength": 1 },
+        "origin": { "type": "string" },
+        "argument": { "type": "string" },
+        "target_topic": { "type": "string" },
+        "producer": { "type": "string" }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "review_debt": { "type": "integer", "minimum": 0 },
+        "waiting_user": { "type": "integer", "minimum": 0 },
+        "open_questions": { "type": "integer", "minimum": 0 },
+        "unrealized": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "lens": {
+      "type": "object",
+      "required": ["id", "kind", "content"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string" },
+        "kind": { "enum": ["ascii", "mermaid"] },
+        "content": { "type": "string" },
+        "source": { "type": "string" },
+        "producer": { "type": "string" }
+      }
+    },
+    "teammate": {
+      "type": "object",
+      "required": ["codename"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "codename": { "type": "string", "minLength": 1 },
+        "role": { "type": "string" },
+        "focus": { "type": "string" },
+        "status": { "type": "string" },
+        "last_active": { "type": "string" }
+      }
+    },
+    "producer_partial": {
+      "title": "Producer partial (board/producers.d/<name>.json)",
+      "type": "object",
+      "required": ["schema_version", "producer"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "schema_version": { "type": "string", "pattern": "^0\\.[0-9]+\\.[0-9]+$" },
+        "producer": { "type": "string", "minLength": 1 },
+        "as_of": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/item" } },
+        "candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } },
+        "guardrail_blocks": { "type": "array", "items": { "$ref": "#/$defs/guardrail_block" } },
+        "directives": { "type": "array", "items": { "$ref": "#/$defs/directive" } },
+        "lenses": { "type": "array", "items": { "$ref": "#/$defs/lens" } },
+        "topics": { "type": "array", "items": { "$ref": "#/$defs/topic" } }
+      }
+    }
+  }
+}

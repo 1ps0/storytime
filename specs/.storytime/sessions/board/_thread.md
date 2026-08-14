@@ -108,6 +108,21 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   are tied to. Sealed + realized BOARD-025 (5631839): repo{} in the
   contract (0.4.0), name in header + tab title, self-reloading server
   ends the restart ritual for good.
+- 009 (SPEC-BREAKDOWN, 2026-08-14) — @user: can the board publish as
+  its own project with a state.json spec of OpenAPI caliber; asked for
+  a subagent breakdown (primary/secondaries, pilots, versioning,
+  what-else). Five-seat fan-out ran; synthesis + all five reports:
+  `docs/proposals/projectstate-spec-breakdown.md`. Machine-readable
+  seed written: `schema/state.schema.json` (JSON Schema 2020-12) —
+  first conformance run green: fixture and live 73-item state both
+  validate untouched. Fixes realized mid-breakdown (5419939): Origin +
+  Host guards on /command (critic's CSRF/DNS-rebinding find),
+  last-look scoped per (repo.root, branch), measured-needs-pointer
+  enforced in fold, budget.unrealized emitting (51). Pending @user:
+  extraction go/no-go, spec name (foldstate / glanceboard /
+  quietboard), the two permanent non-goals, pilot order
+  (recommended: kb board-state → harvest+morning → CI probe_results),
+  and VERIF-P1.
 
 ## Decisions (append-only, pinned to commit)
 
