@@ -16,6 +16,7 @@ open_questions:
   - "item update ownership: which persona maintains a given item's freshness (FIX-005 ownership half, v1.2)"
   - "FIX-002 callout target: cites BOARD-006 as authored; substance lives in BOARD-010 — confirm intent or amend"
   - "OP-009 root context: persist in _user.md or hold in source doc only — @user's explicit call (staged flag)"
+  - "VERIF-P1 (storm-and-verification): dot fill = honesty — kill-rate-high solid, low-or-unmeasured hollow. Amends frozen BOARD-002, so @user seals or declines"
 ---
 
 # Thread — board
