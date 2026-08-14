@@ -519,7 +519,12 @@ header {
 'use strict';
 
 var SPEAKS = '0.4.0';          // schema version this client speaks (major "0")
-var KEY = 'board:lastlook';    // client-side "moved since last look" snapshot
+// client-side "moved since last look" snapshot, scoped per repo+branch so
+// boards over different checkouts never cross-pollinate dots
+function lookKey() {
+  var r = (cur && cur.repo) || {};
+  return 'board:lastlook:' + (r.root || 'fixture') + ':' + (r.branch || '');
+}
 var DEPTHS = ['surface', 'forming', 'bedrock'];
 var KINDS = ['decision', 'question', 'delivery'];
 var STAGES = ['criteria', 'build', 'pr', 'review', 'merged', 'deployed'];
@@ -622,7 +627,7 @@ function load(o) {
 function computeMoved() {
   moved = {};
   var raw = null;
-  try { raw = localStorage.getItem(KEY); } catch (e) {}
+  try { raw = localStorage.getItem(lookKey()); } catch (e) {}
   if (!raw) return; // no prior look recorded: quiet
   var snap;
   try { snap = JSON.parse(raw); } catch (e) { return; }
@@ -635,7 +640,7 @@ function markSeen() {
   try {
     var m = {};
     arr(cur && cur.items).forEach(function (it) { if (it && it.id != null) m[it.id] = JSON.stringify(it); });
-    localStorage.setItem(KEY, JSON.stringify(m));
+    localStorage.setItem(lookKey(), JSON.stringify(m));
   } catch (e) {}
   render();
 }

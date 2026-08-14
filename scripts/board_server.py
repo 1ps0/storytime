@@ -29,6 +29,7 @@ import sys
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fold  # noqa: E402  — sibling module; the fold owns parsing and inputs
@@ -149,6 +150,24 @@ def make_handler(board_dir, bus, repo_root):
         def log_message(self, fmt, *args):
             pass  # guardrail-grade: silent while working
 
+        # 127.0.0.1 binding is not browser isolation: DNS rebinding and
+        # cross-site POSTs reach localhost. Host check kills rebinding on
+        # every request; Origin check stops browser cross-site writes to
+        # the command queue. Absent Origin (curl, local tools) is allowed.
+        def _host_ok(self):
+            host = (self.headers.get("Host") or "").rsplit(":", 1)[0]
+            return host in ("localhost", "127.0.0.1", "[::1]", "::1")
+
+        def _origin_ok(self):
+            origin = self.headers.get("Origin")
+            if not origin:
+                return True
+            try:
+                h = urlsplit(origin).hostname
+            except ValueError:
+                return False
+            return h in ("localhost", "127.0.0.1", "::1")
+
         def translate_path(self, path):
             p = super().translate_path(path)
             if not os.path.exists(p):
@@ -160,6 +179,9 @@ def make_handler(board_dir, bus, repo_root):
             return p
 
         def do_GET(self):
+            if not self._host_ok():
+                self.send_error(403, "non-local Host rejected")
+                return
             if self.path in ("/", "/index.html"):
                 self.send_response(302)
                 self.send_header("Location", "/board.html")
@@ -170,6 +192,12 @@ def make_handler(board_dir, bus, repo_root):
             return super().do_GET()
 
         def do_POST(self):
+            if not self._host_ok():
+                self.send_error(403, "non-local Host rejected")
+                return
+            if not self._origin_ok():
+                return self._json(403, {"ok": False,
+                                        "error": "cross-origin write refused"})
             if self.path != "/command":
                 self.send_error(404)
                 return

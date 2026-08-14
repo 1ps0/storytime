@@ -498,6 +498,11 @@ def fold_repo(root):
                             f"duplicate item id {iid!r}: "
                             f"{seen[iid]} vs {it.get('producer')}")
         seen[iid] = it.get("producer", "?")
+        for o in it.get("options") or []:  # measured facts carry pointers
+            if (isinstance(o, dict) and o.get("mark") == "measured"
+                    and not o.get("pointer")):
+                raise FoldError(it.get("canonical", "<item>"), 0,
+                                f"{iid}: measured option without pointer")
 
     state = {
         "schema_version": SCHEMA_VERSION,
@@ -517,6 +522,9 @@ def fold_repo(root):
             "open_questions": sum(t.get("open_questions", 0) for t in topics),
             "waiting_user": sum(1 for it in items
                                 if it.get("state") == "waiting_user"),
+            "unrealized": sum(1 for it in items
+                              if it.get("kind") == "decision"
+                              and it.get("lifecycle_state") == "sealed"),
         },
         "lenses": lenses,
         "teammates": teammates,
