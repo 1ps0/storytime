@@ -225,7 +225,7 @@
     { "id": "CAND-004", "label": "extract retry into transport module", "origin": "directive:DIR-001", "argument": "Billing's caller-side loop duplicates transport retry with a different backoff — the clean option is one owned module; the easy option that shipped is a copy. TRAN-007's probe is red because of it.", "target_topic": "transport-v2" },
     { "id": "CAND-007", "label": "fold bus consumers into registry", "origin": "directive:DIR-002", "argument": "Three consumers self-register three different ways; a registry makes the fourth consumer a one-liner.", "target_topic": "transport-v2" }
   ],
-  "budget": { "review_debt": 2, "waiting_user": 2, "open_questions": 3, "unrealized": 3 },
+  "budget": { "review_debt": 2, "waiting_user": 3, "open_questions": 3, "unrealized": 3 },
   "lenses": [
     { "id": "arch", "title": "architecture", "kind": "ascii", "content": "  producers ──▶ [ bus ] ──▶ consumers\n     web ─┐              ┌─ billing-sync\n   worker ─┼──▶ topic ───┼─ audit\n     cron ─┘   (single)  └─ notify (candidate)", "source": "transport/README.md:9" },
     { "id": "flow", "title": "changed flow", "kind": "mermaid", "content": "graph LR\n  A[reads] -->|flag on| B[new bus]\n  A -->|flag off| C[old poll]\n  D[writes] -.->|after 24h clean| B", "source": "ops/cutover-plan.md:22" }

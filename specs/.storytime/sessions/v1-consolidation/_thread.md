@@ -27,6 +27,36 @@ open_questions: []
 _Seal commit pending — this thread records them at approval time; the
 sealing commit is the one that captures the plan._
 
+_Backfilled 2026-08-15: V1-005 and V1-008 were resolved in the source
+proposal (docs/proposals/v1-consolidation.md) before this thread
+existed, and are referenced as parents (by V1-031, V1-033) with no
+thread record — surfaced by foldboard's conformance lint as dangling
+parents. Recorded here as historical entries; the remaining
+V1-001..013 backfill is open debt._
+
+### V1-005 — Remembrance is workday-shaped, not topic-lasered
+  At: 2026-04-13
+  Drivers: @user
+  Status: active
+  Lifecycle_state: sealed
+  Backfilled: 2026-08-15 (from docs/proposals/v1-consolidation.md)
+
+Covers the whole session state across however many topics were
+active. "Here's what you were doing today" shape, not "here's
+topic X."
+
+### V1-008 — Unified consolidation format
+  At: 2026-04-13
+  Drivers: @user
+  Status: active
+  Lifecycle_state: sealed
+  Backfilled: 2026-08-15 (from docs/proposals/v1-consolidation.md)
+
+One frontmatter shape for all consolidation artifacts (phase, commit,
+nap, shift, session, compact). Format spec in
+`references/consolidation-format.md`, drawing on the learnings from
+the prior ad-hoc formats scattered across skills.
+
 ### V1-014 — Commit learning: edit-distance, 7 samples / 6-of-7 clean
   At: 2026-04-13
   Drivers: @platform [compass]
