@@ -123,6 +123,13 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   quietboard), the two permanent non-goals, pilot order
   (recommended: kb board-state → harvest+morning → CI probe_results),
   and VERIF-P1.
+- 010 (RULINGS, 2026-08-15) — @user ruled: extraction yes, name
+  foldboard, own project under ~/workspace/projects/, run as subagent
+  — sealed as BOARD-026, execution gated ("no-go until im satisfied").
+  Non-goal 1 accepted. Requested fuller explanations before ruling on:
+  BOARD-002 (frozen grammar — "i might not want this one"), pilot
+  order, VERIF-P1. Explanations delivered in-session; extraction
+  subagent briefed and holding.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -572,6 +579,26 @@ serve stale behavior again, closing the restart ritual that caused
 the "actions offline" confusion twice (OP-002: rituals belong to
 machines). Verified: both identities render; self-reload fired on
 touch and kept serving.
+
+### BOARD-026 — The board extracts as foldboard
+  At: 2026-08-15
+  Drivers: @user
+  Status: active
+  Lifecycle_state: sealed
+  Parent: BOARD-018
+  Edge_type: refines
+
+@user ruled on the spec-breakdown decision list: extraction yes; name
+**foldboard**; destination `~/workspace/projects/foldboard`; execution
+via subagent. Execution is explicitly gated — "no-go until im
+satisfied" — realization waits on @user's satisfaction with the
+BOARD-002, pilot-order, and VERIF-P1 explanations (episode 010).
+Breakdown non-goal 1 (no history/timeseries in state) accepted;
+non-goal 2 (no producer-computed moved) pending the BOARD-002
+explanation, though it stands on BOARD-002's semantics, not its
+freeze. Naming supersedes the projectstate placeholder: spec releases
+read `foldboard/<major>.<minor>`; the schema `$id` updates at
+extraction, not before.
 
 ## Proposals (registered, not sealed)
 
