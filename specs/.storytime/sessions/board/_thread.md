@@ -16,7 +16,6 @@ open_questions:
   - "item update ownership: which persona maintains a given item's freshness (FIX-005 ownership half, v1.2)"
   - "FIX-002 callout target: cites BOARD-006 as authored; substance lives in BOARD-010 — confirm intent or amend"
   - "OP-009 root context: persist in _user.md or hold in source doc only — @user's explicit call (staged flag)"
-  - "VERIF-P1 (storm-and-verification): dot fill = honesty — kill-rate-high solid, low-or-unmeasured hollow. Amends frozen BOARD-002, so @user seals or declines"
 ---
 
 # Thread — board
@@ -130,6 +129,13 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   BOARD-002 (frozen grammar — "i might not want this one"), pilot
   order, VERIF-P1. Explanations delivered in-session; extraction
   subagent briefed and holding.
+- 011 (SATISFIED, 2026-08-15) — @user, on the explanations: BOARD-002
+  stands ("thats fine"); pilot order confirmed 1→2→3 (kb board-state
+  liked, harvest+morning accepted, CI probe overlay wanted); VERIF-P1
+  sealed as BOARD-027 and implemented same commit (0.5.0:
+  probe.verified + hollow-green rendering; command_templates lands as
+  the extraction seam). Both breakdown non-goals accepted. The
+  BOARD-026 gate lifts: foldboard extraction subagent launched.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -599,6 +605,30 @@ explanation, though it stands on BOARD-002's semantics, not its
 freeze. Naming supersedes the projectstate placeholder: spec releases
 read `foldboard/<major>.<minor>`; the schema `$id` updates at
 extraction, not before.
+
+### BOARD-027 — Dots earn solidity
+  At: 2026-08-15
+  Drivers: @user
+  Status: active
+  Lifecycle_state: realized
+  Realized_at: b6b1c2e
+  Parent: BOARD-002
+  Edge_type: refines
+  Callout-> storm-and-verification/VERIF-P1 (related)
+
+@user sealed VERIF-P1 ("ok to seal it") — the first amendment to
+frozen BOARD-002, granted through the front door. Probe fill is
+verification honesty: a green dot renders SOLID only when the check
+itself has been independently measured (mutation-tested, high kill
+rate — `probe.verified: true`); green without it renders HOLLOW —
+passes, but unproven. Red stays solid (a firing probe is its own
+measurement). Generalizes OP-008's fill-as-epistemic-status from
+options to probes; grammar stays one legend line (fill semantics live
+in the glossary and tooltips). Contract: additive `probe.verified`
+(0.5.0). The kill-rate threshold policy belongs to whoever measures —
+the CI producer (pilot 3) asserts `verified`; fold and client carry
+the assertion, never the policy. Until measurement exists, every
+green renders hollow, which is simply the truth.
 
 ## Proposals (registered, not sealed)
 

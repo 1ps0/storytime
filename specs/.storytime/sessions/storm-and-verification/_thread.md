@@ -285,7 +285,8 @@ else goes honestly gray; recovery includes the catch-up pass
 ## Proposals (registered, not sealed)
 
 ### VERIF-P1 — Dots earn solidity
-  Lifecycle_state: proposed
+  Lifecycle_state: sealed
+  Sealed-via: board/BOARD-027 (2026-08-15, @user)
   Callout-> board/BOARD-002 (affects)
 
 Grammar amendment from VERIF-003: kill-rate high → solid green;
