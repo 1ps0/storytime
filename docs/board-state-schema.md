@@ -65,7 +65,10 @@ itemized question items with `identity: "derived"` (BOARD-022..024).
 `probe.verified` (BOARD-027: dots earn solidity) and top-level
 `command_templates{}` (producers declare their own invocation strings;
 clients substitute `{id}`/`{topic}` and fall back to built-ins when
-absent). All additive.
+absent). 0.6.0 added `Topic.retired_ids` — referential closure:
+retired/superseded items are excluded from `items[]` by design, so
+edges may legitimately resolve into history; topics list those ids and
+consumers resolve refs against items ∪ retired_ids. All additive.
 
 `repo` is the board's identity: clients MUST render `repo.name` in the
 header and the page title (multiple boards over different repos must
@@ -107,7 +110,8 @@ fixture that could be mistaken for real work is a lying board).
   "phase": "BUILD",
   "last_commit": "175a104",
   "open_questions": 3,
-  "retired": 1
+  "retired": 1,
+  "retired_ids": ["RATE-004"]
 }
 ```
 

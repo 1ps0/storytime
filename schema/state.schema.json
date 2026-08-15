@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://1ps0.github.io/foldboard/schema/0.5/state.schema.json",
-  "title": "Project State (state.json) — draft for foldboard/0.5",
+  "$id": "https://1ps0.github.io/foldboard/schema/0.6/state.schema.json",
+  "title": "Project State (state.json) — draft for foldboard/0.6",
   "description": "Machine-readable half of the project-state contract. The prose half (docs/board-state-schema.md) carries the behavioral MUSTs this schema cannot express: determinism, canonical serialization, atomicity, fail-loud/degrade-quiet, one-reducer, client rendering obligations. Extension fields use the x- prefix; everything un-prefixed is reserved for the spec.",
   "type": "object",
   "required": ["schema_version"],
@@ -76,7 +76,8 @@
         "phase": { "type": "string" },
         "last_commit": { "type": "string" },
         "open_questions": { "type": "integer", "minimum": 0 },
-        "retired": { "type": "integer", "minimum": 0 }
+        "retired": { "type": "integer", "minimum": 0 },
+        "retired_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } }
       }
     },
     "probe": {

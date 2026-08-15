@@ -1,10 +1,10 @@
 {
-  "schema_version": "0.5.0",
+  "schema_version": "0.6.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
   "repo": { "name": "transport-demo", "root": "(fixture — demo fiction)", "branch": "" },
   "topics": [
-    { "id": "transport-v2", "title": "transport v2 cutover", "phase": "BUILD", "last_commit": "f1c7a9e", "open_questions": 2, "retired": 1 },
+    { "id": "transport-v2", "title": "transport v2 cutover", "phase": "BUILD", "last_commit": "f1c7a9e", "open_questions": 2, "retired": 1, "retired_ids": ["TRAN-005"] },
     { "id": "billing-sync", "title": "billing sync", "phase": "PLAN", "last_commit": "d4b2e01", "open_questions": 1, "retired": 0 },
     { "id": "opsbox", "title": "opsbox (producer demo)", "phase": "LIVE", "last_commit": "", "open_questions": 0, "retired": 0 }
   ],

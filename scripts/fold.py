@@ -34,8 +34,11 @@ import sys
 # item action{}, itemized question items with derived identity
 # (BOARD-022..024). 0.4: + repo{} identity (BOARD-025). 0.5:
 # + probe.verified (BOARD-027, dots earn solidity) + command_templates
-# (client de-coupled from producer invocation strings). All additive.
-SCHEMA_VERSION = "0.5.0"
+# (client de-coupled from producer invocation strings). 0.6:
+# + Topic.retired_ids — referential closure: refs may resolve into
+# history (retired items are excluded from items[] by design).
+# All additive.
+SCHEMA_VERSION = "0.6.0"
 
 DECISION_RE = re.compile(r"^### ([A-Z][A-Za-z0-9.]*-[A-Za-z0-9]+) — (.+)$")
 FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z_-]*): ?(.*)$")
@@ -168,6 +171,7 @@ def parse_thread(path):
         "last_commit": str(fm.get("last_commit") or ""),
         "open_questions": len(open_qs),
         "retired": 0,
+        "retired_ids": [],
     }
     return topic, parse_decisions(lines, path, fm_end), path, open_qs
 
@@ -416,6 +420,7 @@ def fold_repo(root):
     for b in all_blocks:
         if b["id"] in superseded:
             by_topic[b["topic"]]["retired"] += 1
+            by_topic[b["topic"]]["retired_ids"].append(b["id"])
             continue
         lifecycle = b["fields"].get("Lifecycle_state", "sealed")
         if lifecycle not in DEPTH_BY_LIFECYCLE:
@@ -452,6 +457,10 @@ def fold_repo(root):
             },
             "track": None,
         })
+
+    for t in topics:
+        if "retired_ids" in t:
+            t["retired_ids"].sort()
 
     items.extend(q_items)
     for it in items:
