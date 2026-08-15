@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
   "repo": { "name": "transport-demo", "root": "(fixture — demo fiction)", "branch": "" },
@@ -21,7 +21,7 @@
       "origin": "@owner [keel]",
       "owner": null,
       "lifecycle_state": "realized",
-      "probe": { "status": "green", "pointer": "transport/bus.py:41" },
+      "probe": { "status": "green", "verified": true, "pointer": "transport/bus.py:41" },
       "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#TRAN-001",
       "summary": "One bus carries all transport events; consumers filter. Realized at cutover commit; invariant probed on every change.",
       "options": [],

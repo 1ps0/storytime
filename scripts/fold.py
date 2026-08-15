@@ -32,8 +32,10 @@ import sys
 
 # 0.2: + commands[] (BOARD-021). 0.3: + producers[]/producer stamps,
 # item action{}, itemized question items with derived identity
-# (BOARD-022..024). 0.4: + repo{} identity (BOARD-025). All additive.
-SCHEMA_VERSION = "0.4.0"
+# (BOARD-022..024). 0.4: + repo{} identity (BOARD-025). 0.5:
+# + probe.verified (BOARD-027, dots earn solidity) + command_templates
+# (client de-coupled from producer invocation strings). All additive.
+SCHEMA_VERSION = "0.5.0"
 
 DECISION_RE = re.compile(r"^### ([A-Z][A-Za-z0-9.]*-[A-Za-z0-9]+) — (.+)$")
 FIELD_RE = re.compile(r"^  ([A-Za-z][A-Za-z_-]*): ?(.*)$")
@@ -516,6 +518,15 @@ def fold_repo(root):
                                               str(x.get("id")))),
         "directives": directives,
         "commands": parse_commands(os.path.join(st_root, "commands.jsonl")),
+        "command_templates": {
+            "seal": "/storytime-qa seal {id}",
+            "add-option": "/storytime-qa add option to {id}",
+            "accept-candidate": "/storytime-consolidate accept {id}",
+            "edit-item": "/storytime-qa edit {id}",
+            "add-directive": "/storytime-qa add directive",
+            "park": "/storytime-remember nap",
+            "request-review": "/storytime-lint {topic}",
+        },
         "guardrail_blocks": blocks_out,
         "candidates": candidates,
         "budget": {

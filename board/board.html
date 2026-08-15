@@ -169,6 +169,8 @@ header {
 .p-dot { position: absolute; bottom: 6px; left: 6px; width: 6px; height: 6px; border-radius: 50%; }
 .p-green { background: var(--green); }
 .p-red { background: var(--red); box-shadow: 0 0 5px rgba(248,81,73,.6); }
+.p-dot.p-hollow { background: transparent; border: 1.5px solid var(--green); }
+.p-ind.ph { background: transparent; border: 1.5px solid var(--green); }
 .acc { margin-top: 6px; font-size: 10px; letter-spacing: 2px; line-height: 1; padding-left: 6px; }
 .acc .g { color: var(--green); }
 .acc .r { color: var(--red); margin-left: 4px; }
@@ -274,7 +276,7 @@ header {
 
 <script type="application/json" id="state">
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "provenance": "fixture",
   "generated_from": "fixture0",
   "repo": { "name": "transport-demo", "root": "(fixture — demo fiction)", "branch": "" },
@@ -296,7 +298,7 @@ header {
       "origin": "@owner [keel]",
       "owner": null,
       "lifecycle_state": "realized",
-      "probe": { "status": "green", "pointer": "transport/bus.py:41" },
+      "probe": { "status": "green", "verified": true, "pointer": "transport/bus.py:41" },
       "canonical": "specs/.storytime/sessions/transport-v2/_thread.md#TRAN-001",
       "summary": "One bus carries all transport events; consumers filter. Realized at cutover commit; invariant probed on every change.",
       "options": [],
@@ -518,7 +520,7 @@ header {
 (function () {
 'use strict';
 
-var SPEAKS = '0.4.0';          // schema version this client speaks (major "0")
+var SPEAKS = '0.5.0';          // schema version this client speaks (major "0")
 // client-side "moved since last look" snapshot, scoped per repo+branch so
 // boards over different checkouts never cross-pollinate dots
 function lookKey() {
@@ -557,7 +559,7 @@ var HELP = {
     'dashed outline': 'A candidate: an idea waiting for your yes or no.',
     'blue dot': 'Changed since you last pressed “mark seen”.',
     '● / ○': 'Solid dot: a measured fact, with a pointer to the evidence. Hollow dot: a judgment call.',
-    'probe': 'An automatic check that a decision still holds true in the code. Green = holds, red = broken.',
+    'probe': 'An automatic check that a decision still holds true in the code. Red = broken. Solid green = verified with teeth (the check itself was independently tested and catches breakage). Hollow green = passes, but unproven.',
     'drill': 'Click any card to read its full story from the written record. Nothing is made up on the spot.',
     'fold': 'The rebuild of this board from the repo’s records. The board only ever shows what’s written down.',
     'directive': 'A standing instruction that keeps generating suggestions. “fired 3×” means it’s alive.',
@@ -567,6 +569,14 @@ var HELP = {
     'routine / sensitive': 'Routine actions can be one click — they run through the producing project’s own audited path. Sensitive actions are deliberately never a button: the password step in your terminal IS the safety, so the card hands you the command instead.'
   }
 };
+
+function invocation(name, id, topic, fallback) {
+  // producers declare their own invocation strings (0.5.0); built-ins
+  // are the storytime fallback so older states keep working
+  var t = cur && cur.command_templates && cur.command_templates[name];
+  if (!t) return fallback;
+  return t.replace(/\{id\}/g, id || '').replace(/\{topic\}/g, topic || id || '');
+}
 
 function offlineCap() {
   return liveMode ? '' :
@@ -724,7 +734,7 @@ function renderDirectives() {
         '</div></div>';
     }).join('');
   }
-  html += '<button class="cmd tiny" data-cmd="add-directive" data-copy="/storytime-qa add directive" title="' + esc(HELP.commands['add-directive']) + '">+ directive</button>';
+  html += '<button class="cmd tiny" data-cmd="add-directive" data-copy="' + esc(invocation('add-directive', '', '', '/storytime-qa add directive')) + '" title="' + esc(HELP.commands['add-directive']) + '">+ directive</button>';
   $('#dirs').innerHTML = html;
 }
 
@@ -785,7 +795,7 @@ function cardHTML(it) {
     (moved[it.id] ? '<span class="m-dot"></span>' : '') +
     '<div class="label">' + (cracked ? '<span class="crack">⚡</span>' : '') + esc(it.label || it.id || '') + '</div>' +
     (tags ? '<div class="tags">' + tags + '</div>' : '') + acc +
-    (probe === 'green' ? '<span class="p-dot p-green"></span>' :
+    (probe === 'green' ? '<span class="p-dot p-green' + (it.probe && it.probe.verified ? '' : ' p-hollow') + '" title="' + (it.probe && it.probe.verified ? 'verified with teeth' : 'passes, unproven') + '"></span>' :
      probe === 'red' ? '<span class="p-dot p-red"></span>' : '') +
     '</div>';
 }
@@ -914,8 +924,10 @@ function drillItem(it) {
   if (it.canonical) h += sec('canonical', '<div class="canon">' + esc(it.canonical) + '</div>');
   var p = it.probe;
   if (p && p.status && p.status !== 'none') {
-    h += sec('probe', '<div class="dprobe"><span class="p-ind ' + (p.status === 'green' ? 'pg' : 'pr') + '"></span>' +
-      esc(p.status) + (p.pointer ? ' <span class="ptr">' + esc(p.pointer) + '</span>' : '') + '</div>');
+    var pv = p.status === 'green' && p.verified;
+    h += sec('probe', '<div class="dprobe"><span class="p-ind ' + (p.status === 'green' ? (pv ? 'pg' : 'pg ph') : 'pr') + '"></span>' +
+      esc(p.status + (p.status === 'green' ? (pv ? ' · verified with teeth' : ' · passes, unproven') : '')) +
+      (p.pointer ? ' <span class="ptr">' + esc(p.pointer) + '</span>' : '') + '</div>');
   }
   var act = it.action;
   if (act && act.verb) {
@@ -933,14 +945,14 @@ function drillItem(it) {
   }
   var id = it.id || '', topic = it.topic || '';
   var cmds = [
-    ['seal', '/storytime-qa seal ' + id],
-    ['add-option', '/storytime-qa add option to ' + id]
+    ['seal', invocation('seal', id, topic, '/storytime-qa seal ' + id)],
+    ['add-option', invocation('add-option', id, topic, '/storytime-qa add option to ' + id)]
   ];
-  if (it.is_candidate) cmds.push(['accept-candidate', '/storytime-consolidate accept ' + id]);
+  if (it.is_candidate) cmds.push(['accept-candidate', invocation('accept-candidate', id, topic, '/storytime-consolidate accept ' + id)]);
   cmds.push(
-    ['edit-item', '/storytime-qa edit ' + id],
-    ['park', '/storytime-remember nap'],
-    ['request-review', '/storytime-lint ' + (topic || id)]
+    ['edit-item', invocation('edit-item', id, topic, '/storytime-qa edit ' + id)],
+    ['park', invocation('park', id, topic, '/storytime-remember nap')],
+    ['request-review', invocation('request-review', id, topic, '/storytime-lint ' + (topic || id))]
   );
   var queuedHere = pendingByItem[id] || [];
   h += sec(liveMode ? 'actions' : 'actions — offline: buttons copy, they don’t run',
@@ -965,7 +977,7 @@ function drillCand(c) {
   if (c.argument) h += sec('argument', '<div class="dsum">' + esc(c.argument) + '</div>');
   h += sec(liveMode ? 'actions' : 'actions — offline: buttons copy, they don’t run',
     offlineCap() + '<div class="cmdrow"><button class="cmd" data-cmd="accept-candidate" data-item="' + esc(c.id || '') + '" data-copy="' +
-    esc('/storytime-consolidate accept ' + (c.id || '')) + '">accept-candidate</button></div>' +
+    esc(invocation('accept-candidate', c.id || '', c.target_topic || '', '/storytime-consolidate accept ' + (c.id || ''))) + '">accept-candidate</button></div>' +
     '<div class="cap">' + esc(HELP.commands['accept-candidate']) + '</div>');
   showDrill(h);
 }

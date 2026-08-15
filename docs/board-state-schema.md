@@ -61,7 +61,11 @@ directives (BOARD-016) — and is gitignored.
 Version history: 0.2.0 added `commands[]` (BOARD-021). 0.3.0 added
 `producers[]`, per-entity `producer` stamps, `Item.action`, and
 itemized question items with `identity: "derived"` (BOARD-022..024).
-0.4.0 added `repo{}` identity (BOARD-025). All additive.
+0.4.0 added `repo{}` identity (BOARD-025). 0.5.0 added
+`probe.verified` (BOARD-027: dots earn solidity) and top-level
+`command_templates{}` (producers declare their own invocation strings;
+clients substitute `{id}`/`{topic}` and fall back to built-ins when
+absent). All additive.
 
 `repo` is the board's identity: clients MUST render `repo.name` in the
 header and the page title (multiple boards over different repos must
@@ -129,7 +133,7 @@ kinds widen per BOARD-013 as identity (FIX-000) arrives.
   "origin": "@user" | "@owner [anchor]" | "probe" | "ci",
   "owner": null,
   "lifecycle_state": "proposed" | "focused" | "sealed" | "realized",
-  "probe": { "status": "green" | "red" | "none", "pointer": null },
+  "probe": { "status": "green" | "red" | "none", "verified": false, "pointer": null },
   "canonical": "specs/.storytime/sessions/board/_thread.md#BOARD-010",
   "summary": "one to three sentences for the drill panel",
   "options": [ { "text": "...", "mark": "measured" | "judgment", "pointer": "file:line" | null } ],
@@ -166,6 +170,13 @@ Field rules:
   `pointer` is invalid; the fold rejects it.
 - `canonical` — drill target (BOARD-004): file + anchor of the
   authoritative entry. Drill retrieves; it never regenerates.
+- `probe.verified` (BOARD-027) — dots earn solidity: a green probe
+  renders SOLID only when `verified: true` (the check itself has been
+  independently measured — mutation-tested with a high kill rate);
+  green without it renders HOLLOW (passes, but unproven). Red is its
+  own measurement and stays solid. The kill-rate threshold policy
+  belongs to whoever measures (the CI producer asserts `verified`);
+  the fold and client carry the assertion, never the policy.
 - `owner` — FIX-005 (v1.2); null until ownership lands.
 - `producer` — which system emitted this entity (stamped by the fold;
   `"storytime"` for thread-derived). Clients show non-storytime
