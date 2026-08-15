@@ -136,6 +136,21 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   probe.verified + hollow-green rendering; command_templates lands as
   the extraction seam). Both breakdown non-goals accepted. The
   BOARD-026 gate lifts: foldboard extraction subagent launched.
+- 012 (EXTRACTED, 2026-08-15) — BOARD-026 realized:
+  ~/workspace/projects/foldboard exists as its own repo (6 local
+  commits, HEAD 96aa535; no remote — publishing is @user's trigger).
+  Contents: spec/ (schema/security/transport/versioning, [CORE] vs
+  [PRODUCER PROFILE: storytime] split, laws restated as FB-001..005
+  with zero storytime-internal ids), schema + fixtures (1 valid, 3
+  invalid with x-expect), conformance/validate.py (verified: correct
+  pass/fail split; 7 behavioral assertions TODO), reference client
+  (byte-copy + provenance comment), reducer-agnostic server (--reducer
+  subprocess with exit-2 file:line contract, --state byte-compare,
+  --ui fallback, --queue/--commands config; Host/Origin guards and
+  self-reload kept). Independently verified: conformance green,
+  storytime tree untouched. Open: cut foldboard/0.5 frozen release;
+  plugin vendored-vs-pinned board copy; cross-CI conformance tether.
+  Next per confirmed pilot order: kickbox kb board-state.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -590,7 +605,8 @@ touch and kept serving.
   At: 2026-08-15
   Drivers: @user
   Status: active
-  Lifecycle_state: sealed
+  Lifecycle_state: realized
+  Realized_at: foldboard@96aa535
   Parent: BOARD-018
   Edge_type: refines
 
