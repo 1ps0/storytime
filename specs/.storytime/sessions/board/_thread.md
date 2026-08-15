@@ -151,6 +151,21 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   storytime tree untouched. Open: cut foldboard/0.5 frozen release;
   plugin vendored-vs-pinned board copy; cross-CI conformance tether.
   Next per confirmed pilot order: kickbox kb board-state.
+- 013 (CONFORMANT, 2026-08-15) — the extraction agent continued
+  unprompted past its report and closed its own open items: full
+  behavioral conformance suite (all 7 assertions executable; cheat-mode
+  toy reducer proves the tests have teeth) and the frozen foldboard/0.5
+  release (sha256-pinned, tagged). First real run of the suite against
+  our fold found three true defects: fixture budget.waiting_user
+  undercounted (fixed, 3), fail-loud named an item's canonical instead
+  of the input file (fixed — _check_options at both source sites), and
+  dangling parents V1-005/V1-008 (backfilled into the v1-consolidation
+  thread from the proposal as marked historical entries; V1-001..013
+  full backfill remains open debt). The last failure exposed a genuine
+  contract gap — refs that resolve into history — closed as 0.6.0:
+  Topic.retired_ids referential closure (storytime 86a0d6d + b0f669b;
+  foldboard draft 210e1da). Suite verdict: 14/14 against the live
+  fold. foldboard remains local-only; publishing is @user's trigger.
 
 ## Decisions (append-only, pinned to commit)
 
