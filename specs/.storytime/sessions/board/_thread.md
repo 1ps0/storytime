@@ -9,8 +9,8 @@ last_consolidation:
   at: 2026-08-02T14:05
 last_completed_phase: IDENTITY
 last_commit: 5631839
-remembrance_staged: false
-remembrance_path: null
+remembrance_staged: true
+remembrance_path: ../../remembrance.md
 open_questions:
   - "heartbeat granularity: which ambient events beyond the six scales fire the fold (every commit? every test run? every N minutes?)"
   - "item update ownership: which persona maintains a given item's freshness (FIX-005 ownership half, v1.2)"
@@ -730,3 +730,9 @@ Pending @user: OP-009 root-context persistence in _user.md; FIX-002
 callout target (BOARD-006 as authored vs BOARD-010 substance).
 Config unchanged until their moments: `post_commit_hook: disabled`,
 `dreams_enabled: false` (tray is post-BOARD-012).
+
+## Consolidation — compact
+  At: 2026-08-16T01:55
+  Trigger: user-requested
+  Remembrance finalized: remembrance.md
+  Loader directive: first-read post-/compact
