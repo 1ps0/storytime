@@ -166,6 +166,25 @@ Unification Debts section of `BACKLOG.md` (FIX-000..005).
   Topic.retired_ids referential closure (storytime 86a0d6d + b0f669b;
   foldboard draft 210e1da). Suite verdict: 14/14 against the live
   fold. foldboard remains local-only; publishing is @user's trigger.
+- 014 (WIRED, 2026-08-16) — post-compact wakeup: remembrance loaded
+  per protocol (staged 2026-08-16T01:55, committed 17feaf9), suite
+  re-proven green at foldboard 210e1da. @user set three legs. (1)
+  Storytime-side wiring: scripts/check_conformance.py lands as the
+  cross-CI tether's local half — runs foldboard's reducer_suite
+  against scripts/fold.py (14/14 live), exit 3 skip when no checkout;
+  the CI half waits on publish. Plugin board-copy posture registered
+  as BOARD-P6, pending @user. BOARD-026's realization stamp was
+  already on the block (remembrance's "not yet recorded" was stale —
+  source artifact won). (2) foldboard 0.6 draft prose closed:
+  Topic.retired_ids in spec/schema.md §3.2/§5.1/§6 + Episode 002
+  there (foldboard 30f8104); freeze-or-stay-draft is @user's call.
+  (3) kickbox gets the contract as a brief only —
+  specs/proposals/board-state-producer.md in kickbox, answering
+  board-producer.md's three asks (producers.d, Item.action,
+  question/candidate items — all law now) and correcting one (moved
+  is client-side, FB-001). Standing rule from @user: never build in
+  kickbox directly; briefs link back, kickbox's own sessions
+  implement.
 
 ## Decisions (append-only, pinned to commit)
 
@@ -691,6 +710,17 @@ prose-canonical. Decisions and items first; narrative stays prose.
   Lifecycle_state: retired
   Superseded-by: BOARD-012
 
+### BOARD-P6 — Plugin board copy: vendored until published, then pinned
+  Lifecycle_state: proposed
+  Callout-> foldboard/FB-005 (related)
+
+Storytime stays the origin of board/board.html while foldboard has no
+remote — pin-by-release is impossible against an unpublished repo, so
+foldboard's client is the synced copy (its provenance header points
+back here). Flip criterion: foldboard published and its first release
+consumed — canonicality inverts, storytime vendors a release-pinned
+copy with the release sha recorded. @user seals the flip.
+
 ## Cohort state
 
 Full cohort absorbed; no specialists recruited — material is within
@@ -727,7 +757,10 @@ BOARD-013's widening order:
    fold output instead of raw grep.
 
 Pending @user: OP-009 root-context persistence in _user.md; FIX-002
-callout target (BOARD-006 as authored vs BOARD-010 substance).
+callout target (BOARD-006 as authored vs BOARD-010 substance);
+BOARD-P6 plugin-copy posture; foldboard publish + tag push (unlocks
+the CI-tether remote half and the schema $id URL); foldboard 0.6
+freeze-or-stay-draft.
 Config unchanged until their moments: `post_commit_hook: disabled`,
 `dreams_enabled: false` (tray is post-BOARD-012).
 
